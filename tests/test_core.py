@@ -3,7 +3,7 @@
 from core import orders as O
 from core import pricing as P
 from core.catalog import PRODUCTS, find_by_url, get_product, search
-from core.supplier_score import supplier_score
+from core.supplier_score import trust_for, trust_for_search
 
 
 # ---------------------------------------------------------------- catalog
@@ -62,16 +62,30 @@ def test_fx_refresh_never_blocks_and_falls_back(monkeypatch):
 
 
 # ---------------------------------------------------------------- supplier score
-def test_supplier_score_reasons():
-    score, reasons = supplier_score(get_product("WB-04")["supplier"])
-    assert score == 31
-    assert ("High dispute rate", -10) in reasons
-    score, reasons = supplier_score(get_product("TB-04")["supplier"])
-    assert any("not available" in r for r, _ in reasons)
-    # a live listing that only tells the shop name: no score, not a neutral-looking 50
-    assert supplier_score({"name": "某店", "type": None, "years": None, "badges": []})[0] is None
-    assert supplier_score({"name": "某店", "years": 6, "badges": []})[0] is None
-    assert supplier_score({"type": "factory", "years": 6, "badges": []})[0] == 70
+def test_scoring_spec_cases():
+    from core import scoring
+    scoring.run_tests()                    # the five cases from the spec + shared rules (python core/scoring.py)
+
+
+def test_trust_for_catalog_products():
+    mg01 = trust_for(get_product("MG-01"), 3.1)          # 1688, 实地认证, 18 years, 45% repurchase
+    assert mg01["band"] == "Trusted" and mg01["coverage_pct"] == 100
+    wb04 = trust_for(get_product("WB-04"), 6.3)          # 1688 trader, only 诚信通, 2 years, 9% repurchase
+    assert wb04["band"] == "High risk"
+    assert "Only 诚信通 membership" in [m["reason"] for m in wb04["metrics"]]
+    jd = trust_for(get_product("MG-03"), 62)             # JD self-operated: seller type counts as brand official
+    assert jd["metrics"][4]["value"] == 100 and jd["metrics"][4]["reason"] == "Brand official store"
+    # a live listing that only tells the shop name: not enough data, no neutral-looking number
+    bare = trust_for({"id": "x", "platform": "Yiwugo", "supplier": {"name": "某店"}})
+    assert bare["score"] is None and bare["band"] == "Not enough data"
+
+
+def test_price_red_flag_only_within_the_same_platform():
+    def taobao(pid, price):
+        return ({"id": pid, "platform": "Taobao", "supplier": {"store_type": "tmall", "years": 5}}, price)
+    res = trust_for_search([taobao("a", 10), taobao("b", 11), taobao("c", 4),
+                            ({"id": "d", "platform": "1688", "supplier": {"badges_cn": ["实力商家"], "years": 5}}, 1)])
+    assert res["c"]["penalties"] and not res["a"]["penalties"] and not res["d"]["penalties"]
 
 
 # ---------------------------------------------------------------- orders

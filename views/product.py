@@ -5,11 +5,12 @@ import pandas as pd
 import streamlit as st
 
 from components.state import S, go
-from components.ui import (NA, cny, esc, fx_line, image_html, kv_table, receipt, sample_banner, score_pill,
-                           search_link, tag, units, val)
+from components.ui import (NA, cny, esc, fx_line, image_html, kv_table, receipt, sample_banner, search_link,
+                           tag, trust_bars, trust_pill, units, val)
 from core import messages as M
 from core.pricing import COUNTRIES, DUTY, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes, delivered, fx_rate
-from core.supplier_score import supplier_score
+from core.supplier_score import raw_fields, trust_for
+from views.faq import how_we_score_html
 from views.live import find_product, set_buyer_details
 
 
@@ -183,34 +184,46 @@ def render_detail(p, source="catalog"):
     # ---- 3. Supplier trust
     st.subheader("3 · Can you trust this seller?")
     with st.container(border=True):
-        score, reasons = supplier_score(s)
-        c1, c2 = st.columns([1.2, 1])
+        # the score from the current search (same-platform sales and prices); alone when opened directly
+        r = (S.get("trust") or {}).get(key) or trust_for(p, d["unit_cny"])
+        c1, c2 = st.columns([1, 1.25], gap="large")
         with c1:
+            num = (f"<span class='trust-num'>{r['score']}<small>/100</small></span>" if r["score"] is not None
+                   else "<span class='trust-num' style='color:#9AA8B6'>n/a</span>")
+            st.markdown(f"<div class='trust-head'>{num}{trust_pill(r, big=True)}</div>", unsafe_allow_html=True)
+            known = len(r["metrics"]) - len(r["missing"])
+            st.markdown(f"<div class='muted'>Based on {known} of {len(r['metrics'])} metrics "
+                        f"({r['coverage_pct']}% of the weights)</div>", unsafe_allow_html=True)
+            if r["score"] is None:
+                st.markdown(f"<div class='muted'>Missing: {esc(', '.join(r['missing']))}</div>",
+                            unsafe_allow_html=True)
+            for pen in r["penalties"]:
+                st.markdown(f"<div class='penalty'>⚠️ {esc(pen)} (−10)</div>", unsafe_allow_html=True)
+
             name = s.get("name") or s.get("name_cn")
             st.markdown(f"#### {esc(name) or NA}")
-            if s.get("name") and s.get("name_cn"):
+            if s.get("name") and s.get("name_cn") and s["name"] != s["name_cn"]:
                 st.markdown(f"<span class='muted'>{esc(s['name_cn'])}</span>", unsafe_allow_html=True)
-            years = f"{s['years']} years" if s.get("years") is not None else None
-            badges = " ".join(tag(esc(b), "est") for b in s.get("badges") or []) or None
+            raw = raw_fields(p)
+            badges = " ".join(tag(esc(b), "est") for b in raw["badges"] or []) or None
+            scores5 = raw["service_scores_5pt"]
             st.markdown(kv_table([
                 ("City", val(esc(s.get("city")) or None)),
-                ("Type", val((s.get("type") or "").capitalize() or None)),
-                ("Years active", val(years)),
+                ("Store type", val(esc((raw["store_type"] or "").replace("_", " ")) or None)),
+                ("Seller type", val(esc((raw["seller_type"] or "").replace("_", " ")) or None)),
+                ("Years active", val(None if raw["years_active"] is None else f"{raw['years_active']:g}")),
                 ("Badges", val(badges)),
-                ("Response rate", val(None if s.get("response_rate") is None else f"{s['response_rate']:.0f}%")),
-                ("Repeat buyers", val(None if s.get("repeat_buyer_rate") is None else f"{s['repeat_buyer_rate']:.0f}%")),
+                ("Seller credit", val(esc((raw["taobao_credit_level"] or "").replace("_", " ")) or None)),
+                ("Service ratings", val(" / ".join(f"{x:g}" for x in scores5) if scores5 else None)),
+                ("Positive reviews", val(None if raw["positive_review_pct"] is None else f"{raw['positive_review_pct']:g}%")),
+                ("Repurchase rate", val(None if raw["repurchase_rate_pct"] is None else f"{raw['repurchase_rate_pct']:g}%")),
+                ("Sales / orders", val(None if raw["sales_count"] is None else f"{raw['sales_count']:,}")),
             ]), unsafe_allow_html=True)
         with c2:
-            st.markdown(f"**Trust score**<br>{score_pill(score)}", unsafe_allow_html=True)
-            st.caption("Starts at 50 and moves with each fact we know about the seller — every reason is "
-                       "listed below. Sample rules for now.")
-            for text, pts in reasons:
-                if pts > 0:
-                    st.markdown(f"✅ {text} (**+{pts}**)")
-                elif pts < 0:
-                    st.markdown(f"⚠️ {text} (**{pts}**)")
-                else:
-                    st.markdown(f"<span class='muted'>• {text}</span>", unsafe_allow_html=True)
+            st.markdown("**Why this score**" + trust_bars(r), unsafe_allow_html=True)
+            st.caption("A summary of public signals from the listing and the platform, not an official "
+                       "verification.")
+        st.markdown("**How we score**" + how_we_score_html(), unsafe_allow_html=True)
 
     # ---- 4. Contact
     st.subheader("4 · Contact the supplier")

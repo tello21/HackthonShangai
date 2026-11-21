@@ -57,6 +57,7 @@ def test_how_it_works_section_on_home(no_ai):
     t = page_text(run_app({"view": "home"}))
     assert "How SourceScan works" in t
     for q in ("How does the search work?", "How is the trust score calculated?",
-              "How is the delivered price calculated?", "Why does a seller show “Trust n/a”?"):
+              "How is the delivered price calculated?", "What happens when data is missing?",
+              "What is the price red flag?", "Is the trust score an official verification?"):
         assert q in t
     assert "Know who you're buying from" in t and "Talk and order" not in t

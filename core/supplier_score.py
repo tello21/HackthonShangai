@@ -1,119 +1,54 @@
-"""Supplier reliability score, 0-100, with the reasons behind it.
+"""Bridge between our product cards and core/scoring.py.
 
-SAMPLE rule-based rating for the demo. Starts at 50 and adds or removes points:
-  seller type   factory +10, store +3, middleman -5
-  years active  >=10 +15, >=5 +10, >=2 +4, <2 -5
-  badges        verified +8, trade assurance +7, onsite inspection +5, brand store +8,
-                platform self-operated +10, source factory +5, TrustPass +3
-  response rate >=90% +5, <75% -5
-  repeat buyers >=30% +5, <10% -3
-  disputes      high -10, medium -3, low +2
-Missing data scores 0 and is listed as "not available". Clamped to 0-100.
-Replace supplier_score() with the real model when it is ready: the UI only uses
-supplier_score(), score_colour() and score_label().
+Product cards come from the sample catalog, live Yiwugo listings and Link paste. This
+module only maps their supplier data to scoring.py's raw fields; the score itself is
+computed by scoring.py (pure rules, see that file).
 """
 
-BADGE_POINTS = {"Verified supplier": 8, "Trade assurance": 7, "Onsite inspection": 5,
-                "Brand official store": 8, "Platform self-operated": 10, "Source factory": 5,
-                "TrustPass member": 3}
+from core import scoring
+
+# English badge names used by older data / the rule-based parser -> the platform's Chinese badge
+EN_TO_CN_BADGE = {"Verified supplier": "实力商家", "Onsite inspection": "实地认证", "Source factory": "超级工厂",
+                  "TrustPass member": "诚信通", "In-depth factory audit": "深度验厂", "Super factory": "超级工厂"}
+OLD_TYPE = {"factory": "factory", "middleman": "trader"}
 
 
-MIN_KNOWN_FACTORS = 2
+def raw_fields(p, unit_price=None):
+    """scoring.py input for one product card (None where the listing doesn't say)."""
+    s = p.get("supplier") or {}
+    badges = s.get("badges_cn")
+    if badges is None and s.get("badges"):
+        badges = [EN_TO_CN_BADGE[b] for b in s["badges"] if b in EN_TO_CN_BADGE] or None
+    store_type = s.get("store_type")
+    if store_type is None and p.get("platform") == "JD":
+        if "Platform self-operated" in (s.get("badges") or []):
+            store_type = "jd_self_operated"
+        elif "Brand official store" in (s.get("badges") or []):
+            store_type = "jd_flagship"
+    repurchase = s.get("repurchase_rate_pct")
+    if repurchase is None:
+        repurchase = s.get("repeat_buyer_rate")
+    return {
+        "id": p.get("id"),
+        "platform": p.get("platform"),
+        "badges": badges,
+        "store_type": store_type,
+        "years_active": s.get("years"),
+        "taobao_credit_level": s.get("taobao_credit_level"),
+        "service_scores_5pt": s.get("service_scores_5pt"),
+        "positive_review_pct": s.get("positive_review_pct"),
+        "repurchase_rate_pct": repurchase,
+        "seller_type": s.get("seller_type") or OLD_TYPE.get(s.get("type")),
+        "sales_count": s.get("sales_count"),
+        "unit_price": unit_price,
+    }
 
 
-def supplier_score(s):
-    """Return (score or None, [(reason, points), ...]).
-    With fewer than 2 known factors there is not enough data: the score is None ("n/a"),
-    instead of the neutral starting value 50 looking like a real middling score."""
-    if not s:
-        return None, [("No supplier data available", 0)]
-    known = sum(1 for v in (s.get("type"), s.get("years"), s.get("response_rate"),
-                            s.get("repeat_buyer_rate"), s.get("disputes")) if v is not None)
-    known += 1 if s.get("badges") else 0
-    if known < MIN_KNOWN_FACTORS:
-        return None, [("Not enough supplier data to score this seller yet", 0)]
-    score = 50
-    reasons = []
-
-    def add(text, pts):
-        nonlocal score
-        score += pts
-        reasons.append((text, pts))
-
-    t = s.get("type")
-    if t == "factory":
-        add("Manufacturer (factory): direct source, fewer markups", 10)
-    elif t == "store":
-        add("Store / retailer: reseller, usually higher prices", 3)
-    elif t == "middleman":
-        add("Trading company / middleman: extra layer between you and the factory", -5)
-    else:
-        reasons.append(("Seller type: not available", 0))
-
-    y = s.get("years")
-    if y is None:
-        reasons.append(("Years active: not available", 0))
-    elif y >= 10:
-        add(f"{y} years active", 15)
-    elif y >= 5:
-        add(f"{y} years active", 10)
-    elif y >= 2:
-        add(f"{y} years active", 4)
-    else:
-        add(f"Only {y} year(s) active", -5)
-
-    for b in s.get("badges") or []:
-        if b in BADGE_POINTS:
-            add(f"Badge: {b}", BADGE_POINTS[b])
-
-    r = s.get("response_rate")
-    if r is None:
-        reasons.append(("Response rate: not available", 0))
-    elif r >= 90:
-        add(f"Response rate {r}%", 5)
-    elif r < 75:
-        add(f"Low response rate {r}%", -5)
-    else:
-        add(f"Response rate {r}%", 0)
-
-    rb = s.get("repeat_buyer_rate")
-    if rb is None:
-        reasons.append(("Repeat buyer rate: not available", 0))
-    elif rb >= 30:
-        add(f"Repeat buyer rate {rb}%", 5)
-    elif rb < 10:
-        add(f"Low repeat buyer rate {rb}%", -3)
-    else:
-        add(f"Repeat buyer rate {rb}%", 0)
-
-    d = s.get("disputes")
-    if d is None:
-        reasons.append(("Dispute history: not available", 0))
-    elif d == "high":
-        add("High dispute rate", -10)
-    elif d == "medium":
-        add("Some disputes reported", -3)
-    else:
-        add("Low dispute rate", 2)
-
-    return max(0, min(100, score)), reasons
+def trust_for_search(rows):
+    """rows: [(product, unit_price_cny), ...] of one search -> {product id: scoring result}."""
+    return scoring.score_suppliers([raw_fields(p, price) for p, price in rows])
 
 
-def score_colour(score):
-    if score is None:
-        return "#9E9E9E"
-    if score >= 80:
-        return "#2E7D32"
-    if score >= 60:
-        return "#F9A825"
-    return "#C62828"
-
-
-def score_label(score):
-    if score is None:
-        return "not available"
-    if score >= 80:
-        return "High"
-    if score >= 60:
-        return "Medium"
-    return "Low"
+def trust_for(p, unit_price=None):
+    """One product scored on its own (no other results to compare sales or price with)."""
+    return scoring.score_supplier(raw_fields(p, unit_price))

@@ -1,5 +1,5 @@
 {
- "_note": "SAMPLE data for the demo, not live listings. demo_url links are not real pages: they are recognised by Link paste.",
+ "_note": "SAMPLE data for the demo, not live listings. demo_url links are not real pages: they are recognised by Link paste. Supplier trust fields (badges_cn, store_type, credit, service scores, positive reviews, repurchase, seller_type, sales_count) are sample values too.",
  "products": [
   {
    "id": "TB-01",
@@ -41,7 +41,23 @@
     ],
     "response_rate": 94,
     "repeat_buyer_rate": 36,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家",
+     "深度验厂"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.8,
+     4.7,
+     4.9
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 36,
+    "seller_type": "factory",
+    "sales_count": 3200
    },
    "demo_url": "https://detail.1688.com/offer/demo-tb-01.html"
   },
@@ -79,7 +95,15 @@
     ],
     "response_rate": 81,
     "repeat_buyer_rate": 18,
-    "disputes": "medium"
+    "disputes": "medium",
+    "badges_cn": null,
+    "store_type": "yiwugo_online_only",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": "trader",
+    "sales_count": 120
    },
    "demo_url": "https://www.yiwugo.com/product/detail/demo-tb-02.html"
   },
@@ -122,7 +146,22 @@
     ],
     "response_rate": 97,
     "repeat_buyer_rate": 42,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.7,
+     4.6,
+     4.8
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 42,
+    "seller_type": "factory",
+    "sales_count": 15400
    },
    "demo_url": "https://detail.1688.com/offer/demo-tb-03.html"
   },
@@ -158,7 +197,19 @@
     "badges": [],
     "response_rate": null,
     "repeat_buyer_rate": null,
-    "disputes": null
+    "disputes": null,
+    "badges_cn": null,
+    "store_type": "taobao_personal",
+    "taobao_credit_level": "3_hearts",
+    "service_scores_5pt": [
+     4.7,
+     4.6,
+     4.7
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": null,
+    "sales_count": 85
    },
    "demo_url": "https://item.taobao.com/item.htm?id=demo-tb-04"
   },
@@ -201,7 +252,22 @@
     ],
     "response_rate": 92,
     "repeat_buyer_rate": 31,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.8,
+     4.8,
+     4.7
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 31,
+    "seller_type": "factory",
+    "sales_count": 5600
    },
    "demo_url": "https://detail.1688.com/offer/demo-wb-01.html"
   },
@@ -239,7 +305,15 @@
     ],
     "response_rate": 88,
     "repeat_buyer_rate": 22,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": null,
+    "store_type": "yiwugo_physical_stall",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": null,
+    "sales_count": 640
    },
    "demo_url": "https://www.yiwugo.com/product/detail/demo-wb-02.html"
   },
@@ -277,7 +351,15 @@
     ],
     "response_rate": 99,
     "repeat_buyer_rate": null,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": null,
+    "store_type": "jd_flagship",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": 97,
+    "repurchase_rate_pct": null,
+    "seller_type": "brand_official",
+    "sales_count": 23000
    },
    "demo_url": "https://item.jd.com/demo-wb-03.html"
   },
@@ -313,7 +395,21 @@
     "badges": [],
     "response_rate": 67,
     "repeat_buyer_rate": 9,
-    "disputes": "high"
+    "disputes": "high",
+    "badges_cn": [
+     "诚信通"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.2,
+     4.1,
+     4.3
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 9,
+    "seller_type": "trader",
+    "sales_count": 210
    },
    "demo_url": "https://detail.1688.com/offer/demo-wb-04.html"
   },
@@ -356,7 +452,22 @@
     ],
     "response_rate": 90,
     "repeat_buyer_rate": 28,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.6,
+     4.7,
+     4.6
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 28,
+    "seller_type": "factory",
+    "sales_count": 8900
    },
    "demo_url": "https://detail.1688.com/offer/demo-pc-01.html"
   },
@@ -392,7 +503,19 @@
     "badges": [],
     "response_rate": 76,
     "repeat_buyer_rate": 12,
-    "disputes": "medium"
+    "disputes": "medium",
+    "badges_cn": null,
+    "store_type": "taobao_personal",
+    "taobao_credit_level": "2_diamonds",
+    "service_scores_5pt": [
+     4.5,
+     4.4,
+     4.6
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": null,
+    "sales_count": 1300
    },
    "demo_url": "https://item.taobao.com/item.htm?id=demo-pc-02"
   },
@@ -430,7 +553,15 @@
     ],
     "response_rate": 85,
     "repeat_buyer_rate": 20,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": null,
+    "store_type": "yiwugo_physical_stall",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": "trader",
+    "sales_count": 410
    },
    "demo_url": "https://www.yiwugo.com/product/detail/demo-pc-03.html"
   },
@@ -474,7 +605,23 @@
     ],
     "response_rate": 95,
     "repeat_buyer_rate": 38,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家",
+     "超级工厂"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.9,
+     4.8,
+     4.9
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 38,
+    "seller_type": "factory",
+    "sales_count": 4100
    },
    "demo_url": "https://detail.1688.com/offer/demo-ym-01.html"
   },
@@ -510,7 +657,19 @@
     "badges": [],
     "response_rate": 91,
     "repeat_buyer_rate": 19,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": null,
+    "store_type": "taobao_enterprise",
+    "taobao_credit_level": "2_crowns",
+    "service_scores_5pt": [
+     4.8,
+     4.8,
+     4.7
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": "authorized_store",
+    "sales_count": 2600
    },
    "demo_url": "https://item.taobao.com/item.htm?id=demo-ym-02"
   },
@@ -548,7 +707,17 @@
     ],
     "response_rate": null,
     "repeat_buyer_rate": 25,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 25,
+    "seller_type": "factory",
+    "sales_count": null
    },
    "demo_url": "https://detail.1688.com/offer/demo-ym-03.html"
   },
@@ -592,7 +761,23 @@
     ],
     "response_rate": 93,
     "repeat_buyer_rate": 45,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家",
+     "实地认证"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.8,
+     4.9,
+     4.8
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 45,
+    "seller_type": "factory",
+    "sales_count": 21000
    },
    "demo_url": "https://detail.1688.com/offer/demo-mg-01.html"
   },
@@ -630,7 +815,15 @@
     ],
     "response_rate": 79,
     "repeat_buyer_rate": 15,
-    "disputes": "medium"
+    "disputes": "medium",
+    "badges_cn": null,
+    "store_type": "yiwugo_online_only",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": null,
+    "sales_count": 95
    },
    "demo_url": "https://www.yiwugo.com/product/detail/demo-mg-02.html"
   },
@@ -668,7 +861,15 @@
     ],
     "response_rate": null,
     "repeat_buyer_rate": null,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": null,
+    "store_type": "jd_self_operated",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": 98,
+    "repurchase_rate_pct": null,
+    "seller_type": null,
+    "sales_count": 50000
    },
    "demo_url": "https://item.jd.com/demo-mg-03.html"
   },
@@ -711,7 +912,22 @@
     ],
     "response_rate": 89,
     "repeat_buyer_rate": 27,
-    "disputes": "low"
+    "disputes": "low",
+    "badges_cn": [
+     "诚信通",
+     "实力商家"
+    ],
+    "store_type": null,
+    "taobao_credit_level": null,
+    "service_scores_5pt": [
+     4.6,
+     4.5,
+     4.7
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": 27,
+    "seller_type": "factory",
+    "sales_count": 7300
    },
    "demo_url": "https://detail.1688.com/offer/demo-ls-01.html"
   },
@@ -747,7 +963,19 @@
     "badges": [],
     "response_rate": 72,
     "repeat_buyer_rate": 8,
-    "disputes": "medium"
+    "disputes": "medium",
+    "badges_cn": null,
+    "store_type": "taobao_personal",
+    "taobao_credit_level": "2_hearts",
+    "service_scores_5pt": [
+     4.4,
+     4.3,
+     4.5
+    ],
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": null,
+    "sales_count": 40
    },
    "demo_url": "https://item.taobao.com/item.htm?id=demo-ls-02"
   },
@@ -783,7 +1011,15 @@
     "badges": [],
     "response_rate": null,
     "repeat_buyer_rate": null,
-    "disputes": null
+    "disputes": null,
+    "badges_cn": null,
+    "store_type": "yiwugo_online_only",
+    "taobao_credit_level": null,
+    "service_scores_5pt": null,
+    "positive_review_pct": null,
+    "repurchase_rate_pct": null,
+    "seller_type": "trader",
+    "sales_count": null
    },
    "demo_url": "https://www.yiwugo.com/product/detail/demo-ls-03.html"
   }

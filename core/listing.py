@@ -236,6 +236,8 @@ def platform_from_url(url):
 # ---------------------------------------------------------------------------
 
 CATEGORIES = ["bags", "drinkware", "phone accessories", "sports", "ceramics", "lighting", "unknown"]
+STORE_TYPES = ["tmall_flagship", "tmall", "taobao_enterprise", "taobao_personal", "jd_self_operated",
+               "jd_flagship", "jd_third_party", "yiwugo_physical_stall", "yiwugo_online_only"]
 
 LISTING_SCHEMA = {
     "type": "object",
@@ -254,14 +256,22 @@ LISTING_SCHEMA = {
         "production_days": {"type": "integer"},
         "customisation": {"type": "string"},
         "category": {"type": "string", "enum": CATEGORIES},
+        # the raw fields core/scoring.py turns into the trust score (the AI never scores)
         "supplier": {"type": "object", "properties": {
             "name_cn": {"type": "string"}, "name_en": {"type": "string"}, "city": {"type": "string"},
-            "type": {"type": "string", "enum": ["factory", "store", "middleman", "unknown"]},
-            "years": {"type": "integer"},
-            "badges": {"type": "array", "items": {"type": "string"}},
-            "response_rate": {"type": "number"}, "repeat_buyer_rate": {"type": "number"}},
-            "required": ["name_cn", "name_en", "city", "type", "years", "badges", "response_rate",
-                         "repeat_buyer_rate"],
+            "seller_type": {"type": "string", "enum": ["factory", "brand_official", "authorized_store",
+                                                        "trader", "unknown"]},
+            "store_type": {"type": "string", "enum": STORE_TYPES + ["unknown"]},
+            "years": {"type": "number"},
+            "badges_cn": {"type": "array", "items": {"type": "string"}},
+            "taobao_credit_level": {"type": "string"},
+            "service_scores_5pt": {"type": "array", "items": {"type": "number"}},
+            "positive_review_pct": {"type": "number"},
+            "repurchase_rate_pct": {"type": "number"},
+            "sales_count": {"type": "integer"}},
+            "required": ["name_cn", "name_en", "city", "seller_type", "store_type", "years", "badges_cn",
+                         "taobao_credit_level", "service_scores_5pt", "positive_review_pct",
+                         "repurchase_rate_pct", "sales_count"],
             "additionalProperties": False},
     },
     "required": ["title_cn", "title_en", "platform", "moq", "tiers", "material", "size", "weight_g",
@@ -283,12 +293,18 @@ Rules:
 - weight_g: weight per unit in grams; size, material and customisation in short English.
 - production_days: lead time / 发货时间 in days, if shown.
 - category: the closest one, or "unknown".
-- supplier.type: factory (工厂/厂家/源头/生产厂家), middleman (贸易/进出口/商贸), store (店/旗舰店),
-  else unknown. supplier.years: years on the platform or in business, if shown.
-- Badges: use these English names when they apply: Verified supplier (实力商家), Trade assurance
-  (交易保障/买家保障), Onsite inspection (深度验厂), Source factory (源头工厂), TrustPass member (诚信通),
-  Brand official store (官方旗舰店), Platform self-operated (京东自营).
-- response_rate / repeat_buyer_rate: percentages (回复率/响应率, 回头率/复购率) if shown."""
+Supplier (only extract; never judge or score the seller):
+- seller_type: factory (工厂/厂家/源头/生产厂家), brand_official (品牌官方), authorized_store (授权店),
+  trader (贸易/进出口/商贸), else unknown.
+- store_type: Taobao tmall_flagship (天猫旗舰店) / tmall (天猫) / taobao_enterprise (企业店) /
+  taobao_personal; JD jd_self_operated (京东自营) / jd_flagship (旗舰店) / jd_third_party;
+  Yiwugo yiwugo_physical_stall (shows a market booth 摊位) / yiwugo_online_only; else unknown.
+- years: years on the platform or in business (e.g. 入驻8年, 经营11年).
+- badges_cn: the 1688 badges exactly as written in Chinese (诚信通, 实力商家, 超级工厂, 实地认证, 深度验厂).
+- taobao_credit_level: Taobao seller credit as "N_hearts", "N_diamonds", "N_crowns" or "gold_crown".
+- service_scores_5pt: the shop's 5-point scores (Taobao DSR 描述/服务/物流, 1688 service scores, JD store scores).
+- positive_review_pct: 好评率 (JD). repurchase_rate_pct: 回头率/复购率 (1688).
+- sales_count: order or sales count shown (成交/销量/评价数)."""
 
 
 def _blank_to_none(v):
@@ -310,13 +326,27 @@ def card_from_ai(data, url=None):
         weight_kg=None if weight is None else weight / 1000,
         production_days=_blank_to_none(data.get("production_days")),
         customisation=_blank_to_none(data.get("customisation")), url=url or None,
-        supplier=dict(
-            name=_blank_to_none(s.get("name_en")), name_cn=_blank_to_none(s.get("name_cn")),
-            city=_blank_to_none(s.get("city")), type=_blank_to_none(s.get("type")),
-            years=_blank_to_none(s.get("years")), badges=[b for b in s.get("badges") or [] if b],
-            response_rate=_blank_to_none(s.get("response_rate")),
-            repeat_buyer_rate=_blank_to_none(s.get("repeat_buyer_rate")), disputes=None,
-        ),
+        supplier=_supplier_from_ai(s, platform),
+    )
+
+
+def _supplier_from_ai(s, platform):
+    seller_type = _blank_to_none(s.get("seller_type"))
+    badges = [b for b in s.get("badges_cn") or [] if b]
+    scores = [x for x in s.get("service_scores_5pt") or [] if x]
+    return dict(
+        name=_blank_to_none(s.get("name_en")), name_cn=_blank_to_none(s.get("name_cn")),
+        city=_blank_to_none(s.get("city")),
+        type={"factory": "factory", "trader": "middleman"}.get(seller_type, "store" if seller_type else None),
+        years=_blank_to_none(s.get("years")), badges=badges,
+        # scoring.py raw fields
+        seller_type=seller_type, store_type=_blank_to_none(s.get("store_type")),
+        badges_cn=badges if platform == "1688" else None,
+        taobao_credit_level=_blank_to_none(s.get("taobao_credit_level")),
+        service_scores_5pt=scores or None,
+        positive_review_pct=_blank_to_none(s.get("positive_review_pct")),
+        repurchase_rate_pct=_blank_to_none(s.get("repurchase_rate_pct")),
+        sales_count=_blank_to_none(s.get("sales_count")),
     )
 
 

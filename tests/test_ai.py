@@ -52,8 +52,10 @@ AI_LISTING = {
     "platform": "", "moq": 100, "tiers": [{"min_qty": 500, "price_cny": 7.2}, {"min_qty": 100, "price_cny": 8.5}],
     "material": "12 oz cotton canvas", "size": "38 x 42 cm", "weight_g": 180, "production_days": 15,
     "customisation": "Logo printing", "category": "bags",
-    "supplier": {"name_cn": "温州某某袋业有限公司", "name_en": "", "city": "Wenzhou", "type": "factory",
-                 "years": 11, "badges": ["Verified supplier"], "response_rate": 94, "repeat_buyer_rate": 0},
+    "supplier": {"name_cn": "温州某某袋业有限公司", "name_en": "", "city": "Wenzhou", "seller_type": "factory",
+                 "store_type": "unknown", "years": 11, "badges_cn": ["诚信通", "实力商家"],
+                 "taobao_credit_level": "", "service_scores_5pt": [4.7, 0], "positive_review_pct": 0,
+                 "repurchase_rate_pct": 0, "sales_count": 1200},
 }
 
 
@@ -67,8 +69,15 @@ def test_read_screenshot_builds_a_card_without_inventing():
     assert card["platform"] == "1688"                       # from the link, since the AI left it empty
     assert card["tiers"] == [(100, 8.5), (500, 7.2)]        # sorted
     assert card["weight_kg"] == 0.18
-    assert card["supplier"]["name"] is None                 # "" -> not available
-    assert card["supplier"]["repeat_buyer_rate"] is None    # 0 -> not available
+    s = card["supplier"]
+    assert s["name"] is None                                # "" -> not available
+    assert s["repurchase_rate_pct"] is None                 # 0 -> not available
+    assert s["badges_cn"] == ["诚信通", "实力商家"] and s["seller_type"] == "factory" and s["type"] == "factory"
+    assert s["store_type"] is None and s["service_scores_5pt"] == [4.7] and s["sales_count"] == 1200
+    # the AI only extracts; the score comes from core/scoring.py
+    from core.supplier_score import trust_for
+    r = trust_for(card)
+    assert r["metrics"][0]["value"] == 75 and r["metrics"][0]["reason"].startswith("实力商家")
 
 
 def test_rule_based_fallback_still_reads_text():

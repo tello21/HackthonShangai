@@ -173,6 +173,24 @@ a.pc.top .pc-price {{color:var(--sage);}}
 .list-count {{font-size:.85rem; color:#5b6f84; padding-top:.55rem;}}
 .foot {{font-size:.75rem; color:#7b8da0; padding:6px 0 4px; line-height:1.5;}}
 
+.pc-why {{font-size:.76rem; color:#4b5d70; line-height:1.35;}}
+
+/* ---------- trust score: band pill + one bar per metric */
+.score-pill.big {{font-size:1rem; padding:4px 14px;}}
+.trust-head {{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:.3rem;}}
+.trust-num {{font-size:2.4rem; font-weight:900; line-height:1; color:var(--navy);}}
+.trust-num small {{font-size:1rem; color:#7b8da0; font-weight:600;}}
+.tms {{margin:.6rem 0 .4rem;}}
+.tm {{margin:0 0 10px;}}
+.tm-top {{display:flex; justify-content:space-between; font-size:.88rem; font-weight:600; color:var(--ink);}}
+.tm-top small {{color:#7b8da0; font-weight:500;}}
+.tm-bar {{height:8px; background:#E3EBF3; border-radius:4px; overflow:hidden; margin:3px 0 2px;}}
+.tm-fill {{height:100%; background:var(--cerulean); border-radius:4px;}}
+.tm-why {{font-size:.76rem; color:#7b8da0;}}
+.tm.na .tm-top, .tm.na .tm-why {{color:#9AA8B6;}}
+.tm.na .tm-bar {{background:repeating-linear-gradient(45deg, #EEF2F6, #EEF2F6 4px, #E3EBF3 4px, #E3EBF3 8px);}}
+.penalty {{background:#FDECEA; color:#8A1F17; border-radius:8px; padding:6px 10px; font-size:.85rem; margin:4px 0;}}
+
 /* ---------- delivered price receipt */
 .rcpt {{margin:.4rem 0 .8rem;}}
 .rr {{display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--line);}}

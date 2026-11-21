@@ -39,6 +39,16 @@ ANTHROPIC_API_KEY = "sk-ant-..."
 
 One model for every AI feature: `claude-opus-5-5` (change `MODEL` in `core/ai.py`).
 
+## Trust score (`core/scoring.py`)
+
+Pure Python rules, no AI (the AI only extracts raw fields from a listing). Six metrics, each on
+0-100: Verification 25%, Track record 20%, Customer satisfaction 25%, Loyalty 10%, Seller type 10%,
+Sales traction 10% (sales compared only within the same platform). Missing metrics count as 40; under
+40% coverage the score is "Not enough data". Price red flag (not on 1688): −10 when the price is below
+60% of the same-platform median in the search. Bands: Trusted 80+, Good 60-79, Caution 40-59,
+High risk 0-39. Run the spec's cases with `python core/scoring.py`. `core/supplier_score.py` maps
+our product cards (sample catalog, live Yiwugo, Link paste) to the raw fields.
+
 ## Live Yiwugo listings
 
 Each search also reads real listings from yiwugo.com (PR #1): real titles, prices, MOQ, photos,

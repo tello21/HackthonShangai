@@ -1,14 +1,16 @@
 """Results: Amazon-style product list with delivered prices."""
 
+import time
+
 import streamlit as st
 
 from components.state import S, bound, go, link
 from components.ui import (NA, band, currency_label, esc, fx_line_short, image_uri, money,
-                           platform_search_url, platform_tag, tag, units)
-from core import query_translation
+                           platform_search_url, platform_tag, tag, trust_pill, trust_reasons_line, units)
+from core import query_translation, yiwugo
 from core.catalog import PLATFORMS, SELLER_TYPES, search
 from core.pricing import COUNTRIES, CURRENCIES, SYMBOL, delivered
-from core.supplier_score import score_colour, supplier_score
+from core.supplier_score import trust_for_search
 from views.live import live_search, with_buyer_details
 
 
@@ -69,8 +71,13 @@ def enrich(products):
     for p in products:
         p = with_buyer_details(p)
         d = delivered(p, S.qty, S.country, S.cur)
-        score, _ = supplier_score(p.get("supplier"))
-        rows.append(dict(p=p, d=d, score=score, ok=d["per_unit"] is not None and not d["below_moq"]))
+        rows.append(dict(p=p, d=d, ok=d["per_unit"] is not None and not d["below_moq"]))
+    # one trust calculation for the whole search: sales and prices compared within the same platform
+    trust = trust_for_search([(r["p"], r["d"]["unit_cny"]) for r in rows])
+    S.trust = trust                                  # the product page reuses it (same search context)
+    for r in rows:
+        r["trust"] = trust[r["p"]["id"]]
+        r["score"] = r["trust"]["score"]
     return rows
 
 
@@ -83,11 +90,10 @@ def why_not(r):
 def product_card(r, sym, top=False, saving=None):
     """Photo, English name, marketplace tag, supplier score, final delivered price.
     The whole card opens the product page."""
-    p, d, score = r["p"], r["d"], r["score"]
-    tags = [platform_tag(p.get("platform")),
-            "<span class='src-tag live'>Live</span>" if p.get("live") else "<span class='src-tag'>Sample</span>",
-            f"<span class='sc' style='background:{score_colour(score)}'>Trust "
-            f"{score if score is not None else 'n/a'}{'/100' if score is not None else ''}</span>"]
+    p, d = r["p"], r["d"]
+    tags = [trust_pill(r["trust"]), platform_tag(p.get("platform")),
+            "<span class='src-tag live'>Live</span>" if p.get("live") else "<span class='src-tag'>Sample</span>"]
+    why = trust_reasons_line(r["trust"])
     if r["ok"]:
         price = f"<div class='pc-price'>{money(d['per_unit'], sym)}<small>/unit delivered</small></div>"
         moq = f"{p['moq']:,}" if p.get("moq") is not None else NA
@@ -111,10 +117,30 @@ def product_card(r, sym, top=False, saving=None):
             f"<div class='pc-body'>"
             f"<div class='pc-title'>{esc(p.get('title_en') or p.get('title_cn') or NA)}</div>"
             f"<div class='pc-meta'>{''.join(tags)}</div>"
-            f"{price}"
+            + (f"<div class='pc-why'>{why}</div>" if why else "")
+            + f"{price}"
             + (f"<div class='pc-meta'>{badges}</div>" if badges else "")
             + f"<div class='pc-sub'>{sub}</div>"
             f"</div></a>")
+
+
+def _refresh_when_details_arrive(live, max_wait=20):
+    """Live listings are shown at once from the search answer; their details (years active,
+    price tiers...) arrive a few seconds later and change the trust score. Wait for them once
+    per search, below the list, then redraw."""
+    pending = [str(p["_row"]["id"]) for p in live if not p.get("details_loaded") and p.get("_row")]
+    key = f"details_wait_{S.get('yiwugo_q')}"
+    if not pending or S.get(key):
+        return
+    S[key] = True
+    note = st.empty()
+    note.caption("Loading seller details from Yiwugo to complete the trust scores…")
+    start = time.time()
+    while time.time() - start < max_wait:
+        if yiwugo.details_ready(pending):
+            st.rerun()
+        time.sleep(0.4)
+    note.empty()
 
 
 def page_results():
@@ -174,8 +200,8 @@ def page_results():
         f_score = st.slider("Minimum trust score", 0, 100, 0, step=5)
         max_moq_all = max([r["p"]["moq"] or 0 for r in rows] + [1])
         f_moq = st.number_input("Maximum MOQ", min_value=1, value=int(max_moq_all), step=50)
-        st.caption("The trust score is a sample rule-based rating. Products with unknown score are kept "
-                   "only when minimum score is 0.")
+        st.caption("The trust score sums up public signals (see “How we score” on any product page). "
+                   "Sellers with not enough data are kept only when the minimum is 0.")
 
     def keep(r):
         p = r["p"]
@@ -237,11 +263,14 @@ def page_results():
         + "".join(product_card(r, sym, top=r is best, saving=saving) for r in priced + unpriced)
         + "</div>"
         f"<div class='foot'>Prices include shipping (cheapest method for {S.qty:,} units), duty, VAT and "
-        f"customs, estimated · {fx_line_short()} · Trust scores use sample rules for now · "
+        f"customs, estimated · {fx_line_short()} · Trust scores sum up public signals, not an official "
+        f"verification · "
         + ("Live = listing read from yiwugo.com, Sample = demo catalog" if live else "Sample catalog")
         + "</div>",
         unsafe_allow_html=True,
     )
+
+    _refresh_when_details_arrive(live)
 
     with st.expander("Compare products"):
         opts = {r["p"]["id"]: f"{r['p']['platform']} · {(r['p'].get('title_en') or r['p'].get('title_cn') or NA)[:40]}"

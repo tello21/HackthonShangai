@@ -4,6 +4,38 @@ including its limits. Keep them in sync when the logic changes."""
 
 from html import escape
 
+# "How we score" — shown in the home section and on every product page (keep in sync with core/scoring.py)
+HOW_WE_SCORE = [
+    ("How is the trust score calculated?",
+     "We look at six public signals and give each a value from 0 to 100: Verification (25%), Track record "
+     "(20%), Customer satisfaction (25%), Loyalty (10%), Seller type (10%) and Sales traction (10%). The "
+     "score is their weighted average, from 0 to 100. No AI decides the score: it is a fixed set of rules, "
+     "and every value is shown on the product page with its reason."),
+    ("How do you compare 1688, Taobao, JD and Yiwugo?",
+     "Each platform shows trust differently, so we convert each to the same 0-100 scale. Verification: on "
+     "1688 a super factory or on-site audit badge is 100, 实力商家 75, only 诚信通 40; on Taobao a Tmall "
+     "flagship is 100 and a personal store 30; on JD self-operated is 100 and a third-party seller 50; on "
+     "Yiwugo a physical market stall is 70 and an online-only shop 40. Years active (8+ years = 100) and "
+     "Taobao credit levels (hearts, diamonds, crowns) give the track record; 5-point service ratings and "
+     "positive-review rates give satisfaction; the repurchase rate gives loyalty. Sales are only compared "
+     "with other results from the same platform, because each platform counts them differently."),
+    ("What happens when data is missing?",
+     "A missing signal counts as slightly below average (40 out of 100), so sellers with little public data "
+     "can't reach the top but are not punished as bad either. If the signals we have cover less than 40% of "
+     "the weights, we don't show a score at all: you see “Not enough data” and the list of what is missing."),
+    ("What is the price red flag?",
+     "On Taobao, JD and Yiwugo, if a product costs less than 60% of the median price of similar results "
+     "from the same platform in your search, we remove 10 points and say why: prices that low are a common "
+     "sign of a problem. It isn't applied to 1688, where factory prices are often far below retail."),
+    ("What do the colours mean?",
+     "80-100 Trusted (green), 60-79 Good (light green), 40-59 Caution (yellow), 0-39 High risk (red). "
+     "Grey means not enough data to score."),
+    ("Is the trust score an official verification?",
+     "No. It sums up public signals from the listing and the platform; it is not an audit and it is not "
+     "endorsed by the marketplaces. Before a large order, ask for a sample and check certifications. In "
+     "this demo, the 1688, Taobao and JD sellers come from our sample catalog; Yiwugo sellers are live."),
+]
+
 FAQ = [
     ("Search", [
         ("How does the search work?",
@@ -14,33 +46,15 @@ FAQ = [
          "Yiwugo listings are read live from yiwugo.com and tagged “Live”. For 1688, Taobao and JD we use a "
          "demo catalog for now, tagged “Sample”. With Link paste you can analyse a listing from any of the four."),
         ("Why are results sorted by trust?",
-         "A cheap price is worth nothing if the seller is unreliable, so the most trusted sellers come first. "
-         "Sellers with the same score are ordered by delivered price. You can switch to “Lowest price” or "
-         "“Lowest MOQ” at any time."),
+         "A cheap price is worth nothing if the seller is unreliable, so the most trusted sellers come first; "
+         "sellers without enough data come after the scored ones. Sellers with the same score are ordered by "
+         "delivered price. You can switch to “Lowest price” or “Lowest MOQ” at any time."),
         ("What does Link paste do?",
          "Paste a product link and get the same analysis as a product page: delivered price, trust score and "
          "contact. We don't open marketplace pages ourselves, so for an unknown link add a screenshot or the "
          "page text and the AI reads it."),
     ]),
-    ("Trust", [
-        ("How is the trust score calculated?",
-         "Every seller starts at 50. A factory adds 10, a store 3, a trading company loses 5. Years active add "
-         "up to 15. Verified badges (verified supplier, trade assurance, onsite inspection…) add up to 10 each. "
-         "A high response rate and many repeat buyers add points, low ones remove some; a high dispute rate "
-         "removes 10. The result "
-         "stays between 0 and 100, and every reason is listed on the product page."),
-        ("What do the colours mean?",
-         "Green is 80 or more (high trust), yellow 60 to 79 (medium), red below 60 (low). Grey “n/a” means we "
-         "know too little about the seller to give a score."),
-        ("Why does a seller show “Trust n/a”?",
-         "We only score a seller when we know at least two facts about them, for example the seller type and "
-         "the years active. Showing a neutral number for an unknown seller would look like a real score, so "
-         "we show “n/a” instead."),
-        ("Is the trust score final?",
-         "No. It uses simple rules on the data a listing shows, and some of that data is from our demo catalog. "
-         "Always ask for a sample and check certifications before a large order: the product page tells you "
-         "what is still unknown."),
-    ]),
+    ("Trust", HOW_WE_SCORE),
     ("Delivered price", [
         ("How is the delivered price calculated?",
          "Seller price for your quantity tier, plus China domestic transport, international shipping, "
@@ -69,6 +83,11 @@ FAQ = [
          "card details are ever asked for."),
     ]),
 ]
+
+
+def how_we_score_html():
+    return "".join(f"<details class='faq-q'><summary>{escape(q)}</summary><div class='faq-a'>{escape(a)}</div>"
+                   f"</details>" for q, a in HOW_WE_SCORE)
 
 
 def faq_html():

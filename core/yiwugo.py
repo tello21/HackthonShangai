@@ -249,9 +249,18 @@ def _offer(item, detail, has_detail):
         offer["_row"] = item                      # kept to rebuild the listing with its details
         offer["details_loaded"] = has_detail
         market = str(item.get("marketOrAdress") or item.get("marketinfo") or "")
+        sup = offer["supplier"]
         if market.startswith("义乌"):            # the shop's booth is in a Yiwu market
-            offer["supplier"]["city"] = "Yiwu"
+            sup["city"] = "Yiwu"
             offer["market"] = item.get("marketinfo") or market
+        # trust score raw fields (core/scoring.py): a booth number means a physical stall
+        sup["store_type"] = ("yiwugo_physical_stall" if item.get("boothNo") or market.startswith("义乌")
+                             else "yiwugo_online_only")
+        try:
+            deals = item.get("dealQuantity")
+            sup["sales_count"] = int(deals) if deals not in (None, "") else None
+        except (TypeError, ValueError):
+            sup["sales_count"] = None
     return offer
 
 
@@ -293,6 +302,11 @@ def _safe_detail(product_id):
         return _fetch_detail(product_id)
     except Exception:
         return None
+
+
+def details_ready(product_ids) -> bool:
+    """True when every listing's details are in the cache (fetched or failed)."""
+    return all(_cached_detail(str(pid))[0] for pid in product_ids)
 
 
 def prefetch(product_ids):

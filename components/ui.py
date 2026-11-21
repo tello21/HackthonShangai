@@ -11,7 +11,6 @@ from components.state import S, link
 from core import profile as P
 from core.catalog import CATEGORY_STYLE
 from core.pricing import CURRENCY_NAMES, SYMBOL, fx_info, fx_rate
-from core.supplier_score import score_colour, score_label
 
 NA = "not available"
 PLATFORM_COLOURS = {"1688": "#FF6A00", "Taobao": "#F5A623", "JD": "#7B3FE4", "Yiwugo": "#1E73BE"}
@@ -72,9 +71,35 @@ def fx_line_short():
     return f"ECB rate {info['date']}" if info["live"] else "sample exchange rate"
 
 
-def score_pill(score):
-    txt = f"{score}/100 · {score_label(score)} trust" if score is not None else "not enough data yet"
-    return f"<span class='score-pill' style='background:{score_colour(score)}'>{txt}</span>"
+DARK_TEXT_BANDS = {"Good", "Caution"}   # light green / yellow need dark text
+
+
+def trust_pill(r, big=False):
+    """Coloured trust band: 'Trust 84 · Trusted', or 'Trust n/a · Not enough data'."""
+    fg = "#0B2A47" if r["band"] in DARK_TEXT_BANDS else "#fff"
+    txt = f"Trust {r['score']} · {r['band']}" if r["score"] is not None else f"Trust n/a · {r['band']}"
+    cls = "score-pill big" if big else "sc"
+    return f"<span class='{cls}' style='background:{r['colour']};color:{fg}'>{esc(txt)}</span>"
+
+
+def trust_reasons_line(r, n=2):
+    """The strongest signals for a result card."""
+    return " · ".join(esc(x) for x in r["reasons"][:n])
+
+
+def trust_bars(r):
+    """One horizontal bar per metric with its weight and reason; missing ones in grey."""
+    rows = []
+    for m in r["metrics"]:
+        if m["value"] is None:
+            rows.append(f"<div class='tm na'><div class='tm-top'><span>{esc(m['name'])} <small>· {m['weight']}%</small>"
+                        f"</span><span>not available</span></div><div class='tm-bar'></div>"
+                        f"<div class='tm-why'>{esc(m['reason'])}</div></div>")
+        else:
+            rows.append(f"<div class='tm'><div class='tm-top'><span>{esc(m['name'])} <small>· {m['weight']}%</small>"
+                        f"</span><b>{m['value']}</b></div><div class='tm-bar'><div class='tm-fill' "
+                        f"style='width:{m['value']}%'></div></div><div class='tm-why'>{esc(m['reason'])}</div></div>")
+    return "<div class='tms'>" + "".join(rows) + "</div>"
 
 
 def platform_tag(platform):
