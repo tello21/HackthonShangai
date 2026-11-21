@@ -17,8 +17,10 @@ from views.results import trust_in_search
 def open_conversation(p, qty, country):
     """Contact supplier: open the existing chat for this product, or start one with the
     product, quantity, country and delivered price loaded as context."""
+    # reuse only a chat that is still empty: once messages were exchanged, Contact supplier starts a
+    # fresh chat with the message ready to send (the old one stays in Messages)
     existing = next((c for c in S.convs.values()
-                     if c["pid"] == p["id"] and c.get("product") == p.get("title_en")), None)
+                     if c["pid"] == p["id"] and c.get("product") == p.get("title_en") and not c["messages"]), None)
     if existing:
         conv = existing
     else:
@@ -27,7 +29,8 @@ def open_conversation(p, qty, country):
         conv["card"] = dict(p)  # product card snapshot (pasted listings too)
         S.convs[conv["id"]] = conv
         M.save_conversations(S.convs)
-        S[f"draft_{conv['id']}"] = M.quick_action_text("Ask for quote", qty, country, p.get("moq"))
+    # the "Ask for quote" message is ready to send (also in a chat reopened from another session)
+    S.setdefault(f"draft_{conv['id']}", M.quick_action_text("Ask for quote", qty, country, p.get("moq")))
     go("chat", conv=conv["id"])
 
 

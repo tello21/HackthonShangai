@@ -91,6 +91,12 @@ def test_demo_chat_without_api_key(no_ai):
     t = page_text(at)
     assert "单价可以给到¥299" in t and "the unit price can be ¥299" in t
     assert at.session_state["convs"][cid]["deal"]["unit_price_cny"] == 299
+    # next time (another visitor, or the next demo): a fresh chat with the message ready, not the old one
+    again = run_app({"view": "detail", "pid": "8", "qty": "500", "country": "Italy", "cur": "EUR"})
+    again.button(key="contact_8").click().run()
+    new = again.session_state["conv"]
+    assert new != cid and not again.session_state["convs"][new]["messages"]
+    assert again.text_area(key=f"draft_{new}").value.startswith("Hello, could you give me your best price")
 
 
 # ---------------------------------------------------------------- order + simulated payment
