@@ -7,7 +7,7 @@ import time
 import streamlit as st
 
 from components.state import S, go, link
-from components.ui import NA, cny, esc, fx_line, money, platform_tag, receipt, tag, units
+from components.ui import NA, cny, esc, fx_line, money, pagehero, platform_tag, receipt, tag, units
 from core import orders as O
 from core.catalog import get_product
 from core.pricing import SYMBOL, delivered
@@ -44,7 +44,8 @@ def page_checkout():
     d = delivered(priced, qty, country, S.cur, co.get("mode") or "auto")
     sym = SYMBOL[S.cur]
 
-    st.header("Checkout")
+    st.markdown(pagehero("03 / Checkout", "Review. Confirm. Buy.", "Review the product, the seller and the "
+                         "delivered cost before placing the order.", steps=2), unsafe_allow_html=True)
     st.markdown(f"{platform_tag(card.get('platform'))} **{esc(card.get('title_en') or NA)}**<br>"
                 f"<span class='muted'>{esc((card.get('supplier') or {}).get('name') or NA)} · "
                 f"{units(qty)} to {esc(country)}</span>", unsafe_allow_html=True)
@@ -107,7 +108,7 @@ def page_order(order):
     sym = SYMBOL[order["currency"]]
     st.markdown(f"<a class='rh-back' href='{link(view='profile', order=None)}' target='_self'>← Your orders</a>",
                 unsafe_allow_html=True)
-    st.header(f"Order {order['id']}")
+    st.markdown(pagehero("Your order", f"Order {esc(order['id'])}"), unsafe_allow_html=True)
     st.markdown(f"{platform_tag(order['platform'])} **{esc(order['product'] or NA)}**<br>"
                 f"<span class='muted'>{esc(order['supplier'] or NA)} · {units(order['qty'])} to "
                 f"{esc(order['country'])} · {esc(order['mode_label'])}, {order['transit_days']} days</span>",

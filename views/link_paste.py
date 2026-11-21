@@ -8,7 +8,7 @@ and get the same analysis as a product page.
 
 import streamlit as st
 
-from components.ui import tag
+from components.ui import pagehero, tag
 from core import listing
 from core.catalog import PRODUCTS, find_by_url, get_product
 from core.pricing import DUTY
@@ -57,9 +57,22 @@ def _analyze():
         S.lp_result = {"kind": "error", "msg": f"Could not read the screenshot — {err}"}
 
 
+def page_paste():
+    """Link paste page; a link typed in the home search box arrives here already analysed."""
+    st.markdown(pagehero("Link paste", "Paste a link. Get the real price.",
+                         "From 1688, Taobao, JD or Pinduoduo: product, delivered price and supplier trust in one "
+                         "page. Links from our catalog open at once; for others, add a screenshot or the page text."),
+                unsafe_allow_html=True)
+    if S.pop("lp_auto", False):
+        _analyze()
+    with st.container(key="lp_panel"):
+        render_link_form()
+    render_link_result()
+
+
 def render_link_form():
-    """The input part (shown in the dark band on the home page)."""
-    c_url, c_go = st.columns([4, 1])
+    """The input part."""
+    c_url, c_go = st.columns([4, 1], vertical_alignment="bottom")
     with c_url:
         st.text_input("Paste a link", key="lp_url", placeholder="https://detail.1688.com/offer/…")
     with c_go:
@@ -71,11 +84,6 @@ def render_link_form():
         st.text_area("Page text", key="lp_text", height=180, label_visibility="collapsed",
                      placeholder="Copy the title, prices, MOQ, specs and shop info from the page")
         st.button("Use an example listing", on_click=_use_sample_text)
-
-
-def render_link_paste():
-    render_link_form()
-    render_link_result()
 
 
 def render_link_result():

@@ -1,14 +1,18 @@
-"""Results: Amazon-style product list with delivered prices."""
+"""Results: three cards per row (one on phones), each with the photo, the name, the final delivered
+price and the final trust score. All the details are on the product page."""
 
 import streamlit as st
 
 from components.state import S, bound, go, link
-from components.ui import (NA, band, currency_label, esc, fx_line_short, image_uri, money,
-                           demo_tag, platform_search_url, platform_tag, tag, trust_pill, trust_reasons_line, units)
+from components.ui import (NA, currency_label, demo_tag, esc, fx_line_short, image_uri, money, pagehero,
+                           platform_search_url, tag, trust_pill, units)
 from core import query_translation
 from core.catalog import PLATFORMS, SELLER_TYPES, search
 from core.pricing import COUNTRIES, CURRENCIES, SYMBOL, delivered
+from core.scoring import COUNTERFEIT_REASON
 from core.supplier_score import trust_for_search
+
+SORTS = ["Most trusted", "Lowest price", "Lowest MOQ"]
 
 
 # ---------------------------------------------------------------------------- AI query translation
@@ -103,35 +107,25 @@ def why_not(r):
     return "Delivered price not available — the listing has no weight, so shipping can't be estimated"
 
 
-def product_card(r, sym, top=False, saving=None):
-    """Photo, English name, marketplace tag, supplier score, final delivered price.
-    The whole card opens the product page."""
+def product_card(r, sym):
+    """Photo, name, final delivered price and final trust score; everything else is on the product page,
+    which the whole card opens. The photo carries the 'demo data' and counterfeit-risk labels."""
     p, d = r["p"], r["d"]
-    tags = [trust_pill(r["trust"]), platform_tag(p.get("platform")), demo_tag(p)]
-    why = trust_reasons_line(r["trust"])
+    flags = demo_tag(p)
+    if COUNTERFEIT_REASON in r["trust"]["penalties"]:
+        flags += "<span class='warn-tag'>⚠ Possible counterfeit</span>"
     if r["ok"]:
-        price = f"<div class='pc-price'>{money(d['per_unit'], sym)}<small>/unit delivered</small></div>"
-        moq = f"{p['moq']:,}" if p.get("moq") is not None else NA
-        sub = (f"{money(d['total'], sym, 0)} for {units(S.qty)} · {d['mode_label']}, "
-               f"{d['transit_days']} days · MOQ {moq}")
+        price = (f"<span class='gc-price'>{money(d['per_unit'], sym)}</span>"
+                 f"<span class='gc-unit'>per unit, delivered to {esc(S.country)}</span>")
     else:
-        price = f"<div class='pc-na'>Delivered price {NA}</div>"
-        sub = why_not(r)
-    badges = ""
-    if top:
-        badges = "<span class='best-tag'>Best price</span>"
-        if saving:
-            badges += f"<span class='save'>Save {saving:.0f}%</span>"
-    return (f"<a class='pc{' top' if top else ''}' href='{link(view='detail', pid=p['id'])}' target='_self'>"
-            f"<img class='pc-img' src='{image_uri(p, square=True)}' alt=''/>"
-            f"<div class='pc-body'>"
-            f"<div class='pc-title'>{esc(p.get('title_en') or p.get('title_cn') or NA)}</div>"
-            f"<div class='pc-meta'>{''.join(tags)}</div>"
-            + (f"<div class='pc-why'>{why}</div>" if why else "")
-            + f"{price}"
-            + (f"<div class='pc-meta'>{badges}</div>" if badges else "")
-            + f"<div class='pc-sub'>{sub}</div>"
-            f"</div></a>")
+        price = (f"<span class='gc-price na-price'>{NA}</span><span class='gc-unit'>{esc(why_not(r))}</span>")
+    return (f"<a class='gc' href='{link(view='detail', pid=p['id'])}' target='_self'>"
+            f"<span class='gc-media'><img src='{image_uri(p, square=True)}' alt=''/>"
+            f"<span class='gc-flags'>{flags}</span></span>"
+            f"<span class='gc-body'><span class='gc-title'>{esc(p.get('title_en') or p.get('title_cn') or NA)}</span>"
+            f"<span class='gc-row'><span class='gc-l'>Final price</span>{price}</span>"
+            f"<span class='gc-row'><span class='gc-l'>Final trust score</span>{trust_pill(r['trust'], big=True)}</span>"
+            f"</span></a>")
 
 
 def page_results():
@@ -142,13 +136,11 @@ def page_results():
             plan, reason = translated(S.q)
     base, via_translation = search_base(S.q, plan)
     budget_txt = f" · max {money(S.budget, sym)}/unit" if S.budget else ""
-    with band():
-        st.markdown(
-            f"<a class='rh-back' href='{link(view='home', tab='search', pid=None)}' target='_self'>← New search</a>"
-            f"<div class='rh-q'>“{esc(S.q) or 'All products'}”</div>"
-            f"<div class='rh-sub'>{S.qty:,} units · to {S.country} · {S.cur}{budget_txt}</div>",
-            unsafe_allow_html=True,
-        )
+    st.markdown(pagehero("Results", f"“{esc(S.q) or 'All products'}”",
+                         f"{S.qty:,} units · delivered to {esc(S.country)} · {S.cur}{budget_txt}. Final prices "
+                         "include shipping, duty and VAT; final trust scores include every red flag.", steps=1),
+                unsafe_allow_html=True)
+    with st.container(key="rtools"):
         translation_strip(plan, reason, via_translation)
         with st.popover("Change quantity, country, currency", width="content"):
             bound(st.number_input, "Quantity", "qty", min_value=1, step=50)
@@ -195,16 +187,16 @@ def page_results():
         st.info("No results match the current filters or budget.")
         return
 
-    # ---- count + sort, side by side even on a phone
-    c_count, c_sort = st.columns([1, 1.25])
+    # ---- sort chips + count
+    c_sort, c_count = st.columns([2, 1], vertical_alignment="center")
+    with c_sort:
+        if S.get("sort") not in SORTS:
+            S.sort = SORTS[0]
+        sort = st.segmented_control("Sort by", SORTS, key="sort", required=True, label_visibility="collapsed")
     with c_count:
-        st.markdown("<span class='nowrap'></span>", unsafe_allow_html=True)
-        st.markdown(f"<div class='list-count'>{len(filtered)} products"
+        st.markdown(f"<div class='list-count'>{len(filtered)} suppliers"
                     + (f" · {len(over_budget)} over budget hidden" if over_budget else "") + "</div>",
                     unsafe_allow_html=True)
-    with c_sort:
-        sort = st.selectbox("Sort by", ["Most trusted", "Lowest price", "Lowest MOQ"], key="sort",
-                            label_visibility="collapsed")
     big = 10 ** 12
     keyfn = {
         "Lowest price": lambda r: r["d"]["per_unit"],
@@ -217,15 +209,9 @@ def page_results():
     priced = sorted((r for r in filtered if r["ok"]), key=keyfn)
     unpriced = sorted((r for r in filtered if not r["ok"]),
                       key=keyfn if sort != "Lowest price" else (lambda r: big))
-    best = min(priced, key=lambda r: r["d"]["per_unit"], default=None)
-    saving = None
-    if best and len(priced) > 1:
-        hi = max(r["d"]["per_unit"] for r in priced)
-        saving = (hi - best["d"]["per_unit"]) / hi * 100 if hi > 0 else None
-
     st.markdown(
-        "<div class='plist'>"
-        + "".join(product_card(r, sym, top=r is best, saving=saving) for r in priced + unpriced)
+        "<div class='grid'>"
+        + "".join(product_card(r, sym) for r in priced + unpriced)
         + "</div>"
         f"<div class='foot'>Prices include shipping (cheapest method for {S.qty:,} units), duty, VAT and "
         f"customs, estimated · {fx_line_short()} · Trust scores sum up public signals, not an official "

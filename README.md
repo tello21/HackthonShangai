@@ -17,14 +17,24 @@ product page). Photos: the record's `image` (e.g. `images/1.jpg`) is read from `
 which Streamlit serves (`enableStaticServing` in `.streamlit/config.toml`); no image or a missing
 file shows a placeholder. To update the catalog, replace the JSON and the photos in `static/images/`.
 
-## The three sections (bar at the top of the home page)
+## Pages
 
-| 🔗 Link paste | 🔎 Sourcing (default) | 💬 Messages |
-|---|---|---|
-| Paste a link: a link to a catalog product opens its full analysis; for any other link, add a screenshot or the page text and the AI reads it | Search in any language → translated for Chinese marketplaces → Amazon-style list with delivered prices and supplier scores | Chat with suppliers in your language; they read business Chinese; replies are translated and explained |
+Top bar: Search · Link paste · Messages · Profile · FAQ · delivery country and currency.
 
-Results are sorted by **Most trusted** by default (same trust → cheaper first). Below the search, the
-home page explains how search, the delivered price and the trust score work (`views/faq.py`). The
+- **Home** (`views/home.py`): "Search. Compare. Trust. Buy." with one search panel (product or
+  marketplace link · quantity · deliver to · currency). A link opens Link paste at once. Below: the six
+  steps, **Trust, explained** (the real scoring rules; pick 1688, Taobao, JD or Pinduoduo and the six
+  metrics show what we read on that marketplace and how it becomes 0-100, with the catalog's own
+  listings and scores), the FAQ and a closing call to action.
+- **Results**: three cards per row (two on tablets, one on phones), each with photo, name, **final
+  price** (delivered, per unit) and **final trust score**; "demo data" and counterfeit-risk labels on the
+  photo. Everything else is on the product page.
+- **Link paste**: a catalog link opens its full analysis; for any other link, add a screenshot or the
+  page text and the AI reads it.
+- **Messages**: chat with suppliers in your language; they read business Chinese; replies are
+  translated and explained.
+
+Results are sorted by **Most trusted** by default (same trust → cheaper first). The
 **Profile** page lists your orders and keeps your settings: name, company, email and the default
 country, currency and quantity for every search (saved in `profile.json`, git-ignored).
 
@@ -66,9 +76,11 @@ show the same number.
 
 ## Design
 
-Palette: Steel Azure `#064789`, Rich Cerulean `#427AA1`, Alice Blue `#EBF2FA` and highlighter
-yellow `#FFF200` for the main call to action, best price, savings and totals (as a marker stroke
-under navy text). Font: Outfit, a geometric sans-serif. All CSS is in `components/style.py`.
+From the team's mock-up (`SourceScan — Search. Compare. Trust. Buy.`): ink `#162638`, blue `#17639c`,
+lime `#d9f077` for the main buttons and marker strokes, deep blue `#103d5d` for the closing band,
+background `#fbfbf7`. Fonts: Space Grotesk (headings, prices, scores) and Inter (text). All CSS is in
+`components/style.py`; texts that explain the rules (FAQ, "How we score", the per-marketplace metrics)
+are in `views/faq.py` and must follow `core/scoring.py`.
 
 ## Tests
 

@@ -10,37 +10,67 @@ from core.catalog import PRODUCTS
 from tests.test_ai import PLAN
 
 
-@pytest.mark.parametrize("tab,expected", [
-    ("search", "Find trusted suppliers in China"), ("link", "Paste a link"), ("messages", "Your suppliers")])
-def test_home_three_way_bar(no_ai, tab, expected):
+def test_home_sections(no_ai):
+    at = run_app({"view": "home"})
+    t = page_text(at)
+    assert at.button[0].label == "Search suppliers →"
+    for part in ("Search. Compare.", "Trust. Buy.", "From search to checkout",
+                 "Trust, explained", "Clear answers.", "Find the product. Know the full picture.", "Hackathon prototype"):
+        assert part in t, part
+    assert "Source smarter" not in t and "Yiwugo" not in t
+    for p in ("1688", "Taobao", "JD", "Pinduoduo"):
+        assert f"<span class='market'>{p}</span>" in t
+
+
+def test_trust_explained_changes_with_the_marketplace(no_ai):
+    at = run_app({"view": "home"})
+    t = page_text(at)
+    assert at.session_state["mk_pick"] == "1688" and "超级工厂 super factory" in t and "In our catalog on 1688" in t
+    at.segmented_control(key="mk_pick").set_value("Pinduoduo").run()
+    t = page_text(at)
+    assert "Nothing: Pinduoduo listings don" in t and "In our catalog on Pinduoduo:</b> 3 listings" in t
+    at.segmented_control(key="mk_pick").set_value("JD").run()
+    assert "JD self-operated (京东自营) = 100" in page_text(at)
+
+
+def test_a_link_in_the_search_box_opens_link_paste(no_ai):
+    at = run_app({"view": "home"})
+    at.text_input[0].input("https://detail.1688.com/offer/1036300675521.html")
+    at.button[0].click().run()
+    assert at.session_state["view"] == "paste" and "Found in our catalog" in page_text(at)
+
+
+@pytest.mark.parametrize("tab,view,expected", [("link", "paste", "Paste a link"),
+                                                ("messages", "inbox", "Your suppliers")])
+def test_old_home_tab_addresses(no_ai, tab, view, expected):
     at = run_app({"view": "home", "tab": tab})
-    assert expected in page_text(at)
-    assert at.session_state["home_tab"] == tab
+    assert at.session_state["view"] == view and expected in page_text(at)
 
 
 @pytest.mark.parametrize("q,country,cur", [("padel racket", "Italy", "EUR"), ("carbon", "Switzerland", "CHF"),
                                            ("padel", "United States", "USD"), ("racket", "Iceland", "ISK")])
-def test_results_list(no_ai, q, country, cur):
+def test_results_grid(no_ai, q, country, cur):
     for qty in ("1", "500", "5000"):
         t = page_text(run_app({"view": "results", "q": q, "qty": qty, "country": country, "cur": cur}))
-        assert t.count("class='pc") >= 3 and "Trust " in t
-        if qty != "1":   # at 1 unit most items are below MOQ -> honestly 'not available'
-            assert "Best price" in t and "/unit delivered" in t
+        assert t.count("<a class='gc'") >= 3 and "Final trust score" in t and "Final price" in t
+        if qty != "1":
+            assert f"per unit, delivered to {country}" in t
     t = page_text(run_app({"view": "results", "q": "laptop"}))
+    assert "No products in our catalog match" in t
 
 
 def test_italian_query_matches_through_translation():
     with mock.patch.object(query_translation, "plan_search", return_value=(PLAN, None)):
         t = page_text(run_app({"view": "results", "q": "racchetta da padel in carbonio"}))
     assert "Searched as <b>碳纤维板式网球拍</b>" in t and "matched via translation" in t
-    assert t.count("class='mk'") == 13                      # all 13 rackets
+    assert t.count("<a class='gc'") == 13                    # all 13 rackets
 
 
 def test_cards_show_photo_demo_label_and_counterfeit_warning(no_ai):
     t = page_text(run_app({"view": "results", "q": "padel", "qty": "500"}))
     assert t.count("class='demo-tag'") == sum(p["demo"] for p in PRODUCTS) == 9
     assert "src='app/static/images/1.jpg'" in t and "src='app/static/images/13.png'" in t
-    assert "<span class='warn'>⚠ Possible counterfeit brand" in t
+    assert t.count("⚠ Possible counterfeit") == 1
     assert "Trust 24 · High risk" in t and "Trust 48 · Caution" in t
     # the product page shows the same score as the list (same search context), even after a reload
     detail = page_text(run_app({"view": "detail", "pid": "2", "q": "padel", "qty": "500"}))
@@ -67,7 +97,6 @@ def test_switching_shipping_mode_updates_the_receipt(no_ai):
     assert "Shipping · Sea freight" in page_text(at)
 
 
-def test_compare_and_old_paste_address(no_ai):
-    run_app({"view": "compare", "cmp": "1,2,3"})
-    at = run_app({"view": "paste"})                         # old link still lands on Link paste
-    assert at.session_state["view"] == "home" and at.session_state["tab"] == "link"
+def test_compare_and_link_paste_pages(no_ai):
+    assert "Compare. Verify. Choose." in page_text(run_app({"view": "compare", "cmp": "1,2,3"}))
+    assert "Paste a link. Get the real price." in page_text(run_app({"view": "paste"}))

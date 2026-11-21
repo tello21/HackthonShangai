@@ -76,12 +76,6 @@ def trust_pill(r, big=False):
     return f"<span class='{cls}' style='background:{r['colour']};color:{fg}'>{esc(txt)}</span>"
 
 
-def trust_reasons_line(r, n=2):
-    """The strongest signals for a result card; penalties (e.g. counterfeit risk) in red."""
-    return " · ".join(f"<span class='warn'>⚠ {esc(x)}</span>" if x in r["penalties"] else esc(x)
-                      for x in r["reasons"][:n])
-
-
 def demo_tag(p):
     """Small label for listings with some made-up values (notes_en starts with 'DEMO:')."""
     return "<span class='demo-tag'>demo data</span>" if p.get("demo") else ""
@@ -179,28 +173,35 @@ def unread_count():
                if m["role"] == "supplier" and not m.get("read"))
 
 
-def messages_link():
-    n = unread_count()
-    badge = f" <span class='unread-badge'>{n}</span>" if n else ""
-    return (f"<a class='plain msg-link' href='{link(view='inbox', pid=None)}' target='_self'>"
-            f"Messages{badge}</a>")
+MARK_SVG = ("<span class='mark'><svg fill='none' stroke='#fff' stroke-linecap='round' stroke-width='2.4' "
+            "viewBox='0 0 24 24'><circle cx='10' cy='10' r='6'></circle><path d='m14.8 14.8 5 5'></path></svg></span>")
+
+
+def brand_html():
+    return (f"<a class='brand' href='{link(view='home', tab='search', pid=None)}' target='_self'>"
+            f"{MARK_SVG}SourceScan</a>")
 
 
 def topbar_html():
-    """Logo on the left; sections, orders and the delivery chip on the right."""
-    links = [f"<a href='{link(view='home', tab='link', pid=None)}' target='_self'>Link paste</a>",
-             messages_link(),
-             f"<a class='avatar-link' href='{link(view='profile', order=None)}' target='_self'>"
-             f"<span class='avatar'>{esc(P.initials(S.profile))}</span>Profile</a>"]
+    """Brand on the left; Search, Link paste, Messages, Profile, FAQ and the delivery chip on the right."""
+    def a(label, view, cls="", **kw):
+        on = " on" if S.view == view else ""
+        return f"<a class='{cls}{on}' href='{link(view=view, **kw)}' target='_self'>{label}</a>"
+    n = unread_count()
+    links = [a("Search", "home", "hide-sm", tab="search", pid=None),
+             a("Link paste", "paste", "hide-sm", pid=None),
+             a("Messages" + (f" <span class='unread-badge'>{n}</span>" if n else ""), "inbox", pid=None),
+             a(f"<span class='avatar'>{esc(P.initials(S.profile))}</span>Profile", "profile", "avatar-link",
+               order=None)]
     if len(S.cmp) >= 2:
-        links.append(f"<a href='{link(view='compare')}' target='_self'>Compare ({len(S.cmp)})</a>")
-    links.append(f"<span class='chip'>{esc(S.country)} · {currency_short(S.cur)}</span>")
-    return (f"<div class='topbar'><a class='logo' href='{link(view='home', tab='search', pid=None)}' target='_self'>"
-            f"<span class='logo-mark'></span>SourceScan</a><div class='top-links'>{''.join(links)}</div></div>")
+        links.append(a(f"Compare ({len(S.cmp)})", "compare"))
+    links.append(f"<a class='hide-sm' href='{link(view='home', tab='search', pid=None)}#faq' target='_self'>FAQ</a>")
+    links.append(f"<span class='locale'>{esc(S.country)} · {currency_short(S.cur)}</span>")
+    return f"<div class='topbar'>{brand_html()}<div class='top-links'>{''.join(links)}</div></div>"
 
 
 def band(key="band"):
-    """The dark full-width band with the top bar. Use as `with band(): ...` to add content to it."""
+    """The light full-width top bar. Use as `with band(): ...` to add content right below it."""
     c = st.container(key=key)
     c.markdown(topbar_html(), unsafe_allow_html=True)
     return c
@@ -209,6 +210,30 @@ def band(key="band"):
 def nav_bar():
     """Top bar for inner pages."""
     band()
+
+
+def pagehero(tag_text, title, sub="", steps=None):
+    """Centred page heading of the inner pages; steps = index of the active 01 Search · 02 Compare · 03 Checkout."""
+    prog = ""
+    if steps is not None:
+        names = ["01 Search", "02 Compare", "03 Checkout"]
+        prog = "<div class='progress'>" + "—".join(
+            f"<span class='{'on' if i == steps else ''}'>{n}</span>" for i, n in enumerate(names)) + "</div>"
+    return (f"<div class='pagehero'><div class='sectiontag'>{esc(tag_text)}</div><div class='ph1'>{title}</div>"
+            + (f"<div class='psub'>{sub}</div>" if sub else "") + f"</div>{prog}")
+
+
+def site_footer():
+    links = "".join(f"<a href='{u}' target='_self'>{t}</a>" for t, u in [
+        ("Search", link(view="home", tab="search", pid=None)), ("Link paste", link(view="paste", pid=None)),
+        ("Messages", link(view="inbox", pid=None)), ("Profile", link(view="profile", order=None)),
+        ("FAQs", link(view="home", tab="search", pid=None) + "#faq")])
+    st.markdown(
+        f"<div class='sitefoot'><div>{brand_html()}<p class='disclaimer'>Hackathon prototype. Listings come from a "
+        "fixed catalog collected from 1688, Taobao, JD and Pinduoduo, not a live search; payments are simulated. "
+        "Trust scores summarize available public signals and are not official verification. Delivered prices "
+        "are estimates until final quotes and customs details are confirmed. No affiliation with the "
+        f"marketplaces is implied.</p></div><div class='footlinks'>{links}</div></div>", unsafe_allow_html=True)
 
 
 def sample_banner():
@@ -222,10 +247,14 @@ def scroll_to_top_on_view_change():
         # run after the new page has rendered (Streamlit keeps the old scroll position otherwise)
         # (own scope: st.html scripts share the page's global scope; the view name makes the HTML
         # differ from page to page, otherwise Streamlit keeps the old element and the script won't rerun)
+        # an address ending in #faq (the FAQ link) scrolls to that section instead
         st.html(f"<script data-view='{html.escape(view)}'>(() => {{ const up = () => {{"
+                "const t = location.hash ? document.getElementById(location.hash.slice(1)) : null;"
+                "if (t) {{ t.scrollIntoView(); return; }}"
                 "const m = document.querySelector('[data-testid=\"stMain\"]');"
                 "if (m) m.scrollTo(0, 0); window.scrollTo(0, 0); };"
-                "setTimeout(up, 80); setTimeout(up, 400); })();</script>", unsafe_allow_javascript=True)
+                "setTimeout(up, 80); setTimeout(up, 400); setTimeout(up, 900); })();</script>",
+                unsafe_allow_javascript=True)
 
 
 # ---------------------------------------------------------------------------- receipt

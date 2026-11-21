@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from components.state import S, go, link
-from components.ui import NA, cny, money, sample_banner
+from components.ui import NA, cny, money, pagehero, sample_banner
 from core.catalog import get_product
 from core.pricing import delivered
 from core.supplier_score import trust_for
@@ -13,7 +13,8 @@ from views.results import trust_in_search
 
 def page_compare():
     st.button("← Back to results", on_click=go, args=("results",))
-    st.header("Compare")
+    st.markdown(pagehero("02 / Compare", "Compare. Verify. Choose.", "One clear view of products, suppliers "
+                         "and delivered prices.", steps=1), unsafe_allow_html=True)
     sample_banner()
     prods = [p for p in (get_product(pid) for pid in S.cmp) if p]
     if len(prods) < 2:

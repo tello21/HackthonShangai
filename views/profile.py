@@ -4,7 +4,7 @@ defaults used for every search: delivery country, currency, quantity)."""
 import streamlit as st
 
 from components.state import S
-from components.ui import band, currency_label, esc
+from components.ui import currency_label, esc
 from core import profile as P
 from core.pricing import COUNTRIES, CURRENCIES
 from views.checkout import render_orders_list
@@ -43,12 +43,11 @@ def _settings_form():
 
 def page_profile():
     p = S.profile
-    with band():
-        who = esc(p["name"]) or "Your profile"
-        sub = " · ".join(esc(x) for x in (p["company"], p["email"]) if x) or "Add your details below"
-        st.markdown(f"<div class='profile-head'><span class='avatar big'>{esc(P.initials(p))}</span>"
-                    f"<div><div class='pn'>{who}</div><div class='pc2'>{sub}</div></div></div>",
-                    unsafe_allow_html=True)
+    who = esc(p["name"]) or "Your profile"
+    sub = " · ".join(esc(x) for x in (p["company"], p["email"]) if x) or "Add your details below"
+    st.markdown(f"<div class='profile-head'><span class='avatar big'>{esc(P.initials(p))}</span>"
+                f"<div><div class='pn'>{who}</div><div class='pc2'>{sub}</div></div></div>",
+                unsafe_allow_html=True)
 
     st.markdown(f"<div class='section-h'>Your orders ({len(S.orders)})</div>", unsafe_allow_html=True)
     render_orders_list()

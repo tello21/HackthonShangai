@@ -55,9 +55,12 @@ def test_orders_appear_in_the_profile(no_ai):
 
 def test_how_it_works_section_on_home(no_ai):
     t = page_text(run_app({"view": "home"}))
-    assert "How SourceScan works" in t
-    for q in ("How does the search work?", "How is the trust score calculated?",
-              "How is the delivered price calculated?", "What happens when data is missing?",
-              "What is the price red flag?", "Is the trust score an official verification?"):
-        assert q in t
-    assert "Know who you're buying from" in t and "Talk and order" not in t
+    assert "Clear answers." in t and "id='faq'" in t
+    for q in ("How does the search work?", "How do you calculate supplier trust?",
+              "What is included in the delivered price?", "Does a high trust score guarantee a supplier is safe?",
+              "Missing data is not hidden", "Red flags cost points"):
+        assert q in t, q
+    detail = page_text(run_app({"view": "detail", "pid": "1"}))      # "How we score" on every product page
+    for q in ("What happens when data is missing?", "What is the price red flag?",
+              "What if the brand looks counterfeit?", "Is the trust score an official verification?"):
+        assert q in detail, q

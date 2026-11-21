@@ -1,123 +1,225 @@
 """All CSS of the app, mobile-first (375px first, then wider screens).
 
-Palette (see .streamlit/config.toml):
-  Steel Azure  #064789  dark band, headings, dark text
-  Rich Cerulean #427AA1 active tab, links, secondary buttons
-  Alice Blue   #EBF2FA  page background
-  Highlighter  #FFF200  main call to action, best price, savings, totals (as a marker stroke
-                        under navy text: yellow text on white would be unreadable)
-Font: Outfit, a geometric sans-serif (Google Fonts).
-Layout reference: a dark band on top with pill tabs and a white horizontal search bar.
+Design reference: the team's "SourceScan — Search. Compare. Trust. Buy." mock-up.
+  Ink        #162638  text and headings
+  Muted      #627384  secondary text
+  Blue       #17639c  links, brand mark, highlights
+  Lime       #d9f077  the main call to action, "your quantity", marker strokes under key numbers
+  Deep blue  #103d5d  closing band
+  Background #fbfbf7, soft sections #f3f7f7, lines #dde4e6
+Fonts: Space Grotesk (headings, prices, scores) and Inter (text), Google Fonts.
 """
 
 import streamlit as st
 
-NAVY = "#064789"
-CERULEAN = "#427AA1"
-ALICE = "#EBF2FA"
-YELLOW = "#FFF200"
-INK = "#0B2A47"
-LINE = "#D3E0EE"
+INK = "#162638"
+MUTED = "#627384"
+BLUE = "#17639c"
+LIME = "#d9f077"
+DEEP = "#103d5d"
+BG = "#fbfbf7"
+SOFT = "#f3f7f7"
+LINE = "#dde4e6"
 
 CSS = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
-:root {{--navy:{NAVY}; --cerulean:{CERULEAN}; --alice:{ALICE}; --hl:{YELLOW};
-        --ink:{INK}; --line:{LINE}; --font:'Outfit', ui-sans-serif, system-ui, sans-serif;}}
-/* the geometric font everywhere except Streamlit's icon font (expander arrows, etc.) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root {{--navy:{INK}; --ink:{INK}; --muted:{MUTED}; --cerulean:{BLUE}; --blue:{BLUE}; --hl:{LIME}; --deep:{DEEP};
+        --bg:{BG}; --alice:{SOFT}; --soft:{SOFT}; --line:{LINE};
+        --font:Inter, ui-sans-serif, system-ui, sans-serif; --display:'Space Grotesk', Inter, sans-serif;
+        --shadow:0 12px 40px #19394b0b;}}
+/* Inter everywhere except Streamlit's icon font (expander arrows, etc.) */
 .stApp, .stApp p, .stApp div, .stApp a, .stApp label, .stApp button, .stApp input, .stApp textarea,
 .stApp li, .stApp td, .stApp th, .stApp summary, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5,
 .stApp span:not([data-testid="stIconMaterial"]) {{font-family:var(--font);}}
+.stApp h1, .stApp h2, .stApp h3, .disp, .brand, .pc-price, .trust-num, .tier-p, .kf-v, .ps-title, .sec-h,
+.rh-q, .hero-h1, .h2, .step-t, .endcta-h, .summary-price {{font-family:var(--display) !important;}}
 [data-testid="stToolbar"], [data-testid="stDecoration"], footer {{display:none !important;}}
-header[data-testid="stHeader"] {{background: transparent;}}
-.stApp {{background:var(--alice);}}
-.block-container {{padding: 0 1rem 3rem; max-width: 760px;}}
-a {{color:var(--cerulean);}}
-h1, h2, h3, h4 {{color:var(--navy);}}
+header[data-testid="stHeader"] {{background:transparent;}}
+.stApp {{background:var(--bg); color:var(--ink);}}
+.block-container {{padding:0 1.1rem 0; max-width:1190px;}}
+a {{color:var(--blue);}}
+h1, h2, h3, h4 {{color:var(--ink);}}
+.stApp button[kind="primary"], .stApp button[kind="primaryFormSubmit"] {{background:var(--hl); border-color:var(--hl);
+    color:#21372a; font-weight:700; border-radius:9px;}}
+.stApp button[kind="primary"]:hover, .stApp button[kind="primaryFormSubmit"]:hover {{background:#cce866;
+    border-color:#cce866; color:#21372a;}}
+.stApp button[kind="primary"] p, .stApp button[kind="primaryFormSubmit"] p {{color:#21372a; font-weight:700;}}
+.stApp button[kind="secondary"] {{border-radius:9px; border-color:#bfcfd5; color:#245974; font-weight:600;}}
 
-/* ---------- dark band (full width) with the top bar */
-.st-key-hero, .st-key-band {{background:var(--navy); color:#fff; padding:1rem 0 1.4rem;
-    box-shadow:0 0 0 100vmax var(--navy); clip-path:inset(-100vmax -100vmax 0 -100vmax);
-    margin-bottom:1.2rem;}}
-.st-key-hero h1, .st-key-hero h2, .st-key-hero h3, .st-key-band h1, .st-key-band h2 {{color:#fff;}}
-.st-key-hero label p, .st-key-band label p {{color:#cfe0f0 !important; font-size:.8rem !important;}}
-.topbar {{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:.3rem 0 .9rem;}}
-.logo {{display:flex; align-items:center; gap:8px; color:#fff !important; text-decoration:none !important;
-        font-weight:800; font-size:1.3rem; letter-spacing:-.01em;}}
-.logo-mark {{width:26px; height:26px; border-radius:8px; background:var(--hl); position:relative; flex:none;}}
-.logo-mark::before {{content:""; position:absolute; left:6px; top:5px; width:9px; height:9px; border:2.5px solid var(--navy);
-                     border-radius:50%;}}
-.logo-mark::after {{content:""; position:absolute; left:16px; top:15px; width:6px; height:2.5px; background:var(--navy);
-                    transform:rotate(45deg); border-radius:2px;}}
-.top-links {{display:flex; align-items:center; gap:14px; font-size:.88rem; flex-wrap:wrap; justify-content:flex-end;}}
-.top-links a {{color:#fff !important; text-decoration:none !important; font-weight:600;}}
+/* ---------- top bar (light, full width, line below) */
+.st-key-band, .st-key-hero {{background:#fff; box-shadow:0 0 0 100vmax #fff, 0 1px 0 100vmax var(--line);
+    clip-path:inset(-100vmax -100vmax -1px -100vmax); margin-bottom:.4rem; padding:0;}}
+.topbar {{display:flex; justify-content:space-between; align-items:center; gap:18px; min-height:70px;}}
+.brand {{display:flex; align-items:center; gap:10px; color:var(--ink) !important; text-decoration:none !important;
+         font-weight:700; font-size:1.35rem; letter-spacing:-.05em;}}
+.mark {{width:33px; height:33px; border-radius:10px; background:#145f97; display:grid; place-items:center; flex:none;}}
+.mark svg {{width:21px;}}
+.top-links {{display:flex; align-items:center; gap:22px; font-size:13px; font-weight:600; flex-wrap:wrap;
+             justify-content:flex-end;}}
+.top-links a {{color:#435565 !important; text-decoration:none !important;}}
+.top-links a:hover, .top-links a.on {{color:var(--blue) !important;}}
+.locale {{border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px 12px; font-size:12px;
+          color:var(--ink); white-space:nowrap;}}
 a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
-.avatar {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--cerulean); color:#fff;
-          font-size:.72rem; font-weight:800; align-items:center; justify-content:center; flex:none;}}
-.avatar.big {{width:56px; height:56px; font-size:1.3rem; background:var(--hl); color:var(--navy);}}
-.profile-head {{display:flex; align-items:center; gap:14px; margin:.4rem 0 .2rem;}}
-.profile-head .pn {{font-size:1.4rem; font-weight:800; color:#fff; line-height:1.2;}}
-.profile-head .pc2 {{color:#cfe0f0; font-size:.9rem;}}
-.section-h {{font-size:1.25rem; font-weight:800; color:var(--navy); margin:1.2rem 0 .5rem;}}
-.chip {{background:rgba(255,255,255,.13); border-radius:8px; padding:.35rem .7rem; font-size:.8rem; color:#fff;
-        white-space:nowrap;}}
-.st-key-band .rh-q {{color:#fff;}}
-.st-key-band .rh-sub, .st-key-band .muted {{color:#cfe0f0 !important;}}
-.st-key-band a.rh-back {{color:#cfe0f0 !important;}}
-.st-key-band details.tr summary, .st-key-band .tr-in {{color:#dbe7f3;}}
-.st-key-band .tr-in a {{color:var(--hl);}}
-.st-key-band div[data-testid="stPopover"] button, .st-key-band div[data-testid="stButton"] button {{
-    background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5);}}
+.avatar {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff;
+          font-size:.72rem; font-weight:700; align-items:center; justify-content:center; flex:none;}}
+.avatar.big {{width:56px; height:56px; font-size:1.3rem; background:var(--hl); color:#21372a;}}
+.profile-head {{display:flex; align-items:center; gap:14px; margin:1.6rem 0 .4rem;}}
+.profile-head .pn {{font-family:var(--display); font-size:1.8rem; font-weight:600; color:var(--ink); line-height:1.2;
+                    letter-spacing:-.03em;}}
+.profile-head .pc2 {{color:var(--muted); font-size:.9rem;}}
+.section-h {{font-family:var(--display); font-size:1.35rem; font-weight:600; color:var(--ink); margin:1.4rem 0 .5rem;
+             letter-spacing:-.03em;}}
+.chip {{border:1px solid var(--line); background:#fff; border-radius:100px; padding:6px 12px; font-size:12px;
+        color:#4c6373; font-weight:600; white-space:nowrap;}}
 
-/* ---------- pill tabs (Link paste · Sourcing · Messages) */
-.st-key-home_tab [role="radiogroup"] {{gap:.45rem;}}
-.st-key-home_tab button {{min-width:0 !important; min-height:2.5rem; padding:0 .8rem !important; font-weight:700;
-    border-radius:999px !important; background:transparent !important; color:#fff !important;
-    border:1px solid rgba(255,255,255,.45) !important;}}
-.st-key-home_tab button[aria-checked="true"] {{background:var(--cerulean) !important; border-color:var(--cerulean) !important;}}
-.st-key-home_tab button p {{font-size:.84rem !important; white-space:nowrap; color:#fff !important;}}
+/* ---------- page heading used by inner pages (Results, Link paste, Checkout...) */
+.pagehero {{text-align:center; padding:2.6rem 0 .6rem;}}
+.sectiontag {{font-size:11px; text-transform:uppercase; color:#2a6c80; letter-spacing:.17em; font-weight:700;
+              margin-bottom:12px;}}
+.pagehero .ph1 {{font-family:var(--display); font-size:clamp(32px, 4vw, 54px); line-height:1.08; font-weight:600;
+                 letter-spacing:-.055em; color:var(--ink); margin:0 0 12px; word-break:break-word;}}
+.pagehero .psub {{font-size:15px; color:var(--muted); max-width:740px; margin:0 auto;}}
+.progress {{display:flex; gap:10px; align-items:center; justify-content:center; margin:14px 0 22px; font-size:12px;
+            color:#8798a4; flex-wrap:wrap;}}
+.progress span {{border-radius:20px; padding:5px 11px; border:1px solid var(--line); background:#fff;}}
+.progress span.on {{color:#236448; background:#e8f5da; border-color:#c9dfb4;}}
 
-/* ---------- search bar in the band */
-.hero-title {{color:#fff; font-weight:800; line-height:1.15; letter-spacing:-.02em;
-             font-size:clamp(1.65rem, 6.5vw, 2.4rem); margin:1.1rem 0 1rem;}}
-.hero-sub {{color:#cfe0f0; margin:-.4rem 0 1rem; font-size:.95rem;}}
-.st-key-hero div[data-testid="stForm"] {{border:none; padding:0;}}
-.st-key-hero [data-testid="stTextInputRootElement"] input {{font-size:1rem; color:var(--ink);}}
+/* ---------- home: hero */
+.hero {{text-align:center; padding:4.2rem 0 1.6rem;}}
+.hero-h1 {{font-size:clamp(40px, 5.1vw, 76px); line-height:1.06; font-weight:600; letter-spacing:-.064em;
+           color:var(--ink); margin:0 auto 20px; max-width:930px;}}
+.hero-h1 .hl {{color:var(--blue);}}
+.hero-sub {{font-size:18px; max-width:690px; margin:0 auto 34px; line-height:1.7; color:var(--muted);}}
+.st-key-searchpanel {{background:#fff; border:1px solid #d8e0e1; box-shadow:0 12px 55px #1c425214; border-radius:17px;
+                      padding:18px 18px 4px;}}
+.st-key-searchpanel div[data-testid="stForm"] {{border:none; padding:0;}}
+.st-key-searchpanel label p {{font-weight:600 !important; font-size:11px !important; color:#586d7e !important;}}
+.st-key-searchpanel input, .st-key-searchpanel div[data-baseweb="select"] > div {{min-height:46px; font-size:15px;}}
+.st-key-searchpanel div[data-testid="stFormSubmitButton"] button {{height:48px; min-height:48px; padding:0 22px;
+    white-space:nowrap;}}
+/* as in the mock-up: below 1000px the query and the button take a full row each */
+@media (max-width: 1000px) {{
+  .st-key-searchpanel div[data-testid="stHorizontalBlock"] {{flex-wrap:wrap !important;}}
+  .st-key-searchpanel div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
+      flex:1 1 calc(33% - 1rem) !important; min-width:120px !important;}}
+  .st-key-searchpanel div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child,
+  .st-key-searchpanel div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {{
+      flex:1 1 100% !important;}}
+}}
+.markets {{display:flex; gap:12px; align-items:center; justify-content:center; margin-top:26px; color:#7b8794;
+           font-size:12px; flex-wrap:wrap;}}
+.market {{border:1px solid var(--line); border-radius:7px; padding:3px 11px; background:#fff; color:#627382;}}
+.micro {{font-size:12px; color:#758593; margin-top:14px; text-align:center;}}
 
-/* ---------- how it works (below the band on the home page) */
-.how {{display:grid; grid-template-columns:1fr; gap:10px; margin:.2rem 0 1rem;}}
-.how-card {{background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px;}}
-.how-n {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--hl); color:var(--navy);
-         font-weight:800; align-items:center; justify-content:center; font-size:.85rem; margin-bottom:6px;}}
-.how-t {{font-weight:800; color:var(--navy); margin-bottom:2px;}}
-.how-d {{color:#5b6f84; font-size:.88rem; line-height:1.4;}}
-@media (min-width: 640px) {{ .how {{grid-template-columns:repeat(3, 1fr);}} }}
+/* ---------- home: sections */
+.fullbleed, .st-key-trustsec {{background:var(--soft); box-shadow:0 0 0 100vmax var(--soft);
+    clip-path:inset(0 -100vmax); border-top:1px solid #e7eced;}}
+.sec {{padding:64px 0;}}
+.st-key-trustsec {{padding:64px 0 56px;}}
+.sectionhead {{max-width:750px; margin-bottom:36px;}}
+.h2 {{font-size:clamp(30px, 3vw, 46px); line-height:1.17; font-weight:600; letter-spacing:-.04em; color:var(--ink);
+      margin:0 0 14px;}}
+.lead {{font-size:16px; color:var(--muted); line-height:1.6;}}
+.steps {{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px;}}
+.step {{padding:28px; border:1px solid var(--line); border-radius:13px; background:#fff; min-height:220px;}}
+.stepno {{display:inline-grid; place-items:center; width:38px; height:38px; background:#e9f4d3; border-radius:11px;
+          color:#365936; font-family:var(--display); font-size:18px; font-weight:700; margin-bottom:18px;}}
+.step-t {{font-size:20px; line-height:1.28; font-weight:600; letter-spacing:-.03em; color:var(--ink); margin-bottom:10px;}}
+.step p {{font-size:14px; margin:0; color:var(--muted); line-height:1.6;}}
+.principles {{display:grid; gap:16px; margin-top:24px;}}
+.principle {{display:flex; align-items:start; gap:15px; border-bottom:1px solid var(--line); padding-bottom:16px;}}
+.principle .num {{color:var(--blue); font-weight:700; font-size:12px; margin-top:3px;}}
+.principle .pt {{font-weight:600; font-size:15px; color:var(--ink); margin-bottom:3px;}}
+.principle p {{font-size:13px; margin:0; color:var(--muted); line-height:1.6;}}
+.st-key-scorebox {{background:#fff; border:1px solid var(--line); border-radius:17px; padding:24px; box-shadow:var(--shadow);}}
+.scorehead {{display:flex; align-items:start; justify-content:space-between; gap:20px; margin-bottom:4px;}}
+.scorehead .disp {{font-size:21px; font-weight:600; letter-spacing:-.03em; color:var(--ink); line-height:1.25;}}
+.st-key-mk_pick button {{padding:0 .6rem !important; min-height:2.2rem;}}
+.st-key-mk_pick button p {{font-size:13px !important;}}
+.samplechip {{background:#f4f6f7; border:1px solid #e4e9eb; color:#687e88; font-weight:600; border-radius:8px;
+              padding:6px 10px; font-size:11px; white-space:nowrap;}}
+.st-key-mk_pick button {{border-radius:100px !important;}}
+.st-key-mk_pick button[aria-checked="true"] {{background:#eaf5dc !important; border-color:#b9d9aa !important;}}
+.st-key-mk_pick button[aria-checked="true"] p {{color:#2f6447 !important;}}
+.mk-intro {{font-size:13px; color:var(--muted); margin:2px 0 6px; line-height:1.55;}}
+.mrow {{border-top:1px solid var(--line); padding:14px 0 12px;}}
+.mrow-top {{display:grid; grid-template-columns:1fr 2fr 42px; align-items:center; gap:12px; font-size:13px;
+            color:#41556a; font-weight:600;}}
+.track {{height:7px; border-radius:15px; background:#e9edee; overflow:hidden;}}
+.fill {{height:100%; background:#9bbcaf; border-radius:15px;}}
+.mrow-top b {{text-align:right; color:var(--ink);}}
+.mrow-body {{font-size:12.5px; color:#546879; line-height:1.55; margin-top:7px;}}
+.mrow-body b {{color:#294657; font-weight:600;}}
+.avail {{display:inline-block; font-size:10.5px; font-weight:700; border-radius:100px; padding:1px 8px; margin-left:6px;
+         vertical-align:1px;}}
+.avail.yes {{background:#e8f5da; color:#2f6447;}}
+.avail.some {{background:#f6f4ed; color:#8a6b2b;}}
+.avail.no {{background:#f3f5f6; color:#7c8b98;}}
+.note {{font-size:12px; color:#7c8b98; margin-top:12px; line-height:1.55;}}
+.ex {{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}}
+.ex a {{display:inline-flex; gap:6px; align-items:center; font-size:12px; border:1px solid var(--line); border-radius:8px;
+        padding:4px 8px; background:#fff; color:var(--ink) !important; text-decoration:none !important;}}
+.faqgrid {{display:grid; grid-template-columns:.8fr 1.2fr; gap:70px; padding:64px 0;}}
+details.fq {{border-top:1px solid #dce4e7;}}
+details.fq:last-child {{border-bottom:1px solid #dce4e7;}}
+details.fq summary {{cursor:pointer; list-style:none; padding:20px 30px 20px 0; font-weight:600; font-size:15px;
+                     position:relative; color:var(--ink);}}
+details.fq summary::-webkit-details-marker {{display:none;}}
+details.fq summary::after {{content:'+'; font-size:22px; font-weight:400; position:absolute; right:4px; top:14px; color:#507185;}}
+details.fq[open] summary::after {{content:'−';}}
+details.fq p {{padding:0 20px 20px 0; margin:0; font-size:14px; line-height:1.8; color:var(--muted);}}
+.endcta {{padding:60px 25px; background:var(--deep); text-align:center; color:#fff; border-radius:18px; margin:10px 0 50px;}}
+.endcta-h {{font-size:clamp(28px, 3vw, 42px); font-weight:600; letter-spacing:-.04em; margin-bottom:10px; color:#fff;}}
+.endcta p {{color:#c8d8e3; margin-bottom:22px;}}
+a.cta {{display:inline-flex; align-items:center; background:var(--hl); color:#21372a !important; font-weight:700;
+        border-radius:9px; padding:0 23px; height:48px; text-decoration:none !important;}}
+.sitefoot {{border-top:1px solid var(--line); box-shadow:0 0 0 100vmax var(--bg); clip-path:inset(0 -100vmax);
+            padding:30px 0 40px; margin-top:40px; display:flex; justify-content:space-between; gap:30px;}}
+.sitefoot .brand {{font-size:19px;}}
+.disclaimer {{font-size:11px; color:#8d9ba3; max-width:680px; margin:14px 0 0; line-height:1.6;}}
+.footlinks {{display:flex; gap:22px; flex-wrap:wrap; font-size:12px;}}
+.footlinks a {{color:#637582 !important; text-decoration:none !important;}}
+@media (max-width: 950px) {{ .faqgrid {{gap:30px;}} }}
+@media (max-width: 700px) {{
+  .top-links {{gap:12px;}} .top-links .hide-sm, .top-links .locale {{display:none;}}
+  .brand {{font-size:1.15rem;}}
+  .hero {{padding:3rem 0 1.2rem;}} .hero-sub {{font-size:15px;}}
+  .steps, .faqgrid {{grid-template-columns:1fr;}} .step {{min-height:auto;}}
+  .sec, .faqgrid {{padding:44px 0;}} .st-key-trustsec {{padding:44px 0;}}
+  .sitefoot {{flex-direction:column;}} .st-key-scorebox {{padding:18px;}}
+}}
 
-/* ---------- How SourceScan works (questions that open on tap) */
-.faq {{margin:2rem 0 1rem;}}
-.faq-title {{font-size:1.6rem; font-weight:800; color:var(--navy); margin:0 0 .6rem; padding:0;}}
-.faq-cols {{display:grid; grid-template-columns:1fr; column-gap:2rem;}}
-.faq-h {{font-size:.78rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--cerulean);
-         margin:1.1rem 0 .1rem;}}
-details.faq-q {{border-bottom:1px solid #c5d3e2;}}
-details.faq-q summary {{list-style:none; cursor:pointer; display:flex; justify-content:space-between; gap:12px;
-                       padding:14px 2px; font-weight:700; color:var(--ink);}}
-details.faq-q summary::-webkit-details-marker {{display:none;}}
-details.faq-q summary::after {{content:""; flex:none; width:8px; height:8px; margin:5px 4px 0 0;
-    border-right:2px solid var(--ink); border-bottom:2px solid var(--ink); transform:rotate(45deg);
-    transition:transform .2s;}}
-details.faq-q[open] summary::after {{transform:rotate(225deg); margin-top:9px;}}
-.faq-a {{padding:0 2px 14px; color:#4b5d70; line-height:1.55; font-size:.92rem;}}
-@media (min-width: 760px) {{ .faq-cols {{grid-template-columns:1fr 1fr;}} }}
-.st-key-hero div[data-testid="stFormSubmitButton"] button, .st-key-hero .st-key-lp_go button {{
-    height:2.5rem; min-height:2.5rem; border-radius:10px; font-size:1.05rem; font-weight:800; background:var(--hl) !important;
-    border-color:var(--hl) !important; color:var(--navy) !important;}}
-.st-key-hero div[data-testid="stFormSubmitButton"] button p, .st-key-hero .st-key-lp_go button p {{color:var(--navy) !important;}}
-.hero-foot {{color:#cfe0f0; font-size:.8rem; margin-top:.8rem;}}
-.st-key-hero div[data-testid="stFileUploader"] section {{background:#fff;}}
-.st-key-hero div[data-testid="stExpander"] {{background:#fff; border-radius:10px;}}
-.st-key-hero div[data-testid="stButton"] button[kind="tertiary"] p {{color:#dbe7f3 !important; text-decoration:underline;}}
+/* ---------- results: 3 cards per row */
+.st-key-rtools {{display:flex; flex-direction:column; align-items:center; gap:.3rem; margin-bottom:.6rem;}}
+.st-key-rtools [data-testid="stMarkdownContainer"], .st-key-rtools details.tr {{text-align:center;}}
+.grid {{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin:.6rem 0 1rem;}}
+a.gc {{display:flex; flex-direction:column; background:#fff; border:1px solid var(--line); border-radius:13px;
+       overflow:hidden; color:var(--ink) !important; text-decoration:none !important; transition:box-shadow .15s, transform .15s;}}
+a.gc:hover {{box-shadow:0 14px 40px #19394b1a; transform:translateY(-2px);}}
+.gc-media {{position:relative; display:block; aspect-ratio:1/1; background:#fff; border-bottom:1px solid var(--line);}}
+.gc-media img {{width:100%; height:100%; object-fit:contain; padding:14px; display:block;}}
+.gc-flags {{position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-start;}}
+.gc-flags .demo-tag {{background:#fff;}}
+.gc-body {{display:flex; flex-direction:column; gap:14px; padding:18px 20px 20px; flex:1;}}
+.gc-title {{font-family:var(--display); font-size:17px; font-weight:600; line-height:1.3; letter-spacing:-.02em;
+            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.6em;}}
+a.gc:hover .gc-title {{color:var(--blue);}}
+.gc-row {{display:flex; flex-direction:column; gap:3px; border-top:1px solid #e5eaed; padding-top:12px;}}
+.gc-l {{font-size:10.5px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; color:#7c8b98;}}
+.gc-price {{font-family:var(--display); font-size:30px; font-weight:600; letter-spacing:-.045em; line-height:1.1;
+            font-variant-numeric:tabular-nums;}}
+.gc-price.na-price {{font-size:17px; color:#9aa8b5; font-style:italic; letter-spacing:0;}}
+.gc-unit {{font-size:12px; color:var(--muted);}}
+.gc-row .score-pill {{align-self:flex-start;}}
+.list-count {{text-align:right;}}
+@media (max-width: 900px) {{ .grid {{grid-template-columns:repeat(2, minmax(0, 1fr));}} }}
+@media (max-width: 560px) {{ .grid {{grid-template-columns:1fr;}} .list-count {{text-align:left;}} }}
 
+/* ---------- inner panels (white cards) */
+.st-key-panel, .st-key-lp_panel {{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px;
+    box-shadow:var(--shadow);}}
 /* ---------- white cards on Alice Blue */
 div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"]) {{background:#fff;}}
 .tag {{display:inline-block; padding:2px 10px; border-radius:999px; font-size:.75rem; font-weight:600;
@@ -273,7 +375,6 @@ a.msg-link {{font-weight:600;}}
 .typing {{align-self:flex-start; color:#5b6f84; font-style:italic; font-size:.9rem; padding:4px 6px;}}
 .chat-head {{margin-bottom:.3rem;}}
 .chat-head .who {{font-size:1.2rem; font-weight:800; line-height:1.2; color:var(--navy);}}
-.st-key-band .chat-head .who {{color:#fff;}}
 .preview {{background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 12px;
            margin:.3rem 0 .5rem; font-size:.92rem;}}
 .preview .bt {{color:#5b6f84; font-size:.82rem; margin-top:5px;}}
@@ -315,11 +416,6 @@ details.tr[open] summary::after {{content:" ⌄";}}
 .tr-in ul {{margin:.1rem 0 .2rem 1rem; padding:0;}}
 
 @media (min-width: 640px) {{
-  .st-key-hero, .st-key-band {{padding:1.2rem 0 1.8rem;}}
-  .st-key-home_tab [role="radiogroup"] {{justify-content:flex-start;}}
-  .st-key-home_tab button {{flex:0 0 auto !important; padding:0 1.1rem !important;}}
-  .st-key-hero div[data-testid="stFormSubmitButton"], .st-key-hero .st-key-lp_go {{margin-top:1.75rem;}}
-  .pc-img {{width:128px; height:128px;}}
   .pc-price {{font-size:1.7rem;}}
 }}
 </style>
@@ -327,7 +423,7 @@ details.tr[open] summary::after {{content:" ⌄";}}
 
 HOME_CSS = """
 <style>
-.block-container {max-width: 1080px;}
+.block-container {max-width: 1190px;}
 </style>
 """
 

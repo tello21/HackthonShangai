@@ -1,11 +1,11 @@
-# SourceScan palette: Steel Azure #064789 · Rich Cerulean #427AA1 · Alice Blue #EBF2FA
-#                    Highlighter yellow #FFF200 · font Outfit (geometric sans-serif, loaded in components/style.py)
+# SourceScan palette (from the team's mock-up): ink #162638 · blue #17639c · lime #d9f077
+#   background #fbfbf7 · soft #f3f7f7 · fonts Space Grotesk + Inter (loaded in components/style.py)
 [theme]
 base = "light"
-primaryColor = "#427AA1"
-backgroundColor = "#EBF2FA"
-secondaryBackgroundColor = "#FFFFFF"
-textColor = "#0B2A47"
+primaryColor = "#17639c"
+backgroundColor = "#fbfbf7"
+secondaryBackgroundColor = "#f3f7f7"
+textColor = "#162638"
 
 [server]
 enableStaticServing = true   # product photos in static/images, served at app/static/images/

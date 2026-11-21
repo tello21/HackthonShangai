@@ -9,7 +9,7 @@ import streamlit as st
 
 from components import style
 from components.state import S, link
-from components.ui import NA, esc, money, platform_tag, receipt
+from components.ui import NA, esc, money, pagehero, platform_tag, receipt
 from core import messages as M
 from core.pricing import SYMBOL, delivered, fx_rate
 from views.product import start_checkout
@@ -52,8 +52,13 @@ def render_inbox():
 
 
 def page_inbox():
-    st.header("Messages")
+    st.markdown(pagehero("Messages", "Your suppliers, in your language.",
+                         "You write in your language, they read natural business Chinese; every reply comes back "
+                         "translated and explained."), unsafe_allow_html=True)
     render_inbox()
+    if S.orders:
+        st.markdown(f"<a href='{link(view='profile', order=None)}' target='_self'>📦 Your orders "
+                    f"({len(S.orders)})</a>", unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------- AI calls (cached; failures never cached)
