@@ -12,7 +12,7 @@ Layout of the code:
 
 import streamlit as st
 
-st.set_page_config(page_title="SourceScan – China sourcing search", page_icon="🔎", layout="centered",
+st.set_page_config(page_title="SourceScan – trusted suppliers in China, real delivered prices", page_icon="🔎", layout="centered",
                    initial_sidebar_state="collapsed")
 
 from components import style  # noqa: E402  (set_page_config must run first)

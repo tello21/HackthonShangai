@@ -11,7 +11,7 @@ from tests.test_ai import PLAN
 
 
 @pytest.mark.parametrize("tab,expected", [
-    ("search", "Find it in China"), ("link", "Paste a link"), ("messages", "Your suppliers")])
+    ("search", "Find trusted suppliers in China"), ("link", "Paste a link"), ("messages", "Your suppliers")])
 def test_home_three_way_bar(no_ai, tab, expected):
     at = run_app({"view": "home", "tab": tab})
     assert expected in page_text(at)
@@ -23,7 +23,7 @@ def test_home_three_way_bar(no_ai, tab, expected):
 def test_results_list(no_ai, q, country, cur):
     for qty in ("1", "500", "5000"):
         t = page_text(run_app({"view": "results", "q": q, "qty": qty, "country": country, "cur": cur}))
-        assert t.count("class='pc") >= 3 and "Supplier " in t
+        assert t.count("class='pc") >= 3 and "Trust " in t
         if qty != "1":   # at 1 unit most items are below MOQ -> honestly 'not available'
             assert "Best price" in t and "/unit delivered" in t
     t = page_text(run_app({"view": "results", "q": "laptop"}))

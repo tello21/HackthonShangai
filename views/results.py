@@ -86,7 +86,7 @@ def product_card(r, sym, top=False, saving=None):
     p, d, score = r["p"], r["d"], r["score"]
     tags = [platform_tag(p.get("platform")),
             "<span class='src-tag live'>Live</span>" if p.get("live") else "<span class='src-tag'>Sample</span>",
-            f"<span class='sc' style='background:{score_colour(score)}'>Supplier "
+            f"<span class='sc' style='background:{score_colour(score)}'>Trust "
             f"{score if score is not None else 'n/a'}{'/100' if score is not None else ''}</span>"]
     if r["ok"]:
         price = f"<div class='pc-price'>{money(d['per_unit'], sym)}<small>/unit delivered</small></div>"
@@ -171,10 +171,10 @@ def page_results():
         f_type = st.multiselect("Seller type", SELLER_TYPES, default=SELLER_TYPES,
                                 format_func=lambda t: {"factory": "Factory", "store": "Store",
                                                        "middleman": "Middleman / trading co."}[t])
-        f_score = st.slider("Minimum supplier score", 0, 100, 0, step=5)
+        f_score = st.slider("Minimum trust score", 0, 100, 0, step=5)
         max_moq_all = max([r["p"]["moq"] or 0 for r in rows] + [1])
         f_moq = st.number_input("Maximum MOQ", min_value=1, value=int(max_moq_all), step=50)
-        st.caption("Supplier score is a sample rule-based rating. Products with unknown score are kept "
+        st.caption("The trust score is a sample rule-based rating. Products with unknown score are kept "
                    "only when minimum score is 0.")
 
     def keep(r):
@@ -208,12 +208,12 @@ def page_results():
                     + (f" · {len(over_budget)} over budget hidden" if over_budget else "") + "</div>",
                     unsafe_allow_html=True)
     with c_sort:
-        sort = st.selectbox("Sort by", ["Lowest price", "Best supplier score", "Lowest MOQ"],
+        sort = st.selectbox("Sort by", ["Lowest price", "Most trusted", "Lowest MOQ"],
                             label_visibility="collapsed")
     big = 10 ** 12
     keyfn = {
         "Lowest price": lambda r: r["d"]["per_unit"],
-        "Best supplier score": lambda r: -(r["score"] if r["score"] is not None else -1),
+        "Most trusted": lambda r: -(r["score"] if r["score"] is not None else -1),
         "Lowest MOQ": lambda r: r["p"]["moq"] if r["p"]["moq"] is not None else big,
     }[sort]
     # products without a delivered price at this quantity always go last
@@ -235,7 +235,7 @@ def page_results():
         + "".join(product_card(r, sym, top=r is best, saving=saving) for r in priced + unpriced)
         + "</div>"
         f"<div class='foot'>Prices include shipping (cheapest method for {S.qty:,} units), duty, VAT and "
-        f"customs, estimated · {fx_line_short()} · Supplier scores are sample values for now · "
+        f"customs, estimated · {fx_line_short()} · Trust scores use sample rules for now · "
         + ("Live = listing read from yiwugo.com, Sample = demo catalog" if live else "Sample catalog")
         + "</div>",
         unsafe_allow_html=True,

@@ -93,9 +93,7 @@ def render_detail(p, source="catalog"):
             st.markdown(image_html(p, 260), unsafe_allow_html=True)
             if p.get("live"):
                 st.markdown(tag("Live Yiwugo listing", "ok"), unsafe_allow_html=True)
-            elif source == "catalog":
-                st.markdown(tag("Sample catalog"), unsafe_allow_html=True)
-            else:
+            elif source != "catalog":
                 st.markdown(tag(f"Read from your {source}", "est"), unsafe_allow_html=True)
         with c_info:
             st.markdown(f"### {esc(p.get('title_en') or p.get('title_cn') or NA)}")
@@ -182,8 +180,8 @@ def render_detail(p, source="catalog"):
                   width="stretch", on_click=start_checkout, args=(p, qty, country, mode),
                   help=None if can_order else "Needs a complete delivered price")
 
-    # ---- 3. Supplier
-    st.subheader("3 · Supplier")
+    # ---- 3. Supplier trust
+    st.subheader("3 · Can you trust this seller?")
     with st.container(border=True):
         score, reasons = supplier_score(s)
         c1, c2 = st.columns([1.2, 1])
@@ -203,8 +201,9 @@ def render_detail(p, source="catalog"):
                 ("Repeat buyers", val(None if s.get("repeat_buyer_rate") is None else f"{s['repeat_buyer_rate']:.0f}%")),
             ]), unsafe_allow_html=True)
         with c2:
-            st.markdown(f"Reliability score<br>{score_pill(score)}", unsafe_allow_html=True)
-            st.caption("Sample score — starts at 50, adjusted by the factors below.")
+            st.markdown(f"**Trust score**<br>{score_pill(score)}", unsafe_allow_html=True)
+            st.caption("Starts at 50 and moves with each fact we know about the seller — every reason is "
+                       "listed below. Sample rules for now.")
             for text, pts in reasons:
                 if pts > 0:
                     st.markdown(f"✅ {text} (**+{pts}**)")
@@ -224,8 +223,7 @@ def render_detail(p, source="catalog"):
         if p.get("url"):
             st.link_button(f"Open original listing on {p.get('platform') or 'source site'} ↗", p["url"])
         else:
-            st.markdown(f"Original listing link: <span class='na'>{NA}</span> "
-                        f"{tag('Sample catalog') if source == 'catalog' else ''}", unsafe_allow_html=True)
+            st.markdown(f"Original listing link: <span class='na'>{NA}</span>", unsafe_allow_html=True)
             slink = search_link(p)
             if slink:
                 st.link_button(f"Search similar items on {p['platform']} ↗", slink)

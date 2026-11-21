@@ -32,7 +32,7 @@ def page_compare():
             "Shipping": f"{d['mode_label']} · {d['transit_days']} days" if d["mode"] else NA,
             "MOQ": f"{p['moq']:,}" if p["moq"] is not None else NA,
             "Lead time": f"{p['production_days']} days" if p["production_days"] is not None else NA,
-            "Supplier score": f"{score}/100 ({score_label(score)})" if score is not None else NA,
+            "Trust score": f"{score}/100 ({score_label(score)})" if score is not None else NA,
             "Seller type": (p["supplier"].get("type") or NA).capitalize(),
         }
     st.dataframe(pd.DataFrame(data), width="stretch")

@@ -72,7 +72,7 @@ def fx_line_short():
 
 
 def score_pill(score):
-    txt = f"{score}/100 · {score_label(score)}" if score is not None else NA
+    txt = f"{score}/100 · {score_label(score)} trust" if score is not None else "not enough data yet"
     return f"<span class='score-pill' style='background:{score_colour(score)}'>{txt}</span>"
 
 
@@ -160,7 +160,7 @@ def nav_bar():
 
 
 def sample_banner():
-    st.markdown(tag("Sample catalog") + tag("Delivered prices are estimates", "est"), unsafe_allow_html=True)
+    st.markdown(tag("Delivered prices are estimates", "est"), unsafe_allow_html=True)
 
 
 def scroll_to_top_on_view_change():

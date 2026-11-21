@@ -5,13 +5,13 @@ import streamlit as st
 
 from components import style
 from components.state import S, TABS, go, link
-from components.ui import band, currency_short, tag, unread_count
+from components.ui import band, currency_short, unread_count
 from core.pricing import COUNTRIES, CURRENCIES
 from views.link_paste import render_link_form, render_link_result
 from views.messages import render_inbox
 
 HEADLINES = {
-    "search": "Find it in China. See the real price, delivered.",
+    "search": "Find trusted suppliers in China. See the real price, delivered.",
     "link": "Paste a link. Get the real price.",
     "messages": "Your suppliers, in your language.",
 }
@@ -25,9 +25,9 @@ HOW_IT_WORKS = (
     "<div class='how-card'><div class='how-n'>2</div><div class='how-t'>See the delivered price</div>"
     "<div class='how-d'>Product, shipping, duty, VAT and customs to your country, at today's ECB rate."
     "</div></div>"
-    "<div class='how-card'><div class='how-n'>3</div><div class='how-t'>Talk and order</div>"
-    "<div class='how-d'>Chat with the supplier in your language, negotiate, and pay the deposit."
-    "</div></div></div>"
+    "<div class='how-card'><div class='how-n'>3</div><div class='how-t'>Know who you're buying from</div>"
+    "<div class='how-d'>Every seller gets a trust score with the reasons behind it: factory or trader, years "
+    "active, verified badges, response and dispute history.</div></div></div>"
 )
 
 
@@ -56,8 +56,8 @@ def search_bar():
     if submitted:
         go("results", q=query.strip(), qty=int(qty), country=country, cur=cur or S.cur, pid=None, cmp=[])
         st.rerun()
-    st.markdown("<div class='hero-foot'>Searching 1688 · Taobao · JD · Yiwugo — live Yiwugo listings "
-                f"plus our {tag('Sample catalog')}</div>", unsafe_allow_html=True)
+    st.markdown("<div class='hero-foot'>Searching 1688 · Taobao · JD · Yiwugo · every seller with a trust score"
+                "</div>", unsafe_allow_html=True)
 
 
 def page_home():
