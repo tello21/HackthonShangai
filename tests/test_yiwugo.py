@@ -140,6 +140,25 @@ def test_buyer_weight_gives_the_delivered_price(no_ai):
         assert "/unit delivered" in page_text(at)
 
 
+def test_marketplace_switches_can_show_only_real_yiwugo(no_ai):
+    with mock.patch("core.yiwugo.search", return_value=[live_listing()]):
+        at = run_app({"view": "results", "q": "tote bag", "qty": "1000"})
+        assert page_text(at).count("<span class='src-tag'>Sample</span>") >= 1
+        at.pills[0].set_value(["Yiwugo"]).run()
+        assert not at.exception, at.exception
+        only_yiwugo = page_text(at)
+        assert only_yiwugo.count("class='mk'") == 1 and "¥4.30" in only_yiwugo
+        assert "<span class='src-tag'>Sample</span>" not in only_yiwugo
+
+        at = run_app({"view": "results", "q": "tote bag", "qty": "1000"})
+        at.toggle[0].set_value(True).run()
+        assert not at.exception, at.exception
+        real = page_text(at)
+        assert "<span class='src-tag live'>Live</span>" in real
+        assert "<span class='src-tag'>Sample</span>" not in real
+        assert "No real listings" not in real
+
+
 def test_live_search_reports_failure_and_can_be_switched_off(no_ai, monkeypatch):
     with mock.patch("core.yiwugo.search", side_effect=TimeoutError()):
         t = page_text(run_app({"view": "results", "q": "tote bag"}))

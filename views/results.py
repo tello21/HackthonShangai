@@ -117,8 +117,25 @@ def product_card(r, sym, top=False, saving=None):
             f"</div></a>")
 
 
+def _markets_on():
+    """Marketplaces left on. All of them, until the buyer turns one off."""
+    if "_w_markets" not in S:
+        return list(PLATFORMS)
+    return list(S._w_markets or [])
+
+
+def _real_only():
+    return bool(S.get("_w_real_only"))
+
+
+def _market_label(name):
+    return "Yiwugo · real" if name == "Yiwugo" else f"{name} · sample"
+
+
 def page_results():
     sym = SYMBOL[S.cur]
+    show = _markets_on()
+    real_only = _real_only()
     plan, reason = None, None
     if S.q:
         with st.spinner("Translating your search for Chinese marketplaces…"):
@@ -145,10 +162,18 @@ def page_results():
             bound(st.selectbox, "Delivery country", "country", options=list(COUNTRIES))
             bound(st.selectbox, "Currency", "cur", options=CURRENCIES, format_func=currency_label)
             bound(st.number_input, f"Max budget per unit ({S.cur}, 0 = none)", "budget", min_value=0.0, step=0.5)
+    pill_kw = dict(selection_mode="multi", format_func=_market_label, help=(
+        "Turn a marketplace off to hide it. Yiwugo is read from the site. "
+        "1688, Taobao and JD are sample data."))
+    if "_w_markets" not in S:
+        pill_kw["default"] = list(PLATFORMS)
+    st.pills("Marketplaces", PLATFORMS, key="_w_markets", wrap=True, **pill_kw)
+    st.toggle("Real listings only", key="_w_real_only",
+              help="Hide the sample catalog and show only listings read from Yiwugo.")
 
     # ---- live Yiwugo listings
     live, live_err = [], None
-    if (S.q or "").strip():
+    if "Yiwugo" in show and (S.q or "").strip():
         zh = ((plan or {}).get("query_zh") or S.q).strip()
         S.yiwugo_q = zh
         with st.spinner("Reading live Yiwugo listings…"):
@@ -167,7 +192,6 @@ def page_results():
     # ---- sidebar filters (collapsed by default, out of the way on mobile)
     with st.sidebar:
         st.header("Filters")
-        f_platform = st.multiselect("Platform", PLATFORMS, default=PLATFORMS)
         f_type = st.multiselect("Seller type", SELLER_TYPES, default=SELLER_TYPES,
                                 format_func=lambda t: {"factory": "Factory", "store": "Store",
                                                        "middleman": "Middleman / trading co."}[t])
@@ -180,7 +204,9 @@ def page_results():
     def keep(r):
         p = r["p"]
         seller = p["supplier"].get("type")
-        if p["platform"] not in f_platform or (seller is not None and seller not in f_type):
+        if p["platform"] not in show or (seller is not None and seller not in f_type):
+            return False
+        if real_only and not p.get("live"):
             return False
         if f_score > 0 and (r["score"] is None or r["score"] < f_score):
             return False
@@ -192,6 +218,12 @@ def page_results():
         over_budget = [r for r in filtered if r["ok"] and r["d"]["per_unit"] > S.budget]
         filtered = [r for r in filtered if r not in over_budget]
 
+    if not show:
+        st.info("All marketplaces are off. Turn one on to see products.")
+        return
+    if real_only and not any(r["p"].get("live") for r in filtered):
+        st.info("No real listings for this search. Only Yiwugo is read from the site right now.")
+        return
     if not base:
         st.warning(f"No products in the sample catalog match “{S.q}”. "
                    "Try tote bag, water bottle, phone case, yoga mat, mug or LED strip.")
