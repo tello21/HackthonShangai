@@ -1,4 +1,4 @@
-"""Profile (orders + settings) and the 'How SourceScan works' section."""
+"""Profile (orders + settings) and the 'How Scoutr works' section."""
 
 import json
 

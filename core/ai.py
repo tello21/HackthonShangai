@@ -1,5 +1,5 @@
 """The one wrapper around the Anthropic SDK used by every AI feature
-(query translation, messages, listing reading).
+(query translation and messages).
 
 ask() returns (result, None) on success or (None, reason) when the AI service is
 not available, so the UI can say why instead of showing made-up text.

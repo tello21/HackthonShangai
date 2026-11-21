@@ -1,12 +1,11 @@
-"""User flows end to end: messages with the supplier, link paste, order + simulated payment."""
+"""User flows end to end: messages with the supplier, order + simulated payment."""
 
 import json
 from unittest import mock
 
 from conftest import page_text, run_app
-from core import ai, messages as M
+from core import messages as M
 from core import orders as O
-from tests.test_ai import AI_LISTING
 
 REPLY = "亲，500个的话单价¥17.5，起订量50个，交期15天左右。付款是30%定金，发货前付70%尾款。需要印logo吗？"
 
@@ -75,42 +74,6 @@ def test_chat_without_api_key_says_why(no_ai):
     at.button(key=f"pv_{cid}").click().run()
     assert any("Translation not available — no API key configured" in w.value for w in at.warning)
     assert at.button(key=f"send_{cid}").disabled
-
-
-# ---------------------------------------------------------------- link paste
-def paste(at, url="", text=""):
-    if url:
-        at.text_input(key="lp_url").input(url)
-    if text:
-        at.text_area(key="lp_text").input(text)
-    button(at, "Analyze").click().run()
-    return page_text(at)
-
-
-def test_link_paste_known_link_gives_full_analysis(no_ai):
-    at = run_app({"view": "home", "tab": "link"})
-    t = paste(at, url="https://detail.1688.com/offer/1037995681915.html?spm=a2615")
-    assert "Found in our catalog" in t and "Total delivered" in t
-
-
-def test_link_paste_unknown_link_asks_for_screenshot_or_text(no_ai):
-    at = run_app({"view": "home", "tab": "link"})
-    t = paste(at, url="https://item.taobao.com/item.htm?id=612345")
-    assert "Got the link on Taobao" in t and "screenshot" in t
-
-
-def test_link_paste_text_read_by_ai(no_ai):
-    with mock.patch.object(ai, "ask", return_value=(AI_LISTING, None)):
-        at = run_app({"view": "home", "tab": "link"})
-        t = paste(at, url="https://detail.1688.com/offer/612345.html", text="12安帆布手提袋 …")
-    assert "Listing read from your text" in t and "12 oz canvas tote bag" in t and "Total delivered" in t
-
-
-def test_link_paste_falls_back_to_rules_without_ai(no_ai):
-    at = run_app({"view": "home", "tab": "link"})
-    button(at, "Use an example listing").click().run()
-    t = paste(at)
-    assert "AI reading not available (no API key configured)" in t and "Total delivered" in t
 
 
 # ---------------------------------------------------------------- order + simulated payment

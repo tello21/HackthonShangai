@@ -1,5 +1,4 @@
-"""Product page: product card, delivered price, supplier, contact + order.
-Also used to show the result of Link paste."""
+"""Product page: product card, delivered price, supplier, contact + order."""
 
 import streamlit as st
 
@@ -7,10 +6,9 @@ from components.state import S, go
 from components.ui import (NA, cny, demo_tag, esc, fact_grid, fx_line, image_uri, platform_tag, receipt, sample_banner,
                            search_link, section, tag, tier_cards, trust_bars, trust_pill, units)
 from core import messages as M
-from core.catalog import get_product
+from core.catalog import get_product, platform_from_url
 from core.pricing import COUNTRIES, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes, delivered
-from core.listing import platform_from_url
-from core.scoring import PENALTY_POINTS, STORE_TYPES
+from core.scoring import BADGE_EN, PENALTY_POINTS, STORE_TYPES
 from core.supplier_score import raw_fields, trust_for
 from views.faq import how_we_score_html
 from views.results import trust_in_search
@@ -153,7 +151,7 @@ def render_detail(p, source="catalog"):
     st.markdown(section(3, "Can you trust this seller?"), unsafe_allow_html=True)
     with st.container(border=True):
         # the same score as in the results list (same search, same-platform sales and prices);
-        # scored alone for products outside the search (e.g. Link paste)
+        # scored alone for products outside the search
         r = (source == "catalog" and trust_in_search(p)) or trust_for(p, d["unit_cny"])
         c1, c2 = st.columns([1, 1.25], gap="large")
         with c1:
@@ -187,7 +185,7 @@ def render_detail(p, source="catalog"):
 
         raw = raw_fields(p)
         scores5 = raw["service_scores_5pt"]
-        badges = "".join(f"<span class='chip-b'>{esc(b)}</span>" for b in raw["badges"] or []) or None
+        badges = "".join(f"<span class='chip-b'>{esc(BADGE_EN.get(b, b))}</span>" for b in raw["badges"] or []) or None
         st.markdown("<div class='sub-h'>Seller facts <span>from the listing and the platform</span></div>"
                     + fact_grid([
                         ("Years active", None if raw["years_active"] is None else f"{raw['years_active']:g} years"),

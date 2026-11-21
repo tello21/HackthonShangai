@@ -1,4 +1,4 @@
-# SourceScan
+# Scoutr
 
 Find a product on Chinese marketplaces (1688, Taobao, JD, Pinduoduo) and see the **real delivered
 price**: product + shipping + insurance + duty + customs + VAT, not the price on the original site.
@@ -19,18 +19,16 @@ file shows a placeholder. To update the catalog, replace the JSON and the photos
 
 ## Pages
 
-Top bar: Search · Link paste · Messages · Profile · FAQ · delivery country and currency.
+Top bar: Search · Messages · Profile · FAQ · delivery country and currency.
 
-- **Home** (`views/home.py`): "Search. Compare. Trust. Buy." with one search panel (product or
-  marketplace link · quantity · deliver to · currency). A link opens Link paste at once. Below: the six
-  steps, **Trust, explained** (the real scoring rules; pick 1688, Taobao, JD or Pinduoduo and the six
-  metrics show what we read on that marketplace and how it becomes 0-100, with the catalog's own
-  listings and scores), the FAQ and a closing call to action.
-- **Results**: three cards per row (two on tablets, one on phones), each with photo, name, **final
-  price** (delivered, per unit) and **final trust score**; "demo data" and counterfeit-risk labels on the
-  photo. Everything else is on the product page.
-- **Link paste**: a catalog link opens its full analysis; for any other link, add a screenshot or the
-  page text and the AI reads it.
+- **Home** (`views/home.py`): "Search. Compare. Trust. Buy." with one search panel (product ·
+  quantity · deliver to · currency; the product field always starts empty). Below: the six steps,
+  **Trust, explained** (the real scoring rules; pick 1688, Taobao, JD or Pinduoduo and the six metrics
+  show what we read on that marketplace and how it becomes 0-100, with the catalog's own listings and
+  scores), the FAQ and a closing call to action.
+- **Results**: a compact heading, then four cards per row (three or two on smaller screens), each
+  with photo, name, **final price** (delivered, per unit) and **final trust score**; "demo data" and
+  counterfeit-risk labels on the photo. Everything else is on the product page.
 - **Messages**: chat with suppliers in your language; they read business Chinese; replies are
   translated and explained.
 
@@ -49,8 +47,8 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-AI features (query translation, messages, reading screenshots) need an Anthropic API key; without
-it the app still works and says "not available" where the AI would be used:
+AI features (query translation, the Chinese preview of your messages, the supplier's replies) need an
+Anthropic API key; without it the app still works and says "not available" where the AI would be used:
 
 ```toml
 # .streamlit/secrets.toml (git-ignored)   or   export ANTHROPIC_API_KEY=...
@@ -70,13 +68,13 @@ Sales traction 10% (sales compared only within the same platform). Missing metri
 shows a different brand than the title): −30 after the price red flag, before rounding, and always
 the first reason on the card. Pinduoduo listings have no store type, so Verification is missing
 there. Bands: Trusted 80+, Good 60-79, Caution 40-59, High risk 0-39. Run the spec's cases with
-`python core/scoring.py`. `core/supplier_score.py` maps our product cards (catalog, Link paste) to
+`python core/scoring.py`. `core/supplier_score.py` maps our product cards to
 the raw fields. The product page scores in the same search context as the results list, so both
 show the same number.
 
 ## Design
 
-From the team's mock-up (`SourceScan — Search. Compare. Trust. Buy.`): ink `#162638`, blue `#17639c`,
+From the team's mock-up (`Scoutr — Search. Compare. Trust. Buy.`): ink `#162638`, blue `#17639c`,
 lime `#d9f077` for the main buttons and marker strokes, deep blue `#103d5d` for the closing band,
 background `#fbfbf7`. Fonts: Space Grotesk (headings, prices, scores) and Inter (text). All CSS is in
 `components/style.py`; texts that explain the rules (FAQ, "How we score", the per-marketplace metrics)
@@ -96,18 +94,17 @@ The tests simulate the AI and never call the network.
 ```
 app.py                 page setup + router
 core/                  business logic, no UI
-  catalog.py           catalog (data/catalog_merged.json) -> product cards, search, link matching
+  catalog.py           catalog (data/catalog_merged.json) -> product cards, search
   pricing.py           delivered price: ECB rates, shipping modes, duty, VAT
   scoring.py           trust score rules (pure Python, no AI)
   supplier_score.py    maps product cards to the scoring fields
   ai.py                the one Anthropic API wrapper ("not available" reasons instead of errors)
   query_translation.py search -> Chinese buyer query
   messages.py          chat: outgoing translation, simulated supplier, reply analysis, deal terms
-  listing.py           Link paste: AI reading of screenshot/text + rule-based fallback
   orders.py            orders and the simulated payment flow
   profile.py           buyer profile and default settings
 components/            app state + URL, CSS, shared UI pieces
-views/                 one module per page (home, results, product, link_paste, messages, checkout, compare)
+views/                 one module per page (home, results, product, messages, checkout, compare, profile)
 data/catalog_merged.json  13 padel racket listings (the team's file, unchanged)
 static/images/         product photos (1.jpg ... 13.png)
 tests/                 pytest suite

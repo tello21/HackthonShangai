@@ -1,4 +1,4 @@
-# SourceScan palette (from the team's mock-up): ink #162638 · blue #17639c · lime #d9f077
+# Scoutr palette (from the team's mock-up): ink #162638 · blue #17639c · lime #d9f077
 #   background #fbfbf7 · soft #f3f7f7 · fonts Space Grotesk + Inter (loaded in components/style.py)
 [theme]
 base = "light"

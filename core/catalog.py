@@ -93,25 +93,14 @@ def get_product(pid):
     return _BY_ID.get(str(pid)) if pid is not None else None
 
 
-def _norm_url(url):
-    """Host + path without scheme, www/m. and query string, for matching pasted links."""
-    u = re.sub(r"^https?://(www\.|m\.)?", "", (url or "").strip().lower())
-    return u.split("#")[0].rstrip("/")
-
-
-def _key(url):
-    """Taobao/Tmall links identify the item by ?id=..., the others by the path."""
-    u = _norm_url(url)
-    m = re.search(r"[?&]id=(\d+)", u)
-    return f"id={m.group(1)}" if m else u.split("?")[0]
-
-
-def find_by_url(url):
-    """The catalog product whose listing link matches a pasted URL, or None."""
-    if not _norm_url(url):
-        return None
-    k = _key(url)
-    return next((p for p in PRODUCTS if p.get("url") and _key(p["url"]) == k), None)
+def platform_from_url(url):
+    """The marketplace a listing link belongs to (products 8-10 are labelled Pinduoduo but link to 1688)."""
+    u = (url or "").lower()
+    for key, name in [("1688.com", "1688"), ("taobao.com", "Taobao"), ("tmall.com", "Taobao"),
+                      ("jd.com", "JD"), ("pinduoduo.com", "Pinduoduo"), ("yangkeduo.com", "Pinduoduo")]:
+        if key in u:
+            return name
+    return None
 
 
 STOP = {"a", "an", "the", "for", "with", "and", "of", "to", "in", "custom", "cheap", "bulk"}

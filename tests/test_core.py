@@ -2,7 +2,7 @@
 
 from core import orders as O
 from core import pricing as P
-from core.catalog import PRODUCTS, find_by_url, get_product, search
+from core.catalog import PRODUCTS, get_product, platform_from_url, search
 from core.supplier_score import trust_for, trust_for_search
 
 
@@ -34,12 +34,10 @@ def test_search_whole_words():
     assert len(search("")) == len(PRODUCTS)
 
 
-def test_find_by_listing_url():
-    assert find_by_url("https://detail.1688.com/offer/1036300675521.html?spm=abc")["id"] == "1"
-    assert find_by_url("item.taobao.com/item.htm?id=988472666305")["id"] == "12"
-    assert find_by_url("https://item.jd.com/10211536531150.html")["id"] == "4"
-    assert find_by_url("https://detail.1688.com/offer/612345.html") is None
-    assert find_by_url("") is None
+def test_listing_links_name_their_marketplace():
+    assert platform_from_url(get_product("8")["url"]) == "1688"          # labelled Pinduoduo, links to 1688
+    assert platform_from_url("https://item.taobao.com/item.htm?id=1") == "Taobao"
+    assert platform_from_url("https://item.jd.com/1.html") == "JD" and platform_from_url("") is None
 
 
 # ---------------------------------------------------------------- delivered price
@@ -104,7 +102,7 @@ def test_trust_for_the_padel_catalog():
     assert not res["7"]["penalties"]                                     # no price flag on 1688
     alone = trust_for(get_product("2"), 125)          # alone: sales on the log scale, same counterfeit rule
     assert alone["penalties"] == [COUNTERFEIT_REASON] and alone["band"] == "High risk"
-    # a pasted listing that only tells the shop name: not enough data, no neutral-looking number
+    # a listing that only tells the shop name: not enough data, no neutral-looking number
     bare = trust_for({"id": "x", "platform": "Pinduoduo", "supplier": {"name": "某店"}})
     assert bare["score"] is None and bare["band"] == "Not enough data"
 

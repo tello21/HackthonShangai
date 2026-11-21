@@ -1,6 +1,6 @@
 """Supplier trust score, 0-100, comparable across 1688, Taobao, JD and Pinduoduo.
 
-Pure Python, no AI: the AI (or the listing parser) only extracts the raw fields;
+Pure Python, no AI: the catalog provides the raw fields;
 this module turns them into the score, following the team's rules exactly.
 
 Input per supplier (any field can be None):
@@ -50,9 +50,11 @@ BANDS = [(80, "Trusted", "#3F7D20"), (60, "Good", "#8DB63C"), (40, "Caution", "#
 NO_DATA = ("Not enough data", "#9AA8B6")
 
 # ---------------------------------------------------------------- 1. Verification (25)
-BADGE_1688 = [("超级工厂", 100, "超级工厂 super factory badge"), ("实地认证", 100, "实地认证 on-site verified"),
-              ("深度验厂", 100, "深度验厂 in-depth factory audit"), ("实力商家", 75, "实力商家 verified power merchant"),
-              ("诚信通", 40, "Only 诚信通 membership")]
+# (badge as written on 1688, value, reason shown to the buyer in English)
+BADGE_1688 = [("超级工厂", 100, "Super factory badge"), ("实地认证", 100, "On-site verified"),
+              ("深度验厂", 100, "In-depth factory audit"), ("实力商家", 75, "Verified power merchant"),
+              ("诚信通", 40, "Only TrustPass membership")]
+BADGE_EN = {cn: why.replace("Only ", "").replace(" badge", "") for cn, _, why in BADGE_1688}
 STORE_TYPES = {
     "Taobao": {"tmall_flagship": (100, "Tmall flagship store"), "tmall": (85, "Tmall store"),
                "taobao_enterprise": (55, "Taobao enterprise store"), "taobao_personal": (30, "Taobao personal store")},

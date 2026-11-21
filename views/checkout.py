@@ -83,7 +83,7 @@ def page_checkout():
     if get_product(card.get("id")):
         st.button("Cancel", on_click=go, args=("detail",), kwargs={"pid": card["id"]}, key="cancel_checkout")
     else:
-        st.button("Cancel", on_click=go, args=("home",), kwargs={"tab": "link"}, key="cancel_checkout")
+        st.button("Cancel", on_click=go, args=("home",), kwargs={"tab": "search"}, key="cancel_checkout")
 
 
 # ---------------------------------------------------------------------------- orders

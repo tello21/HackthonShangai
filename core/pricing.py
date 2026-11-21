@@ -139,7 +139,7 @@ DUTY_RATES = {
     "ceramics":          {"EU": 12.0, "UK": 12.0, "CH": 0.0, "NO": 0.0, "IS": 0.0, "US": 6.0},
     "phone accessories": {"EU": 2.7, "UK": 2.0, "CH": 0.0, "NO": 0.0, "IS": 0.0, "US": 3.4},
 }
-DUTY = DUTY_RATES  # categories list used by the paste-a-listing page
+DUTY = DUTY_RATES
 
 # ---------------------------------------------------------------------------
 # SHIPPING China -> zone, CNY per chargeable kg (sample estimates)

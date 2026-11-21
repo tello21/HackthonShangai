@@ -1,6 +1,6 @@
 """All CSS of the app, mobile-first (375px first, then wider screens).
 
-Design reference: the team's "SourceScan — Search. Compare. Trust. Buy." mock-up.
+Design reference: the team's "Scoutr — Search. Compare. Trust. Buy." mock-up.
   Ink        #162638  text and headings
   Muted      #627384  secondary text
   Blue       #17639c  links, brand mark, highlights
@@ -74,7 +74,7 @@ a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
 .chip {{border:1px solid var(--line); background:#fff; border-radius:100px; padding:6px 12px; font-size:12px;
         color:#4c6373; font-weight:600; white-space:nowrap;}}
 
-/* ---------- page heading used by inner pages (Results, Link paste, Checkout...) */
+/* ---------- page heading used by inner pages (Results, Compare, Checkout...) */
 .pagehero {{text-align:center; padding:2.6rem 0 .6rem;}}
 .sectiontag {{font-size:11px; text-transform:uppercase; color:#2a6c80; letter-spacing:.17em; font-weight:700;
               margin-bottom:12px;}}
@@ -91,14 +91,18 @@ a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
 .hero-h1 {{font-size:clamp(40px, 5.1vw, 76px); line-height:1.06; font-weight:600; letter-spacing:-.064em;
            color:var(--ink); margin:0 auto 20px; max-width:930px;}}
 .hero-h1 .hl {{color:var(--blue);}}
-.hero-sub {{font-size:18px; max-width:690px; margin:0 auto 34px; line-height:1.7; color:var(--muted);}}
+.hero-sub {{font-size:18px; max-width:690px; margin:0 auto 34px !important; line-height:1.7; color:var(--muted);
+            text-align:center;}}
 .st-key-searchpanel {{background:#fff; border:1px solid #d8e0e1; box-shadow:0 12px 55px #1c425214; border-radius:17px;
-                      padding:18px 18px 4px;}}
-.st-key-searchpanel div[data-testid="stForm"] {{border:none; padding:0;}}
-.st-key-searchpanel label p {{font-weight:600 !important; font-size:11px !important; color:#586d7e !important;}}
-.st-key-searchpanel input, .st-key-searchpanel div[data-baseweb="select"] > div {{min-height:46px; font-size:15px;}}
-.st-key-searchpanel div[data-testid="stFormSubmitButton"] button {{height:48px; min-height:48px; padding:0 22px;
-    white-space:nowrap;}}
+                      padding:22px 22px 24px; margin-bottom:8px;}}
+.st-key-searchpanel div[data-testid="stForm"] {{border:none; padding:0; margin:0;}}
+.st-key-searchpanel label {{min-height:0; margin-bottom:6px;}}
+.st-key-searchpanel label p {{font-weight:600 !important; font-size:11.5px !important; color:#586d7e !important;}}
+.st-key-searchpanel div[data-baseweb="input"], .st-key-searchpanel div[data-baseweb="select"] > div {{
+    min-height:50px; border-radius:9px; background:#fff;}}
+.st-key-searchpanel input {{font-size:15px; min-height:48px;}}
+.st-key-searchpanel div[data-testid="stFormSubmitButton"] button, .st-key-searchpanel button[kind="primaryFormSubmit"] {{
+    height:48px; min-height:48px; padding:0 22px; white-space:nowrap; border-radius:9px;}}
 /* as in the mock-up: below 1000px the query and the button take a full row each */
 @media (max-width: 1000px) {{
   .st-key-searchpanel div[data-testid="stHorizontalBlock"] {{flex-wrap:wrap !important;}}
@@ -191,34 +195,42 @@ a.cta {{display:inline-flex; align-items:center; background:var(--hl); color:#21
   .sitefoot {{flex-direction:column;}} .st-key-scorebox {{padding:18px;}}
 }}
 
-/* ---------- results: 3 cards per row */
-.st-key-rtools {{display:flex; flex-direction:column; align-items:center; gap:.3rem; margin-bottom:.6rem;}}
+/* ---------- results: compact heading, 4 cards per row */
+.pagehero.compact {{padding:1.3rem 0 0;}}
+.pagehero.compact .sectiontag {{margin-bottom:6px;}}
+.pagehero.compact .ph1 {{font-size:clamp(28px, 3vw, 40px); margin-bottom:4px;}}
+.pagehero.compact .psub {{font-size:14px;}}
+.pagehero.compact + .progress {{margin:10px 0 10px;}}
+.st-key-rtools {{display:flex; flex-direction:column; align-items:center; gap:.2rem; margin-bottom:.2rem;}}
 .st-key-rtools [data-testid="stMarkdownContainer"], .st-key-rtools details.tr {{text-align:center;}}
-.grid {{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin:.6rem 0 1rem;}}
+.grid {{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; margin:.4rem 0 1rem;}}
 a.gc {{display:flex; flex-direction:column; background:#fff; border:1px solid var(--line); border-radius:13px;
        overflow:hidden; color:var(--ink) !important; text-decoration:none !important; transition:box-shadow .15s, transform .15s;}}
 a.gc:hover {{box-shadow:0 14px 40px #19394b1a; transform:translateY(-2px);}}
-.gc-media {{position:relative; display:block; aspect-ratio:1/1; background:#fff; border-bottom:1px solid var(--line);}}
-.gc-media img {{width:100%; height:100%; object-fit:contain; padding:14px; display:block;}}
-.gc-flags {{position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-start;}}
+.gc-media {{position:relative; display:block; aspect-ratio:4/3; background:#fff; border-bottom:1px solid var(--line);}}
+.gc-media img {{width:100%; height:100%; object-fit:contain; padding:10px; display:block;}}
+.gc-flags {{position:absolute; top:8px; left:8px; display:flex; flex-direction:column; gap:4px; align-items:flex-start;}}
 .gc-flags .demo-tag {{background:#fff;}}
-.gc-body {{display:flex; flex-direction:column; gap:14px; padding:18px 20px 20px; flex:1;}}
-.gc-title {{font-family:var(--display); font-size:17px; font-weight:600; line-height:1.3; letter-spacing:-.02em;
+.gc-flags .warn-tag {{font-size:.66rem;}}
+.gc-body {{display:flex; flex-direction:column; gap:10px; padding:12px 14px 14px; flex:1;}}
+.gc-title {{font-family:var(--display); font-size:14.5px; font-weight:600; line-height:1.3; letter-spacing:-.01em;
             display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.6em;}}
 a.gc:hover .gc-title {{color:var(--blue);}}
-.gc-row {{display:flex; flex-direction:column; gap:3px; border-top:1px solid #e5eaed; padding-top:12px;}}
-.gc-l {{font-size:10.5px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; color:#7c8b98;}}
-.gc-price {{font-family:var(--display); font-size:30px; font-weight:600; letter-spacing:-.045em; line-height:1.1;
+.gc-row {{display:flex; flex-direction:column; gap:2px; border-top:1px solid #e5eaed; padding-top:9px;}}
+.gc-l {{font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; color:#7c8b98;}}
+.gc-price {{font-family:var(--display); font-size:24px; font-weight:600; letter-spacing:-.04em; line-height:1.1;
             font-variant-numeric:tabular-nums;}}
-.gc-price.na-price {{font-size:17px; color:#9aa8b5; font-style:italic; letter-spacing:0;}}
-.gc-unit {{font-size:12px; color:var(--muted);}}
-.gc-row .score-pill {{align-self:flex-start;}}
+.gc-price.na-price {{font-size:15px; color:#9aa8b5; font-style:italic; letter-spacing:0;}}
+.gc-unit {{font-size:11.5px; color:var(--muted); line-height:1.35;}}
+.gc-row .score-pill {{align-self:flex-start; font-size:.82rem; padding:3px 11px;}}
 .list-count {{text-align:right;}}
-@media (max-width: 900px) {{ .grid {{grid-template-columns:repeat(2, minmax(0, 1fr));}} }}
-@media (max-width: 560px) {{ .grid {{grid-template-columns:1fr;}} .list-count {{text-align:left;}} }}
+@media (max-width: 1050px) {{ .grid {{grid-template-columns:repeat(3, minmax(0, 1fr));}} }}
+@media (max-width: 760px) {{ .grid {{grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px;}} }}
+@media (max-width: 420px) {{ .gc-price {{font-size:20px;}} .gc-row .score-pill {{font-size:.72rem; padding:2px 8px;}}
+                            .list-count {{text-align:left;}} }}
 
 /* ---------- inner panels (white cards) */
-.st-key-panel, .st-key-lp_panel {{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px;
+.st-key-panel {{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px;
     box-shadow:var(--shadow);}}
 /* ---------- white cards on Alice Blue */
 div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"]) {{background:#fff;}}

@@ -179,17 +179,16 @@ MARK_SVG = ("<span class='mark'><svg fill='none' stroke='#fff' stroke-linecap='r
 
 def brand_html():
     return (f"<a class='brand' href='{link(view='home', tab='search', pid=None)}' target='_self'>"
-            f"{MARK_SVG}SourceScan</a>")
+            f"{MARK_SVG}Scoutr</a>")
 
 
 def topbar_html():
-    """Brand on the left; Search, Link paste, Messages, Profile, FAQ and the delivery chip on the right."""
+    """Brand on the left; Search, Messages, Profile, FAQ and the delivery chip on the right."""
     def a(label, view, cls="", **kw):
         on = " on" if S.view == view else ""
         return f"<a class='{cls}{on}' href='{link(view=view, **kw)}' target='_self'>{label}</a>"
     n = unread_count()
     links = [a("Search", "home", "hide-sm", tab="search", pid=None),
-             a("Link paste", "paste", "hide-sm", pid=None),
              a("Messages" + (f" <span class='unread-badge'>{n}</span>" if n else ""), "inbox", pid=None),
              a(f"<span class='avatar'>{esc(P.initials(S.profile))}</span>Profile", "profile", "avatar-link",
                order=None)]
@@ -212,20 +211,22 @@ def nav_bar():
     band()
 
 
-def pagehero(tag_text, title, sub="", steps=None):
-    """Centred page heading of the inner pages; steps = index of the active 01 Search · 02 Compare · 03 Checkout."""
+def pagehero(tag_text, title, sub="", steps=None, compact=False):
+    """Centred page heading of the inner pages; steps = index of the active 01 Search · 02 Compare · 03 Checkout.
+    compact = a smaller heading (results), so the products show sooner."""
     prog = ""
     if steps is not None:
         names = ["01 Search", "02 Compare", "03 Checkout"]
         prog = "<div class='progress'>" + "—".join(
             f"<span class='{'on' if i == steps else ''}'>{n}</span>" for i, n in enumerate(names)) + "</div>"
-    return (f"<div class='pagehero'><div class='sectiontag'>{esc(tag_text)}</div><div class='ph1'>{title}</div>"
+    return (f"<div class='pagehero{' compact' if compact else ''}'><div class='sectiontag'>{esc(tag_text)}</div>"
+            f"<div class='ph1'>{title}</div>"
             + (f"<div class='psub'>{sub}</div>" if sub else "") + f"</div>{prog}")
 
 
 def site_footer():
     links = "".join(f"<a href='{u}' target='_self'>{t}</a>" for t, u in [
-        ("Search", link(view="home", tab="search", pid=None)), ("Link paste", link(view="paste", pid=None)),
+        ("Search", link(view="home", tab="search", pid=None)),
         ("Messages", link(view="inbox", pid=None)), ("Profile", link(view="profile", order=None)),
         ("FAQs", link(view="home", tab="search", pid=None) + "#faq")])
     st.markdown(

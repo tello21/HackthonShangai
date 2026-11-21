@@ -17,34 +17,39 @@ def test_home_sections(no_ai):
     for part in ("Search. Compare.", "Trust. Buy.", "From search to checkout",
                  "Trust, explained", "Clear answers.", "Find the product. Know the full picture.", "Hackathon prototype"):
         assert part in t, part
-    assert "Source smarter" not in t and "Yiwugo" not in t
+    assert "Source smarter" not in t and "Yiwugo" not in t and "SourceScan" not in t and "Scoutr" in t
+    assert "Link paste" not in t
     for p in ("1688", "Taobao", "JD", "Pinduoduo"):
         assert f"<span class='market'>{p}</span>" in t
+
+
+def test_home_search_starts_empty(no_ai):
+    at = run_app({"view": "home", "q": "padel"})       # even when the address still carries a search
+    assert at.text_input[0].value == "" and "q" not in at.query_params
+    at.text_input[0].input("padel racket")
+    at.button[0].click().run()
+    assert at.session_state["view"] == "results" and at.session_state["q"] == "padel racket"
 
 
 def test_trust_explained_changes_with_the_marketplace(no_ai):
     at = run_app({"view": "home"})
     t = page_text(at)
-    assert at.session_state["mk_pick"] == "1688" and "超级工厂 super factory" in t and "In our catalog on 1688" in t
+    assert at.session_state["mk_pick"] == "1688" and "Super factory" in t and "In our catalog on 1688" in t
     at.segmented_control(key="mk_pick").set_value("Pinduoduo").run()
     t = page_text(at)
-    assert "Nothing: Pinduoduo listings don" in t and "In our catalog on Pinduoduo:</b> 3 listings" in t
+    assert "Not shown on Pinduoduo" in t and "In our catalog on Pinduoduo:</b> 3 listings" in t
     at.segmented_control(key="mk_pick").set_value("JD").run()
-    assert "JD self-operated (京东自营) = 100" in page_text(at)
+    t = page_text(at)
+    assert "JD self-operated = 100" in t
+    trust = t[t.index("Trust, explained"):t.index("Clear answers.")]
+    assert not any("一" <= ch <= "鿿" for ch in trust)          # no Chinese in the explanation
 
 
-def test_a_link_in_the_search_box_opens_link_paste(no_ai):
-    at = run_app({"view": "home"})
-    at.text_input[0].input("https://detail.1688.com/offer/1036300675521.html")
-    at.button[0].click().run()
-    assert at.session_state["view"] == "paste" and "Found in our catalog" in page_text(at)
-
-
-@pytest.mark.parametrize("tab,view,expected", [("link", "paste", "Paste a link"),
-                                                ("messages", "inbox", "Your suppliers")])
-def test_old_home_tab_addresses(no_ai, tab, view, expected):
+@pytest.mark.parametrize("tab,view", [("link", "home"), ("messages", "inbox")])
+def test_old_addresses(no_ai, tab, view):
     at = run_app({"view": "home", "tab": tab})
-    assert at.session_state["view"] == view and expected in page_text(at)
+    assert at.session_state["view"] == view
+    assert run_app({"view": "paste"}).session_state["view"] == "home"      # Link paste was removed
 
 
 @pytest.mark.parametrize("q,country,cur", [("padel racket", "Italy", "EUR"), ("carbon", "Switzerland", "CHF"),
@@ -57,6 +62,7 @@ def test_results_grid(no_ai, q, country, cur):
             assert f"per unit, delivered to {country}" in t
     t = page_text(run_app({"view": "results", "q": "laptop"}))
     assert "No products in our catalog match" in t
+    assert "Chinese query" not in t and "no API key" not in t             # no AI note without a key
 
 
 def test_italian_query_matches_through_translation():
@@ -97,6 +103,5 @@ def test_switching_shipping_mode_updates_the_receipt(no_ai):
     assert "Shipping · Sea freight" in page_text(at)
 
 
-def test_compare_and_link_paste_pages(no_ai):
+def test_compare_page(no_ai):
     assert "Compare. Verify. Choose." in page_text(run_app({"view": "compare", "cmp": "1,2,3"}))
-    assert "Paste a link. Get the real price." in page_text(run_app({"view": "paste"}))

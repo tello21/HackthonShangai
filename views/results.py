@@ -60,11 +60,8 @@ def trust_in_search(p):
 
 
 def translation_strip(plan, reason, via_translation):
-    """One quiet line under the search title; details fold out on tap."""
+    """One quiet line under the search title; details fold out on tap. Nothing when there is no translation."""
     if plan is None:
-        if reason:
-            st.markdown(f"<div class='muted' style='font-size:.8rem'>Chinese query: "
-                        f"<span class='na'>{NA}</span> · {esc(reason)}</div>", unsafe_allow_html=True)
         return
     links = " · ".join(
         f"<a href='{platform_search_url(p, plan['query_zh'])}' target='_blank' rel='noopener'>{p} ↗</a>"
@@ -137,9 +134,8 @@ def page_results():
     base, via_translation = search_base(S.q, plan)
     budget_txt = f" · max {money(S.budget, sym)}/unit" if S.budget else ""
     st.markdown(pagehero("Results", f"“{esc(S.q) or 'All products'}”",
-                         f"{S.qty:,} units · delivered to {esc(S.country)} · {S.cur}{budget_txt}. Final prices "
-                         "include shipping, duty and VAT; final trust scores include every red flag.", steps=1),
-                unsafe_allow_html=True)
+                         f"{S.qty:,} units · delivered to {esc(S.country)} · {S.cur}{budget_txt}", steps=1,
+                         compact=True), unsafe_allow_html=True)
     with st.container(key="rtools"):
         translation_strip(plan, reason, via_translation)
         with st.popover("Change quantity, country, currency", width="content"):

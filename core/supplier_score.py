@@ -1,6 +1,6 @@
 """Bridge between our product cards and core/scoring.py.
 
-Product cards come from the catalog and Link paste. This
+Product cards come from the catalog. This
 module only maps their supplier data to scoring.py's raw fields; the score itself is
 computed by scoring.py (pure rules, see that file).
 """

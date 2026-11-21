@@ -1,8 +1,5 @@
 """Home, after the team's mock-up: top bar, centred hero with the search panel, the six steps,
-"Trust, explained" (the real scoring rules, per marketplace), the FAQ and a closing call to action.
-A marketplace link typed in the search box opens Link paste."""
-
-import re
+"Trust, explained" (the real scoring rules, per marketplace), the FAQ and a closing call to action."""
 
 import streamlit as st
 
@@ -16,8 +13,8 @@ from views.faq import faq_html, metrics_html, rules_html
 
 STEPS = [
     ("Search across China",
-     "Find products from 1688, Taobao, JD and Pinduoduo in your own language, or paste a listing link. "
-     "We translate your words into the ones Chinese sellers use."),
+     "Find products from 1688, Taobao, JD and Pinduoduo in your own language. We translate your words "
+     "into the ones Chinese sellers use."),
     ("Compare products and suppliers",
      "Every result shows the photo, the final delivered price and the final trust score; open it for specs, "
      "price tiers, MOQ and all the seller details."),
@@ -36,18 +33,14 @@ STEPS = [
 ]
 
 
-def _is_link(q):
-    return bool(re.match(r"^(https?://|www\.|[\w.-]+\.(com|cn)/)", q.strip(), re.I))
-
-
 def search_panel():
-    """One white panel: what (or a link) · quantity · deliver to · currency · Search suppliers."""
+    """One white panel: what · quantity · deliver to · currency · Search suppliers.
+    The product field always starts empty: the buyer types the search."""
     with st.container(key="searchpanel"):
         with st.form("search_form", border=False):
-            c_q, c_qty, c_country, c_cur, c_go = st.columns([2.6, 0.75, 0.95, 0.8, 1.05], gap="small",
+            c_q, c_qty, c_country, c_cur, c_go = st.columns([2.4, 0.8, 1, 0.9, 1.1], gap="small",
                                                            vertical_alignment="bottom")
-            query = c_q.text_input("Product or marketplace link", value=S.q,
-                                   placeholder="e.g. padel racket, or a 1688 / Taobao link")
+            query = c_q.text_input("Product", value="", placeholder="e.g. padel racket")
             qty = c_qty.number_input("Quantity", min_value=1, value=int(S.qty), step=50)
             countries = list(COUNTRIES)
             country = c_country.selectbox("Deliver to", countries, index=countries.index(S.country))
@@ -56,11 +49,7 @@ def search_panel():
     if submitted:
         q = query.strip()
         S.qty, S.country, S.cur = int(qty), country, cur or S.cur
-        if _is_link(q):                       # a listing link -> Link paste analyses it at once
-            S.lp_url, S.lp_auto = q, True
-            go("paste", pid=None)
-        else:
-            go("results", q=q, pid=None, cmp=[])
+        go("results", q=q, pid=None, cmp=[])
         st.rerun()
 
 
@@ -104,8 +93,8 @@ def page_home():
     style.inject_home()
     band("hero")
     st.markdown("<div class='hero'><div class='hero-h1'>Search. Compare.<br/><span class='hl'>Trust. Buy.</span>"
-                "</div><p class='hero-sub'>Discover products from Chinese suppliers, compare their public trust "
-                "signals, see the full estimated cost to Europe and order through one streamlined checkout.</p>"
+                "</div><div class='hero-sub'>Discover products from Chinese suppliers, compare their public trust "
+                "signals, see the full estimated cost to Europe and order through one streamlined checkout.</div>"
                 "</div>", unsafe_allow_html=True)
     search_panel()
     st.markdown("<div class='markets'><span>Chinese marketplaces</span>"

@@ -1,4 +1,4 @@
-"""Texts that explain how SourceScan works: the FAQ on the home page, "How we score" on every
+"""Texts that explain how Scoutr works: the FAQ on the home page, "How we score" on every
 product page, and the per-marketplace metric rules of the "Trust, explained" section.
 They describe what the code really does (core/scoring.py, core/pricing.py), including its
 limits. Keep them in sync when the logic changes."""
@@ -10,81 +10,53 @@ from html import escape
 # "yes" = shown on that marketplace, "some" = only on some listings, "no" = not shown -> counts as 50).
 METRICS = [
     ("Verification", 25, {
-        "1688": ("The seller's 1688 badges.",
-                 "超级工厂 super factory, 实地认证 on-site verified or 深度验厂 factory audit = 100 · 实力商家 power "
-                 "merchant = 75 · only 诚信通 membership = 40 · no badge = 0. The highest badge counts.", "yes"),
-        "Taobao": ("The store type.",
-                   "Tmall flagship = 100 · Tmall store = 85 · Taobao enterprise store = 55 · Taobao personal "
-                   "store = 30.", "some"),
-        "JD": ("The store type.",
-               "JD self-operated (京东自营) = 100 · brand flagship = 80 · third-party seller = 50.", "yes"),
-        "Pinduoduo": ("Nothing: Pinduoduo listings don't show a store type.",
-                      "Always missing, so it counts as 50 (average) and lowers the data coverage by 25%.", "no"),
+        "1688": ("Seller badges.",
+                 "Super factory, on-site verified or factory audit = 100 · power merchant = 75 · "
+                 "only TrustPass = 40 · none = 0.", "yes"),
+        "Taobao": ("Store type.", "Tmall flagship = 100 · Tmall = 85 · enterprise = 55 · personal = 30.", "some"),
+        "JD": ("Store type.", "JD self-operated = 100 · flagship = 80 · third-party = 50.", "yes"),
+        "Pinduoduo": ("Not shown on Pinduoduo.", "Always counts as 50.", "no"),
     }),
     ("Track record", 20, {
-        "1688": ("Years on 1688 (入驻 / 诚信通 years).",
-                 "0 years = 0 · 1 = 25 · 3 = 60 · 5 = 80 · 8 or more = 100, in between on a straight line.", "yes"),
-        "Taobao": ("Years active and the seller credit level (hearts, diamonds, crowns).",
-                   "Years as on 1688. Credit: 1-5 hearts = 10-30 · 1-5 diamonds = 40-60 · 1-5 crowns = 70-90 · "
-                   "gold crown = 100. When both are shown, the average of the two.", "some"),
-        "JD": ("Years active, when the store shows them.",
-               "0 years = 0 · 1 = 25 · 3 = 60 · 5 = 80 · 8 or more = 100.", "some"),
-        "Pinduoduo": ("Years active, when the store shows them.",
-                      "0 years = 0 · 1 = 25 · 3 = 60 · 5 = 80 · 8 or more = 100.", "some"),
+        "1688": ("Years on the platform.", "1 year = 25 · 3 = 60 · 5 = 80 · 8+ = 100.", "yes"),
+        "Taobao": ("Years and seller credit (hearts, diamonds, crowns).",
+                   "Hearts = 10-30 · diamonds = 40-60 · crowns = 70-90 · gold crown = 100; averaged with years.",
+                   "some"),
+        "JD": ("Years, when shown.", "1 year = 25 · 3 = 60 · 5 = 80 · 8+ = 100.", "some"),
+        "Pinduoduo": ("Years, when shown.", "1 year = 25 · 3 = 60 · 5 = 80 · 8+ = 100.", "some"),
     }),
     ("Customer satisfaction", 25, {
-        "1688": ("The store's 5-point service scores (服务分).",
-                 "Average of the scores: 4.0 or less = 0, 5.0 = 100, on a straight line (4.5 = 50).", "yes"),
-        "Taobao": ("The DSR ratings (description, service, logistics) or the store rating.",
-                   "Average of the 5-point ratings: 4.0 = 0, 5.0 = 100 (4.8 = 80).", "yes"),
-        "JD": ("The positive review rate (好评率) and the store score.",
-               "Positive reviews: 90% or less = 0, 100% = 100. Store score: 4.0 = 0, 5.0 = 100. Both shown = "
-               "the average.", "yes"),
-        "Pinduoduo": ("The store rating and the positive review rate, when shown.",
-                      "Rating: 4.0 = 0, 5.0 = 100. Positive reviews: 90% = 0, 100% = 100. Both = the average.",
-                      "some"),
+        "1688": ("Service scores out of 5.", "4.0 = 0 · 4.5 = 50 · 5.0 = 100.", "yes"),
+        "Taobao": ("Store ratings out of 5.", "4.0 = 0 · 4.5 = 50 · 5.0 = 100.", "yes"),
+        "JD": ("Positive reviews and store score.", "90% = 0 · 100% = 100; score 4.0 = 0 · 5.0 = 100.", "yes"),
+        "Pinduoduo": ("Store rating and positive reviews, when shown.",
+                      "4.0 = 0 · 5.0 = 100; 90% = 0 · 100% = 100.", "some"),
     }),
     ("Loyalty", 10, {
-        "1688": ("The repurchase rate (回头率).",
-                 "0% = 0 up to 50% or more = 100, on a straight line (25% = 50).", "yes"),
-        "Taobao": ("The repurchase rate, rarely shown on Taobao.",
-                   "0% = 0 up to 50% or more = 100. Usually missing, so it counts as 50.", "no"),
-        "JD": ("The repurchase rate, not shown on JD.", "Missing, so it counts as 50.", "no"),
-        "Pinduoduo": ("The repurchase rate, when the store shows it.",
-                      "0% = 0 up to 50% or more = 100.", "some"),
+        "1688": ("Repurchase rate.", "0% = 0 · 25% = 50 · 50%+ = 100.", "yes"),
+        "Taobao": ("Repurchase rate, rarely shown.", "Usually counts as 50.", "no"),
+        "JD": ("Repurchase rate, not shown.", "Counts as 50.", "no"),
+        "Pinduoduo": ("Repurchase rate, when shown.", "0% = 0 · 25% = 50 · 50%+ = 100.", "some"),
     }),
     ("Seller type", 10, {
-        "1688": ("Factory or trader, from the listing (工厂 / 源头 / 生产厂家 vs 贸易 / 商贸).",
-                 "Factory = 100 · brand official store = 100 · authorized store = 70 · trading company = 40.", "yes"),
-        "Taobao": ("Brand official, authorized or reseller, from the store page.",
-                   "Brand official store = 100 · authorized store = 70 · trader = 40.", "some"),
-        "JD": ("Brand official, authorized or reseller. JD self-operated counts as brand official.",
-               "Brand official = 100 · authorized store = 70 · trader = 40.", "yes"),
-        "Pinduoduo": ("Factory or trader, from the listing.",
-                      "Factory = 100 · brand official = 100 · authorized store = 70 · trader = 40.", "some"),
+        "1688": ("Factory or trader.", "Factory = 100 · authorized = 70 · trader = 40.", "yes"),
+        "Taobao": ("Brand, authorized or reseller.", "Brand official = 100 · authorized = 70 · trader = 40.", "some"),
+        "JD": ("Brand, authorized or reseller.", "Brand official (incl. self-operated) = 100 · authorized = 70 · "
+               "trader = 40.", "yes"),
+        "Pinduoduo": ("Factory or trader.", "Factory = 100 · authorized = 70 · trader = 40.", "some"),
     }),
     ("Sales traction", 10, {
-        "1688": ("Orders (成交).",
-                 "Compared only with the other 1688 results of your search: the share of them with fewer sales "
-                 "(more than all = 100). With fewer than 3 to compare: 10 sales = 20 · 100 = 40 · 1,000 = 70 · "
-                 "10,000 = 100.", "yes"),
-        "Taobao": ("Sales or reviews shown on the listing.",
-                   "Compared only with the other Taobao results (platforms count sales differently).", "yes"),
-        "JD": ("The number of reviews (JD hides sales).",
-               "Compared only with the other JD results of your search.", "yes"),
-        "Pinduoduo": ("Sales shown on the listing (已拼).",
-                      "Compared only with the other Pinduoduo results of your search.", "yes"),
+        "1688": ("Orders.", "Ranked against the other 1688 results in your search.", "yes"),
+        "Taobao": ("Sales or reviews.", "Ranked against the other Taobao results.", "yes"),
+        "JD": ("Reviews (JD hides sales).", "Ranked against the other JD results.", "yes"),
+        "Pinduoduo": ("Sales.", "Ranked against the other Pinduoduo results.", "yes"),
     }),
 ]
 PLATFORM_NOTE = {
-    "1688": "Factory-to-business marketplace with the richest seller data: badges, years, service scores, "
-            "repurchase rate. Factory prices are often far below retail, so the price red flag is not applied.",
-    "Taobao": "Retail marketplace: store type (Tmall or Taobao), seller credit and DSR ratings. The price red flag "
-              "applies.",
-    "JD": "Retail marketplace with self-operated and third-party stores; strong review data, no sales counts. "
-          "The price red flag applies.",
-    "Pinduoduo": "Group-buying marketplace: no store type is shown, so Verification is always missing. The price "
-                 "red flag applies.",
+    "1688": "Factory marketplace with the richest seller data. No price red flag: factory prices are low.",
+    "Taobao": "Retail marketplace: Tmall or Taobao store, seller credit, ratings.",
+    "JD": "Retail marketplace: self-operated or third-party stores, strong review data.",
+    "Pinduoduo": "Group-buying marketplace: no store type, so Verification is always missing.",
 }
 AVAIL = {"yes": ("Shown", "yes"), "some": ("Sometimes shown", "some"), "no": ("Usually missing → 50", "no")}
 
@@ -134,13 +106,12 @@ HOW_WE_SCORE = [
 
 # ---------------------------------------------------------------------------- home FAQ
 FAQ = [
-    ("What does SourceScan do?",
+    ("What does Scoutr do?",
      "It brings listings from Chinese marketplaces, a trust score for every seller, the delivered price to your "
      "country, translated chat with the supplier and a checkout into one journey for European buyers."),
     ("Which marketplaces can I compare?",
      "1688, Taobao, JD and Pinduoduo. This demo uses a fixed catalog of padel racket listings collected from those "
-     "sites, not a live search; listings marked “demo data” include some made-up values. With Link paste you can "
-     "analyse any listing from the four from its screenshot or page text."),
+     "sites, not a live search; listings marked “demo data” include some made-up values."),
     ("How does the search work?",
      "Type what you need in any language. With the AI on, we rewrite it into the words Chinese sellers use in "
      "their titles (not word by word) and match the catalog. Results are sorted by trust; same trust, cheaper first."),
@@ -163,10 +134,10 @@ FAQ = [
      "Yes. You write in your language and see the Chinese message before sending, with an English "
      "back-translation; replies come back translated, with what they really mean and the key terms highlighted. "
      "In this demo the supplier's replies are simulated by the AI."),
-    ("Can I pay on SourceScan?",
+    ("Can I pay on Scoutr?",
      "The checkout follows real China sourcing: 30% deposit, 70% balance before shipping, then shipping, duty and "
      "VAT on arrival. In this demo payments are simulated: no money moves and no card details are asked for."),
-    ("Is SourceScan affiliated with these marketplaces?",
+    ("Is Scoutr affiliated with these marketplaces?",
      "No. Showing the marketplace names implies no affiliation or endorsement."),
 ]
 
@@ -183,7 +154,7 @@ def how_we_score_html():
 def faq_html():
     return (f"<div class='faqgrid' id='faq'><div><div class='sectiontag'>Frequently asked questions</div>"
             f"<div class='h2'>Clear answers.<br/>Before you buy.</div><p class='lead'>How search, supplier checks, "
-            f"import costs and checkout work in SourceScan.</p></div><div>{_details(FAQ)}</div></div>")
+            f"import costs and checkout work in Scoutr.</p></div><div>{_details(FAQ)}</div></div>")
 
 
 def rules_html():

@@ -1,1 +1,1 @@
-"""Business logic of SourceScan, independent of the Streamlit UI."""
+"""Business logic of Scoutr, independent of the Streamlit UI."""

@@ -17,7 +17,7 @@ S = st.session_state
 
 DEFAULTS = dict(view="home", tab="search", q="", qty=500, budget=0.0, country="Italy", cur="EUR",
                 pid=None, cmp=[], conv=None, order=None)
-VIEWS = ("home", "results", "detail", "compare", "paste", "inbox", "chat", "checkout", "orders", "profile")
+VIEWS = ("home", "results", "detail", "compare", "inbox", "chat", "checkout", "orders", "profile")
 TABS = ("link", "search", "messages")
 
 
@@ -73,6 +73,8 @@ def state_params(**over):
     if S.order and S.view in ("checkout", "orders"):
         p["order"] = S.order
     p.update(over)
+    if p.get("view") == "home":
+        p.pop("q", None)          # the home search starts empty: the buyer types it
     return {k: v for k, v in p.items() if v not in (None, "")}
 
 
