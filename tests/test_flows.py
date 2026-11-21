@@ -25,7 +25,7 @@ def fake_ask(system, messages, schema=None, effort="low", max_tokens=8000):
                           "sample_cost": "", "shipping_terms": "", "customization": "",
                           "seller_type": "", "certifications": ""},
                 "suggestions": ["Can you do ¥16 for 500 units?", "Yes, one-colour logo. Extra cost?"]}, None
-    assert "底价" in system and "304不锈钢" in system      # persona built from the product card
+    assert "底价" in system and "T800" in system      # persona built from the product card
     return REPLY, None
 
 
@@ -35,8 +35,8 @@ def button(at, label):
 
 def test_chat_with_translator_both_ways_and_order_at_negotiated_price(no_ai):
     with mock.patch.object(M, "ask", side_effect=fake_ask):
-        at = run_app({"view": "detail", "pid": "WB-01", "qty": "500", "country": "Italy", "cur": "EUR"})
-        at.button(key="contact_WB-01").click().run()
+        at = run_app({"view": "detail", "pid": "1", "qty": "500", "country": "Italy", "cur": "EUR"})
+        at.button(key="contact_1").click().run()
         cid = at.session_state["conv"]
         assert at.session_state["view"] == "chat"
         assert "best price for 500 units" in at.text_area(key=f"draft_{cid}").value
@@ -65,12 +65,12 @@ def test_chat_with_translator_both_ways_and_order_at_negotiated_price(no_ai):
     stored = json.load(open(M.STORE, encoding="utf-8"))
     assert len(stored[cid]["messages"]) == 2
     inbox = page_text(run_app({"view": "home", "tab": "messages"}))   # survives a reload
-    assert "Yongkang Jiahe Cup Industry" in inbox
+    assert "Shenzhen Hengtai Carbon Fiber" in inbox
 
 
 def test_chat_without_api_key_says_why(no_ai):
-    at = run_app({"view": "detail", "pid": "MG-01", "qty": "500"})
-    at.button(key="contact_MG-01").click().run()
+    at = run_app({"view": "detail", "pid": "3", "qty": "500"})
+    at.button(key="contact_3").click().run()
     cid = at.session_state["conv"]
     at.button(key=f"pv_{cid}").click().run()
     assert any("Translation not available — no API key configured" in w.value for w in at.warning)
@@ -89,8 +89,8 @@ def paste(at, url="", text=""):
 
 def test_link_paste_known_link_gives_full_analysis(no_ai):
     at = run_app({"view": "home", "tab": "link"})
-    t = paste(at, url="https://detail.1688.com/offer/demo-wb-01.html")
-    assert "Found in our sample catalog" in t and "Total delivered" in t
+    t = paste(at, url="https://detail.1688.com/offer/1037995681915.html?spm=a2615")
+    assert "Found in our catalog" in t and "Total delivered" in t
 
 
 def test_link_paste_unknown_link_asks_for_screenshot_or_text(no_ai):
@@ -115,8 +115,8 @@ def test_link_paste_falls_back_to_rules_without_ai(no_ai):
 
 # ---------------------------------------------------------------- order + simulated payment
 def test_order_with_simulated_payment(no_ai):
-    at = run_app({"view": "detail", "pid": "WB-01", "qty": "500", "country": "Italy", "cur": "EUR"})
-    at.button(key="order_WB-01").click().run()
+    at = run_app({"view": "detail", "pid": "1", "qty": "500", "country": "Italy", "cur": "EUR"})
+    at.button(key="order_1").click().run()
     t = page_text(at)
     assert at.session_state["view"] == "checkout"
     assert "Now · deposit 30% to the supplier" in t and "On arrival" in t and "no card details" in t

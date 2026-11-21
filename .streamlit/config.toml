@@ -6,3 +6,6 @@ primaryColor = "#427AA1"
 backgroundColor = "#EBF2FA"
 secondaryBackgroundColor = "#FFFFFF"
 textColor = "#0B2A47"
+
+[server]
+enableStaticServing = true   # product photos in static/images, served at app/static/images/

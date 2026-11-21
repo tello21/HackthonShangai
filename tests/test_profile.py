@@ -45,11 +45,11 @@ def test_bad_email_is_refused(no_ai):
 
 
 def test_orders_appear_in_the_profile(no_ai):
-    at = run_app({"view": "detail", "pid": "WB-01", "qty": "500"})
-    at.button(key="order_WB-01").click().run()
+    at = run_app({"view": "detail", "pid": "1", "qty": "500"})
+    at.button(key="order_1").click().run()
     at.button(key="pay_deposit").click().run()
     t = page_text(run_app({"view": "orders"}))             # no order given -> the profile with the list
-    assert "Your orders (1)" in t and "Stainless steel insulated water bottle" in t
+    assert "Your orders (1)" in t and "T800 carbon fiber" in t
     assert "Deposit paid" in t
 
 

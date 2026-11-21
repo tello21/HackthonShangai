@@ -15,7 +15,7 @@ HOW_WE_SCORE = [
      "Each platform shows trust differently, so we convert each to the same 0-100 scale. Verification: on "
      "1688 a super factory or on-site audit badge is 100, 实力商家 75, only 诚信通 40; on Taobao a Tmall "
      "flagship is 100 and a personal store 30; on JD self-operated is 100 and a third-party seller 50; on "
-     "Pinduoduo a brand flagship is 90, an enterprise store 55 and a personal store 30. Years active (8+ years = 100) and "
+     "Pinduoduo, where listings show no store type, verification counts as missing. Years active (8+ years = 100) and "
      "Taobao credit levels (hearts, diamonds, crowns) give the track record; 5-point service ratings and "
      "positive-review rates give satisfaction; the repurchase rate gives loyalty. Sales are only compared "
      "with other results from the same platform, because each platform counts them differently."),
@@ -27,13 +27,18 @@ HOW_WE_SCORE = [
      "On Taobao, JD and Pinduoduo, if a product costs less than 60% of the median price of similar results "
      "from the same platform in your search, we remove 10 points and say why: prices that low are a common "
      "sign of a problem. It isn't applied to 1688, where factory prices are often far below retail."),
+    ("What if the brand looks counterfeit?",
+     "If the product photo shows a different brand than the title (for example a well-known racket brand in "
+     "the photo and another name in the title), the listing may use a brand without permission. We remove "
+     "30 points, after the price red flag, and show “Possible counterfeit brand” as the first reason on the "
+     "card. Ask the seller for proof of authorisation before ordering."),
     ("What do the colours mean?",
      "80-100 Trusted (green), 60-79 Good (light green), 40-59 Caution (yellow), 0-39 High risk (red). "
      "Grey means not enough data to score."),
     ("Is the trust score an official verification?",
      "No. It sums up public signals from the listing and the platform; it is not an audit and it is not "
      "endorsed by the marketplaces. Before a large order, ask for a sample and check certifications. In "
-     "this demo, all sellers come from our sample catalog."),
+     "this demo, listings marked “demo data” include some made-up values."),
 ]
 
 FAQ = [
@@ -43,8 +48,9 @@ FAQ = [
          "sellers actually put in their titles (not a word-by-word translation), then look for matching "
          "listings. Every result shows the delivered price to your country and the seller's trust score."),
         ("Which marketplaces do you search?",
-         "1688, Taobao, JD and Pinduoduo. In this demo the results come from a sample catalog, not from the "
-         "live sites. With Link paste you can analyse a listing from any of the four."),
+         "1688, Taobao, JD and Pinduoduo. In this demo the results come from a fixed catalog of padel racket "
+         "listings collected from those sites, not a live search; listings marked “demo data” include some "
+         "made-up values. With Link paste you can analyse a listing from any of the four."),
         ("Why are results sorted by trust?",
          "A cheap price is worth nothing if the seller is unreliable, so the most trusted sellers come first; "
          "sellers without enough data come after the scored ones. Sellers with the same score are ordered by "

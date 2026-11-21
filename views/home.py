@@ -48,7 +48,7 @@ def search_bar():
     with st.form("search_form", border=False):
         c_q, c_qty, c_country, c_cur, c_go = st.columns([2.6, 0.9, 1.3, 0.9, 1], gap="small")
         query = c_q.text_input("What are you looking for?", value=S.q,
-                               placeholder="e.g. canvas tote bag, yoga mat…")
+                               placeholder="e.g. carbon padel racket…")
         qty = c_qty.number_input("Quantity", min_value=1, value=int(S.qty), step=50)
         countries = list(COUNTRIES)
         country = c_country.selectbox("Deliver to", countries, index=countries.index(S.country))

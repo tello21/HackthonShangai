@@ -8,7 +8,7 @@ Input per supplier (any field can be None):
   badges                list of str, e.g. 诚信通, 实力商家, 超级工厂, 实地认证, 深度验厂
   store_type            tmall_flagship | tmall | taobao_enterprise | taobao_personal |
                         jd_self_operated | jd_flagship | jd_third_party |
-                        pdd_flagship | pdd_enterprise | pdd_personal
+                        (none on Pinduoduo)
   years_active          number
   taobao_credit_level   "3_hearts", "2_diamonds", "4_crowns", "gold_crown"
   service_scores_5pt    list of numbers on a 5-point scale
@@ -17,6 +17,7 @@ Input per supplier (any field can be None):
   seller_type           factory | brand_official | authorized_store | trader
   sales_count           number (counted differently per platform: never compared across platforms)
   unit_price            number, same currency for all results
+  counterfeit_risk      bool: the photo shows a different brand than the title (-30 points)
 
 score_suppliers(items) scores a whole search at once (sales percentile and price red flag
 need the other results of the same platform); score_supplier(item) scores one alone.
@@ -41,6 +42,9 @@ MISSING_BASELINE = 50
 PRICE_FLAG_RATIO = 0.60
 PRICE_FLAG_POINTS = 10
 PRICE_FLAG_REASON = "Price much lower than similar listings on the same platform"
+COUNTERFEIT_POINTS = 30
+COUNTERFEIT_REASON = "Possible counterfeit brand: product photo shows a different brand than the title"
+PENALTY_POINTS = {PRICE_FLAG_REASON: PRICE_FLAG_POINTS, COUNTERFEIT_REASON: COUNTERFEIT_POINTS}
 
 BANDS = [(80, "Trusted", "#3F7D20"), (60, "Good", "#8DB63C"), (40, "Caution", "#E0B000"), (0, "High risk", "#C62828")]
 NO_DATA = ("Not enough data", "#9AA8B6")
@@ -54,10 +58,7 @@ STORE_TYPES = {
                "taobao_enterprise": (55, "Taobao enterprise store"), "taobao_personal": (30, "Taobao personal store")},
     "JD": {"jd_self_operated": (100, "JD self-operated"), "jd_flagship": (80, "JD flagship store"),
            "jd_third_party": (50, "JD third-party seller")},
-    # Pinduoduo values: our assumption, same logic as Taobao (official brand store > company > individual)
-    "Pinduoduo": {"pdd_flagship": (90, "Pinduoduo brand flagship store"),
-                  "pdd_enterprise": (55, "Pinduoduo enterprise store"),
-                  "pdd_personal": (30, "Pinduoduo personal store")},
+    # Pinduoduo listings show no store type: Verification is missing there
 }
 
 
@@ -224,9 +225,13 @@ def score_supplier(f, peers_sales=None, peers_prices=None):
     result = {"score": None, "band": NO_DATA[0], "colour": NO_DATA[1], "coverage_pct": _round(coverage * 100),
               "metrics": metrics, "penalties": [], "reasons": [],
               "missing": [m["name"] for m in metrics if m["value"] is None]}
+    counterfeit = bool(f.get("counterfeit_risk"))
     if coverage < MIN_COVERAGE:
         result["reasons"] = [f"Not enough public data ({result['coverage_pct']}% coverage)"] + \
                             [f"{m} unknown" for m in result["missing"][:3]]
+        if counterfeit:   # no score to lower, but the warning still comes first
+            result["penalties"] = [COUNTERFEIT_REASON]
+            result["reasons"] = [COUNTERFEIT_REASON] + result["reasons"][:3]
         return result
 
     # final = coverage * raw + (1 - coverage) * baseline, with raw = weighted average of the
@@ -242,10 +247,17 @@ def score_supplier(f, peers_sales=None, peers_prices=None):
         final -= PRICE_FLAG_POINTS
         result["penalties"].append(PRICE_FLAG_REASON)
 
+    # counterfeit risk (photo brand differs from the title): after the price flag, before rounding
+    if counterfeit:
+        final -= COUNTERFEIT_POINTS
+        result["penalties"].insert(0, COUNTERFEIT_REASON)
+
     score = max(0, min(100, _round(final)))
     result["score"] = score
     result["band"], result["colour"] = band_of(score)
     result["reasons"] = _card_reasons(metrics, result["penalties"])
+    if counterfeit:   # always the first reason on the card
+        result["reasons"] = [COUNTERFEIT_REASON] + [x for x in result["reasons"] if x != COUNTERFEIT_REASON][:3]
     return result
 
 
@@ -301,9 +313,10 @@ def _cases():
     taobao_personal = score_supplier({"platform": "Taobao", "store_type": "taobao_personal",
                                       "taobao_credit_level": "2_hearts", "service_scores_5pt": [4.6],
                                       "seller_type": "trader"})
-    pdd_ent = score_supplier({"platform": "Pinduoduo", "store_type": "pdd_enterprise", "years_active": 3})
-    pdd_personal = score_supplier({"platform": "Pinduoduo", "store_type": "pdd_personal"})
-    return super_factory, jd_self, taobao_personal, pdd_ent, pdd_personal
+    pdd_trader = score_supplier({"platform": "Pinduoduo", "years_active": 3, "service_scores_5pt": [4.6],
+                                 "seller_type": "trader"})
+    pdd_bare = score_supplier({"platform": "Pinduoduo", "years_active": 3})
+    return super_factory, jd_self, taobao_personal, pdd_trader, pdd_bare
 
 
 def run_tests():
@@ -314,10 +327,12 @@ def run_tests():
     assert jd["coverage_pct"] == 70
     # Taobao: (25*30 + 20*15 + 25*60 + 10*40 + 20*50) / 100 = 39.5 -> 40 = Caution (on the edge)
     assert tb["score"] == 40 and tb["band"] == "Caution", tb
-    # Pinduoduo enterprise store, 3 years: (25*55 + 20*60 + 55*50) / 100 = 53.25 -> 53, only 45% covered
-    assert pdd["score"] == 53 and pdd["band"] == "Caution" and pdd["coverage_pct"] == 45, pdd
+    # Pinduoduo trader (no store type -> Verification missing), 3 years, DSR 4.6:
+    # (20*60 + 25*60 + 10*40 + 45*50) / 100 = 53.5 -> 54, 55% covered
+    assert pdd["score"] == 54 and pdd["band"] == "Caution" and pdd["coverage_pct"] == 55, pdd
+    assert pdd["metrics"][0]["value"] is None
     assert pdd["score"] < jd["score"] < sf["score"]
-    assert personal["score"] is None and personal["band"] == "Not enough data" and personal["coverage_pct"] == 25, personal
+    assert personal["score"] is None and personal["band"] == "Not enough data" and personal["coverage_pct"] == 20, personal
 
     # shared rules
     assert credit_value("gold_crown") == 100 and credit_value("2_diamonds") == 45 and credit_value("1_hearts") == 10
@@ -331,12 +346,24 @@ def run_tests():
     assert batch["c"]["metrics"][5]["value"] == 100 and batch["a"]["metrics"][5]["value"] == 0   # percentile
     assert batch["c"]["penalties"] == [PRICE_FLAG_REASON] and not batch["a"]["penalties"]       # 4 < 0.6 * 10
     assert batch["d"]["metrics"][5]["value"] == _round(20 * math.log10(5))                       # 1688 alone: log tiers
+
+    # counterfeit risk: -30 after the price flag, first reason on the card
+    fake = score_supplier({"platform": "1688", "badges": ["诚信通", "超级工厂"], "years_active": 8,
+                           "service_scores_5pt": [4.8], "repurchase_rate_pct": 45, "seller_type": "factory",
+                           "sales_count": 2000, "counterfeit_risk": True})
+    assert fake["score"] == sf["score"] - COUNTERFEIT_POINTS and fake["band"] == "Good", fake   # 92 -> 62
+    assert fake["reasons"][0] == COUNTERFEIT_REASON and fake["penalties"] == [COUNTERFEIT_REASON]
+    flagged = score_suppliers([
+        {"id": i, "platform": "Taobao", "store_type": "tmall", "years_active": 5, "unit_price": p,
+         "counterfeit_risk": i == "c"} for i, p in (("a", 10), ("b", 10), ("c", 4))])
+    assert flagged["c"]["penalties"] == [COUNTERFEIT_REASON, PRICE_FLAG_REASON]
+    assert flagged["c"]["score"] == max(0, flagged["a"]["score"] - PRICE_FLAG_POINTS - COUNTERFEIT_POINTS)
     return sf, jd, tb, pdd, personal
 
 
 if __name__ == "__main__":
-    for label, r in zip(["1688 super factory", "JD self-operated", "Taobao personal", "PDD enterprise",
-                         "PDD personal"], run_tests()):
+    for label, r in zip(["1688 super factory", "JD self-operated", "Taobao personal", "PDD trader",
+                         "PDD 3 years only"], run_tests()):
         print(f"{label:20} score={r['score']!s:>4}  band={r['band']:16} coverage={r['coverage_pct']}%  "
               f"reasons={r['reasons']}")
     print("all scoring tests passed")

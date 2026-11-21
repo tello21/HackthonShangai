@@ -1,7 +1,7 @@
 """Link paste: paste a marketplace link (and, if needed, a screenshot or the page text)
 and get the same analysis as a product page.
 
-- a link to a product in the sample catalog -> its full product page at once
+- a link to a product in our catalog -> its full product page at once
 - any other link -> we ask for a screenshot or the page text and the AI reads it
   (marketplace pages are never fetched: they block bots and scraping breaks their terms)
 """
@@ -19,7 +19,7 @@ FIELDS = ["title_cn", "platform", "moq", "material", "size", "weight_kg", "produ
 
 
 def _use_sample_link():
-    S.lp_url = PRODUCTS[0]["demo_url"]
+    S.lp_url = PRODUCTS[0]["url"]
 
 
 def _use_sample_text():
@@ -66,7 +66,7 @@ def render_link_form():
         st.button("Analyze", type="primary", on_click=_analyze, width="stretch", key="lp_go")
     st.button("Try a sample link", type="tertiary", on_click=_use_sample_link)
     st.file_uploader("Screenshot of the listing (optional)", type=["png", "jpg", "jpeg", "webp"], key="lp_img",
-                     help="Needed for links outside our sample catalog: we read the page from your screenshot.")
+                     help="Needed for links outside our catalog: we read the page from your screenshot.")
     with st.expander("…or paste the page text"):
         st.text_area("Page text", key="lp_text", height=180, label_visibility="collapsed",
                      placeholder="Copy the title, prices, MOQ, specs and shop info from the page")
@@ -94,7 +94,7 @@ def render_link_result():
                 "its **text** above, then tap Analyze again.")
     elif r["kind"] == "catalog":
         p = get_product(r["pid"])
-        st.success("Found in our sample catalog — full analysis below.")
+        st.success("Found in our catalog — full analysis below.")
         render_detail(p, "catalog")
     elif r["kind"] == "read":
         _render_read(r)

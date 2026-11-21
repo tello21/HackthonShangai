@@ -7,23 +7,44 @@ from core.supplier_score import trust_for, trust_for_search
 
 
 # ---------------------------------------------------------------- catalog
+def test_catalog_maps_the_team_file():
+    assert len(PRODUCTS) == 13 and [p["id"] for p in PRODUCTS] == [str(i) for i in range(1, 14)]
+    p1 = get_product(1)
+    assert p1["tiers"] == [(2, 140.0), (50, 128.0), (200, 115.0)] and p1["production_days"] == 30
+    assert p1["supplier"]["badges_cn"] == ["诚信通", "超级工厂"] and p1["demo"] is True
+    assert get_product("6")["demo"] is False and get_product("2")["counterfeit_risk"] is True
+    assert {p["platform"] for p in PRODUCTS if p["id"] in ("8", "9", "10")} == {"Pinduoduo"}
+    assert p1["picture"] == "app/static/images/1.jpg"
+    assert get_product("7")["customisation"] == "Not offered"           # customizable: false
+
+
+def test_missing_photo_gives_placeholder():
+    from components.ui import image_uri
+    from core.catalog import to_card
+    rec = {"id": 99, "image": "images/does-not-exist.jpg", "category": "padel_racket"}
+    assert to_card(rec)["picture"] is None and to_card(dict(rec, image=None))["picture"] is None
+    assert image_uri(to_card(rec)).startswith("data:image/svg+xml")
+    assert image_uri(get_product("1")) == "app/static/images/1.jpg"
+
+
 def test_search_whole_words():
-    assert [p["id"] for p in search("yoga mat")] == ["YM-01", "YM-02", "YM-03"]   # not "matte" mugs
-    assert len(search("water bottles")) == 4
+    assert [p["id"] for p in search("beginner")] == ["12"]
+    assert len(search("padel rackets")) == 13
     assert search("laptop") == []
-    assert len(search("")) == len(PRODUCTS) == 20
+    assert len(search("")) == len(PRODUCTS)
 
 
-def test_find_by_demo_url():
-    assert find_by_url("https://detail.1688.com/offer/demo-tb-01.html?spm=abc")["id"] == "TB-01"
-    assert find_by_url("item.taobao.com/item.htm?id=demo-tb-04")["id"] == "TB-04"
+def test_find_by_listing_url():
+    assert find_by_url("https://detail.1688.com/offer/1036300675521.html?spm=abc")["id"] == "1"
+    assert find_by_url("item.taobao.com/item.htm?id=988472666305")["id"] == "12"
+    assert find_by_url("https://item.jd.com/10211536531150.html")["id"] == "4"
     assert find_by_url("https://detail.1688.com/offer/612345.html") is None
     assert find_by_url("") is None
 
 
 # ---------------------------------------------------------------- delivered price
 def test_cheapest_mode_depends_on_quantity():
-    p = get_product("WB-01")
+    p = get_product("3")
     assert P.delivered(p, 1, "Italy", "EUR")["mode"] == "express"       # minimum charges make sea absurd
     assert P.delivered(p, 5000, "Italy", "EUR")["mode"] == "sea"
     modes = P.compare_modes(p, 500, "Italy", "EUR")
@@ -31,22 +52,23 @@ def test_cheapest_mode_depends_on_quantity():
 
 
 def test_breakdown_adds_up():
-    d = P.delivered(get_product("WB-01"), 500, "Italy", "EUR", "air")
+    d = P.delivered(get_product("3"), 500, "Italy", "EUR", "air")
     parts = d["product"] + d["shipping"] + d["insurance"] + d["duty"] + d["clearance"] + d["vat"]
     assert abs(parts - d["total"]) < 1e-6
     assert abs(d["vat"] - 0.22 * (d["total"] - d["vat"])) < 1e-6
+    assert d["duty_pct"] == 2.7                                         # padel racket, EU
 
 
 def test_missing_data_is_not_invented():
-    no_weight = P.delivered(get_product("TB-04"), 500, "Italy", "EUR")
+    no_weight = P.delivered(get_product("11"), 500, "Italy", "EUR")    # Taobao listing without weight
     assert no_weight["product"] is not None and no_weight["shipping"] is None and no_weight["total"] is None
-    unknown_cat = P.delivered(dict(get_product("WB-01"), category="toys"), 500, "Italy")
+    unknown_cat = P.delivered(dict(get_product("3"), category="toys"), 500, "Italy")
     assert unknown_cat["duty"] is None and unknown_cat["total"] is None
 
 
 def test_express_includes_clearance_and_us_has_no_vat():
-    assert P.delivered(get_product("WB-01"), 1, "Italy", "EUR", "express")["clearance"] == 0
-    us = P.delivered(get_product("WB-01"), 500, "United States", "USD")
+    assert P.delivered(get_product("3"), 1, "Italy", "EUR", "express")["clearance"] == 0
+    us = P.delivered(get_product("3"), 500, "United States", "USD")
     assert us["vat"] == 0 and us["tax_name"].startswith("Sales tax")
 
 
@@ -67,14 +89,21 @@ def test_scoring_spec_cases():
     scoring.run_tests()                    # the five cases from the spec + shared rules (python core/scoring.py)
 
 
-def test_trust_for_catalog_products():
-    mg01 = trust_for(get_product("MG-01"), 3.1)          # 1688, 实地认证, 18 years, 45% repurchase
-    assert mg01["band"] == "Trusted" and mg01["coverage_pct"] == 100
-    wb04 = trust_for(get_product("WB-04"), 6.3)          # 1688 trader, only 诚信通, 2 years, 9% repurchase
-    assert wb04["band"] == "High risk"
-    assert "Only 诚信通 membership" in [m["reason"] for m in wb04["metrics"]]
-    jd = trust_for(get_product("MG-03"), 62)             # JD self-operated: seller type counts as brand official
-    assert jd["metrics"][4]["value"] == 100 and jd["metrics"][4]["reason"] == "Brand official store"
+def test_trust_for_the_padel_catalog():
+    """Every supplier scored as one search (as on the results page), the team's catalog."""
+    from core.scoring import COUNTERFEIT_REASON, PRICE_FLAG_REASON
+    res = trust_for_search([(p, P.delivered(p, 500, "Italy", "EUR")["unit_cny"]) for p in PRODUCTS])
+    got = {pid: (r["score"], r["band"]) for pid, r in res.items()}
+    assert got == {"1": (94, "Trusted"), "2": (24, "High risk"), "3": (72, "Good"), "4": (54, "Caution"),
+                   "5": (68, "Good"), "6": (48, "Caution"), "7": (25, "High risk"), "8": (66, "Good"),
+                   "9": (43, "Caution"), "10": (38, "High risk"), "11": (None, "Not enough data"),
+                   "12": (None, "Not enough data"), "13": (None, "Not enough data")}
+    assert res["2"]["reasons"][0] == COUNTERFEIT_REASON                  # counterfeit: first reason, -30
+    assert res["6"]["penalties"] == [PRICE_FLAG_REASON]                  # 298 < 60% of the JD median
+    assert res["8"]["penalties"] == [PRICE_FLAG_REASON] and res["8"]["metrics"][0]["value"] is None  # Pinduoduo
+    assert not res["7"]["penalties"]                                     # no price flag on 1688
+    alone = trust_for(get_product("2"), 125)          # alone: sales on the log scale, same counterfeit rule
+    assert alone["penalties"] == [COUNTERFEIT_REASON] and alone["band"] == "High risk"
     # a pasted listing that only tells the shop name: not enough data, no neutral-looking number
     bare = trust_for({"id": "x", "platform": "Pinduoduo", "supplier": {"name": "某店"}})
     assert bare["score"] is None and bare["band"] == "Not enough data"
@@ -90,7 +119,7 @@ def test_price_red_flag_only_within_the_same_platform():
 
 # ---------------------------------------------------------------- orders
 def test_order_flow_and_amounts():
-    p = get_product("WB-01")
+    p = get_product("3")
     d = P.delivered(p, 500, "Italy", "EUR")
     o = O.new_order(p, 500, "Italy", "EUR", d, None, False)
     assert abs(o["deposit"] - 0.3 * d["product"]) < 1e-9

@@ -9,10 +9,10 @@ import anthropic
 
 from core import ai, listing, query_translation
 
-PLAN = {"detected_language": "Italian", "intent_en": "Canvas tote bags with a printed logo",
-        "query_zh": "帆布袋定制logo", "query_zh_meaning_en": "custom logo canvas bag",
-        "pinyin": "fānbù dài dìngzhì logo", "alternative_queries_zh": ["帆布手提袋 印logo"],
-        "keywords_en": ["tote bag", "canvas"], "clarify": ["Canvas weight (e.g. 12 oz)"]}
+PLAN = {"detected_language": "Italian", "intent_en": "Carbon fiber padel rackets",
+        "query_zh": "碳纤维板式网球拍", "query_zh_meaning_en": "carbon fiber padel racket",
+        "pinyin": "tàn xiānwéi bǎnshì wǎngqiú pāi", "alternative_queries_zh": ["padel球拍 碳纤维"],
+        "keywords_en": ["padel racket", "carbon"], "clarify": ["Carbon grade (e.g. 3K, 12K, 18K)"]}
 
 
 def fake_response(stop="end_turn", text=json.dumps(PLAN)):
@@ -25,12 +25,12 @@ def call_with(resp):
     client.beta.messages.create.return_value = resp
     with mock.patch.object(anthropic, "Anthropic", return_value=client), \
          mock.patch.object(ai, "_api_key", "test-key"):
-        return query_translation.plan_search("borsa di tela con logo"), client
+        return query_translation.plan_search("racchetta da padel in carbonio"), client
 
 
 def test_reads_text_block_after_thinking_and_uses_one_model():
     (plan, err), client = call_with(fake_response())
-    assert err is None and plan["query_zh"] == "帆布袋定制logo"
+    assert err is None and plan["query_zh"] == "碳纤维板式网球拍"
     kw = client.beta.messages.create.call_args.kwargs
     assert kw["model"] == ai.MODEL == "claude-opus-5-5"
     assert kw["fallbacks"] == "default"
@@ -82,5 +82,6 @@ def test_read_screenshot_builds_a_card_without_inventing():
 
 def test_rule_based_fallback_still_reads_text():
     card = listing.parse_listing(listing.SAMPLE_LISTING)
-    assert card["moq"] == 100 and card["weight_kg"] == 0.18 and card["platform"] == "1688"
-    assert card["material"].startswith("Pure cotton canvas")
+    assert card["moq"] == 10 and card["weight_kg"] == 0.36 and card["platform"] == "1688"
+    assert card["category"] == "padel_racket" and card["tiers"][0] == (10, 135.0)
+    assert "carbon fiber" in card["material"]

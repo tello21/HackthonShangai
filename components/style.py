@@ -155,7 +155,7 @@ a.pc {{display:flex; gap:12px; padding:12px; margin-bottom:10px; background:#fff
 a.pc:hover {{box-shadow:0 4px 14px rgba(6,71,137,.12);}}
 a.pc:hover .pc-title {{color:var(--cerulean);}}
 a.pc.top {{border:2px solid var(--navy);}}
-.pc-img {{flex:none; width:96px; height:96px; border-radius:10px; object-fit:cover; background:var(--alice);}}
+.pc-img {{flex:none; width:96px; height:96px; border-radius:10px; object-fit:cover; background:#fff; border:1px solid var(--line);}}
 .pc-body {{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px;}}
 .pc-title {{font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2;
             -webkit-box-orient:vertical; overflow:hidden; color:var(--navy);}}
@@ -173,6 +173,11 @@ a.pc.top .pc-price {{display:inline; align-self:flex-start; background:linear-gr
 .foot {{font-size:.75rem; color:#7b8da0; padding:6px 0 4px; line-height:1.5;}}
 
 .pc-why {{font-size:.76rem; color:#4b5d70; line-height:1.35;}}
+.warn {{color:#B3261E; font-weight:700;}}
+.demo-tag {{display:inline-block; padding:0 7px; border-radius:6px; font-size:.68rem; font-weight:700;
+            line-height:1.7; color:#5b6f84; border:1px dashed #9AA8B6; text-transform:lowercase;}}
+.warn-tag {{display:inline-block; padding:1px 9px; border-radius:6px; font-size:.74rem; font-weight:700;
+            line-height:1.6; color:#fff; background:#B3261E;}}
 
 /* ---------- product sheet */
 .sec-h {{display:flex; align-items:center; gap:10px; font-size:1.3rem; font-weight:800; color:var(--navy);
@@ -183,7 +188,7 @@ a.pc.top .pc-price {{display:inline; align-self:flex-start; background:linear-gr
 .sub-h span {{font-weight:500; color:#7b8da0; font-size:.8rem; margin-left:6px;}}
 .ps {{display:flex; flex-direction:column; gap:14px; background:#fff; border:1px solid var(--line);
       border-radius:18px; padding:14px;}}
-.ps-img {{width:100%; aspect-ratio:1/1; max-height:200px; object-fit:cover; border-radius:14px; background:var(--alice);}}
+.ps-img {{width:100%; aspect-ratio:1/1; max-height:200px; object-fit:contain; border-radius:14px; background:#fff; border:1px solid var(--line);}}
 .ps-info {{flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;}}
 .ps-tags {{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}}
 .ps-tags .tag {{margin-right:0;}}

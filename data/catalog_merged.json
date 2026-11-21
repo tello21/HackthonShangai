@@ -1,0 +1,604 @@
+[
+  {
+    "id": 1,
+    "platform": "1688",
+    "url": "https://detail.1688.com/offer/1036300675521.html",
+    "title_original": null,
+    "title_en": "Source factory T800 carbon fiber competition-grade padel racket, custom padel racket",
+    "category": "padel_racket",
+    "image": "images/1.jpg",
+    "material_en": "T800 carbon alloy",
+    "size": "46*26*3.8cm",
+    "size_cm": [
+      46,
+      26,
+      3.8
+    ],
+    "weight_kg": 0.3,
+    "weight_includes_packaging": true,
+    "moq": 2,
+    "price_tiers_cny": [
+      {
+        "min_qty": 2,
+        "price": 140.0
+      },
+      {
+        "min_qty": 50,
+        "price": 128.0
+      },
+      {
+        "min_qty": 200,
+        "price": 115.0
+      }
+    ],
+    "lead_time_days": 30,
+    "customizable": true,
+    "customization_options_en": "Logo printing; customized processing; authorized private label; customization from customer pictures and samples; sampling/prototyping available",
+    "supplier": {
+      "name_original": null,
+      "name_en": "Shenzhen Hengtai Carbon Fiber Co., Ltd",
+      "city": "Shenzhen",
+      "badges": [
+        "诚信通",
+        "超级工厂"
+      ],
+      "store_type": null,
+      "seller_type": "factory",
+      "years_active": 8,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.8,
+        4.7,
+        4.9
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": 45.3,
+      "sales_count": 2350,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: invented fields: size, size_cm, moq, price tiers above 2 units, badges, service_scores_5pt, sales_count. Real data: price 140 CNY, 8 years, repurchase 45.3%, factory, 30-day lead time, Five-star supply chain label, brand HTPICK, cross-border export only. Weight 300 g from Packaging information.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 2,
+    "platform": "1688",
+    "url": "https://detail.1688.com/offer/1097152484606.html",
+    "title_original": null,
+    "title_en": "AMASPOR new youth padel racket, 3K carbon fiber",
+    "category": "padel_racket",
+    "image": "images/2.jpg",
+    "material_en": "3K carbon fiber (frame and racket material: carbon fiber)",
+    "size": "458*388*260",
+    "size_cm": null,
+    "weight_kg": 0.365,
+    "weight_includes_packaging": true,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 148.0
+      },
+      {
+        "min_qty": 20,
+        "price": 138.0
+      },
+      {
+        "min_qty": 100,
+        "price": 125.0
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": true,
+    "customization_options_en": "Logo printing; customized processing; authorized private label",
+    "supplier": {
+      "name_original": "东莞市耐客碳纤维材料科技有限公司",
+      "name_en": "Dongguan Naike Carbon Fiber Material Technology Co., Ltd",
+      "city": "Dongguan",
+      "badges": [
+        "诚信通"
+      ],
+      "store_type": null,
+      "seller_type": "trader",
+      "years_active": 2,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.5
+      ],
+      "positive_review_pct": 100,
+      "repurchase_rate_pct": 48,
+      "sales_count": 86,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: invented fields: moq, price tiers above 1 unit, badges, seller_type, sales_count. Real data: price 148 CNY, 2 years, store service score 4.5, store positive rate 100%, repurchase 48%, fulfillment 96%, 48-hour dispatch via ZTO, 2,000 sets in stock, grip G1. Packaging 45 x 25 x 3 cm, 365 g; product weight attribute 95-100 g is implausible. Product photo shows a NOX X-ONE branded racket (Spanish brand) with the supplier watermark, while the title says AMASPOR: possible unauthorized or counterfeit branding. Supplier Chinese name taken from the photo watermark.",
+    "counterfeit_risk": true
+  },
+  {
+    "id": 3,
+    "platform": "1688",
+    "url": "https://detail.1688.com/offer/1037995681915.html",
+    "title_original": null,
+    "title_en": "Padel racket factory, carbon fiber padel racket, professional competition adult racket (cage tennis / beach)",
+    "category": "padel_racket",
+    "image": "images/3.jpg",
+    "material_en": "Carbon fiber (attribute); variants in fiberglass (green, cyan, blue) or carbon fiber (white, black)",
+    "size": "46*25*3.8",
+    "size_cm": [
+      46,
+      25,
+      3.8
+    ],
+    "weight_kg": 0.25,
+    "weight_includes_packaging": false,
+    "moq": 2,
+    "price_tiers_cny": [
+      {
+        "min_qty": 2,
+        "price": 50.0
+      },
+      {
+        "min_qty": 100,
+        "price": 45.0
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": true,
+    "customization_options_en": "Logo printing",
+    "supplier": {
+      "name_original": null,
+      "name_en": "Yiwu Yining Sporting Goods Co., Ltd",
+      "city": "Yiwu",
+      "badges": [
+        "诚信通"
+      ],
+      "store_type": null,
+      "seller_type": "factory",
+      "years_active": 10,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.6,
+        4.5,
+        4.7
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": 63.6,
+      "sales_count": 1200,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: invented fields: price tier at 100 units, customizable, customization_options_en, badges, service_scores_5pt, sales_count. Real data: from-price 50 CNY (likely cheapest variant), MOQ 2 (from mistranslated 2件起批), 10 years, repurchase 63.6% (store), 30% (product), Four-star supply chain label, 48-hour dispatch via YTO, dropshipping price 158 CNY, 2000+ distributors. Variants: fiberglass green/cyan/blue, carbon white/black, ball bag.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 4,
+    "platform": "JD",
+    "url": "https://item.jd.com/10211536531150.html",
+    "title_original": "海德（HEAD）板式网球拍2026新款COELLO系列padel男女全碳素专业拍 Coello Vibe 2026 226156",
+    "title_en": "HEAD padel racket 2026 new COELLO series, unisex full carbon professional racket, Coello Vibe 2026 226156",
+    "category": "padel_racket",
+    "image": "images/4.jpg",
+    "material_en": "Full carbon",
+    "size": "Thickness 38 mm",
+    "size_cm": null,
+    "weight_kg": 0.355,
+    "weight_includes_packaging": false,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 920.45
+      }
+    ],
+    "lead_time_days": 1,
+    "customizable": null,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": null,
+      "name_en": "Wangyi Sports Specialty Store",
+      "city": null,
+      "badges": [],
+      "store_type": "jd_third_party",
+      "seller_type": "trader",
+      "years_active": null,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.8
+      ],
+      "positive_review_pct": 100,
+      "repurchase_rate_pct": null,
+      "sales_count": 4,
+      "sales_count_type": "reviews"
+    },
+    "notes_en": "DEMO: invented fields: service_scores_5pt. Real data: HEAD branded retail, list price 920.45 CNY, new-customer final price 750 CNY, 4 reviews 100% positive, multi-brand specialty store, ships within 4 hours, free shipping, 7-day returns. Variants: Coello Pro (out of stock), Motion, Team, Vibe. Product image specs: teardrop shape, 355 g, face 81 sq in, balance 272 mm, thickness 38 mm, hitting surface fiberglass (title says full carbon).",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 5,
+    "platform": "JD",
+    "url": "https://item.jd.com/10217487543478.html",
+    "title_original": "HEAD海德padel成人笼式板式网球拍新款SPEED系列碳纤维速度力量款 Vibe_gr_or",
+    "title_en": "HEAD padel racket for adults, new SPEED series, carbon fiber, speed and power model, Vibe_gr_or",
+    "category": "padel_racket",
+    "image": "images/5.jpg",
+    "material_en": "Carbon fiber",
+    "size": "Thickness 38 mm",
+    "size_cm": null,
+    "weight_kg": 0.35,
+    "weight_includes_packaging": false,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 664
+      }
+    ],
+    "lead_time_days": 1,
+    "customizable": null,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": null,
+      "name_en": "HEAD Hydelano Specialty Store",
+      "city": null,
+      "badges": [],
+      "store_type": "jd_third_party",
+      "seller_type": "authorized_store",
+      "years_active": null,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.9
+      ],
+      "positive_review_pct": 100,
+      "repurchase_rate_pct": null,
+      "sales_count": 30,
+      "sales_count_type": "reviews"
+    },
+    "notes_en": "DEMO: invented fields: seller_type, service_scores_5pt. Real data: HEAD branded retail, list price 664 CNY, new-user final price 524.32 CNY, 30 reviews 100% positive (all variants), ranked 17th in store best sellers, ships next day, free shipping. 7 variants in stock, 12 out of stock. Product image specs: teardrop shape, 350 g, face 81 sq in, balance 265 mm, thickness 38 mm, hitting surface fiberglass, designed for beginners; free tennis balls and overgrip shown.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 6,
+    "platform": "JD",
+    "url": "https://item.jd.com/10238276468659.html",
+    "title_original": null,
+    "title_en": "Odiar padel racket LEGEND, carbon fiber, professional competition padel racket, LEGEND black and green",
+    "category": "padel_racket",
+    "image": "images/6.jpg",
+    "material_en": "Carbon fiber",
+    "size": "Length 460 mm, thickness 40 mm",
+    "size_cm": null,
+    "weight_kg": 0.36,
+    "weight_includes_packaging": false,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 298
+      }
+    ],
+    "lead_time_days": 1,
+    "customizable": null,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": null,
+      "name_en": "Youge.com Sports Goods Specialty Store",
+      "city": null,
+      "badges": [],
+      "store_type": "jd_third_party",
+      "seller_type": "trader",
+      "years_active": null,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.7
+      ],
+      "positive_review_pct": 100,
+      "repurchase_rate_pct": null,
+      "sales_count": 6,
+      "sales_count_type": "reviews"
+    },
+    "notes_en": "Real data, nothing invented. Brand Odiar, list price 298 CNY, final 253 CNY after 15% official discount, bare weight 360 g, store score 4.7, 6 reviews 100% positive, ships today, free shipping, 7-day returns if unused. Product image specs: brand on racket ODEA, weight 360-380 g, length 460 mm, thickness 40 mm, balance 270 mm, round head, 1K carbon face, control type for amateur and beginner-intermediate players.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 7,
+    "platform": "1688",
+    "url": "https://detail.1688.com/offer/1054879965342.html",
+    "title_original": null,
+    "title_en": "AMASPORT padel racket, carbon fiber, professional training and competition padel racket",
+    "category": "padel_racket",
+    "image": "images/7.jpg",
+    "material_en": "Carbon fiber",
+    "size": null,
+    "size_cm": null,
+    "weight_kg": 0.36,
+    "weight_includes_packaging": true,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 719.1
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": false,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": null,
+      "name_en": "Foshan Ruitong Sports Goods Co., Ltd",
+      "city": "Foshan",
+      "badges": [],
+      "store_type": null,
+      "seller_type": "trader",
+      "years_active": 2,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.2
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": 38.3,
+      "sales_count": 12,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: invented fields: moq, customizable, badges (none), seller_type, service_scores_5pt, sales_count. Real data: price 719.10 CNY (unusually high for 1688), 2 years, repurchase 38.3%, fulfillment 98.1%, Four-star supply chain label, 20 units in stock, 48-hour dispatch via ZTO, brand Amaishi.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 8,
+    "platform": "Pinduoduo",
+    "url": "https://detail.1688.com/offer/737253173155.html",
+    "title_original": null,
+    "title_en": "Padel racket (cage tennis), 18K carbon fiber, manufacturer wholesale",
+    "category": "padel_racket",
+    "image": "images/8.jpg",
+    "material_en": "18K carbon fiber",
+    "size": null,
+    "size_cm": null,
+    "weight_kg": 0.36,
+    "weight_includes_packaging": true,
+    "moq": 2,
+    "price_tiers_cny": [
+      {
+        "min_qty": 2,
+        "price": 315.0
+      }
+    ],
+    "lead_time_days": 3,
+    "customizable": true,
+    "customization_options_en": "Logo printing; customized processing; authorized private label",
+    "supplier": {
+      "name_original": null,
+      "name_en": "Shandong Tianyada New Material Technology Co., Ltd",
+      "city": "Liaocheng",
+      "badges": [],
+      "store_type": null,
+      "seller_type": "factory",
+      "years_active": 6,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.6,
+        4.7,
+        4.5
+      ],
+      "positive_review_pct": 97,
+      "repurchase_rate_pct": 55,
+      "sales_count": 540,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: listing is actually on 1688 (URL kept), classified as Pinduoduo for the demo. Invented fields: service_scores_5pt, positive_review_pct, sales_count. Real data: price 315 CNY (dropshipping tier from 2 items, used as MOQ), 6 years, repurchase 55% ('Store Turn-Off Rate', mistranslation of 回头率), 'Samsung supply chain' label (mistranslation of 三星供应链, three-star supply chain), quality compliance 100%, brand TIAPAD, 3-day dispatch from Liaocheng, Shandong, shipping from 18 CNY, stock 9,999, 22 per carton, release September 2023. Packaging 52 x 33 x 6 cm, 360 g. seller_type factory from 'manufacturer' in the title. Cross-border export only, markets Europe, South America, Middle East.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 9,
+    "platform": "Pinduoduo",
+    "url": "https://detail.1688.com/offer/1055792148474.html",
+    "title_original": null,
+    "title_en": "New padel racket P111, carbon fiber, AMASPOR",
+    "category": "padel_racket",
+    "image": "images/9.jpg",
+    "material_en": "Full carbon",
+    "size": null,
+    "size_cm": null,
+    "weight_kg": 0.36,
+    "weight_includes_packaging": true,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 719.1
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": false,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": null,
+      "name_en": "Foshan Ruitong Sports Goods Co., Ltd",
+      "city": "Foshan",
+      "badges": [],
+      "store_type": null,
+      "seller_type": "trader",
+      "years_active": 2,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.2
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": 38.3,
+      "sales_count": 35,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: listing is actually on 1688 (URL kept), classified as Pinduoduo for the demo. Same supplier as product 7; invented supplier values kept identical to product 7 (seller_type, service_scores_5pt). Invented fields: moq, seller_type, service_scores_5pt, sales_count. Real data: price 719.10 CNY (same as dropshipping price), black only, 20 in stock, customized processing No and logo printing No, 2 years, repurchase 38.3%, Four-star supply chain label, fulfillment 98.1%, 48-hour dispatch via ZTO, shipping from 0 CNY, 7-day returns, brand Amaishi, origin Dongguan, release May 2026. Weight 360 g from Packaging information.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 10,
+    "platform": "Pinduoduo",
+    "url": "https://detail.1688.com/offer/1055797484783.html",
+    "title_original": null,
+    "title_en": "AMASPOR padel racket, 18K carbon fiber, training and competition padel racket",
+    "category": "padel_racket",
+    "image": "images/10.jpg",
+    "material_en": "18K carbon fiber (frame: carbon fiber)",
+    "size": "46.5*26",
+    "size_cm": null,
+    "weight_kg": 0.36,
+    "weight_includes_packaging": true,
+    "moq": 1,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 719.1
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": true,
+    "customization_options_en": "Customized processing (logo printing not offered)",
+    "supplier": {
+      "name_original": null,
+      "name_en": "Foshan Ruitong Sports Goods Co., Ltd",
+      "city": "Foshan",
+      "badges": [],
+      "store_type": null,
+      "seller_type": "trader",
+      "years_active": 2,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.2
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": 38.3,
+      "sales_count": 8,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "DEMO: listing is actually on 1688 (URL kept), classified as Pinduoduo for the demo. Same supplier as product 7 and product 9. Invented fields: moq, seller_type, service_scores_5pt, sales_count. Real data: price 719.10 CNY, 20 in stock, size 46.5 x 26 (no thickness given, so size_cm null), grip G2, for intermediate to advanced amateurs, customized processing Yes, logo printing No, brand Amaishi, origin Yangzhou, Jiangsu, 48-hour dispatch via ZTO, shipping from 0 CNY, 7-day returns. Weight 360 g from Packaging information; attribute weight 95-100 g is a template error.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 11,
+    "platform": "Taobao",
+    "url": "https://item.taobao.com/item.htm?id=1100333329503&skuId=6322458047417",
+    "title_original": "新款板式网球拍Padel笼式球拍混合碳纤维EVA内芯减震38mm便携式",
+    "title_en": "Portable padel racket with mixed carbon fiber construction, EVA shock-absorbing core and 38 mm thickness",
+    "category": "padel_racket",
+    "image": "images/11.png",
+    "material_en": "Carbon fiber, EVA core",
+    "size": "38 mm thickness",
+    "size_cm": null,
+    "weight_kg": null,
+    "weight_includes_packaging": false,
+    "moq": null,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 179.4
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": null,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": "永韵百货",
+      "name_en": "Yongyun Department Store",
+      "city": null,
+      "badges": [],
+      "store_type": null,
+      "seller_type": null,
+      "years_active": null,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.9
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": null,
+      "sales_count": 3,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "Default recommended option: patterned red single racket. Other options: black-blue, plain black and black-red single rackets; matching two-racket sets with two balls and one racket bag. Other variant prices not shown. Coupon price CNY 179.4, before discount CNY 205.4. Seller displays overall store rating 4.9 (not confirmed as DSR), 33 new positive reviews in 90 days, average dispatch in 21 hours and customer service response in 15 seconds. Estimated dispatch within one hour, guaranteed within 48 hours. No product reviews shown. Unbranded product. No verified supplier badge, store classification or seller type shown.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 12,
+    "platform": "Taobao",
+    "url": "https://item.taobao.com/item.htm?id=988472666305&skuId=6120738383348",
+    "title_original": "padel板式网球拍ABS材质适用于入门级训练大学体育专业沙滩网球拍",
+    "title_en": "ABS padel racket for beginner training, university sports and beach tennis",
+    "category": "padel_racket",
+    "image": "images/12.png",
+    "material_en": "ABS plastic",
+    "size": "Oval racket",
+    "size_cm": null,
+    "weight_kg": 0.33,
+    "weight_includes_packaging": false,
+    "moq": null,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 88.2
+      }
+    ],
+    "lead_time_days": 2,
+    "customizable": null,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": "Vigor国际运动用品馆",
+      "name_en": "Vigor International Sporting Goods Store",
+      "city": null,
+      "badges": [],
+      "store_type": null,
+      "seller_type": null,
+      "years_active": null,
+      "taobao_credit_level": null,
+      "service_scores_5pt": [
+        4.8
+      ],
+      "positive_review_pct": null,
+      "repurchase_rate_pct": null,
+      "sales_count": 42,
+      "sales_count_type": "orders"
+    },
+    "notes_en": "Default variant: single racket, approximately 330 g; specification states 320 g inclusive to below 330 g. Alternative bundle: two rackets and two balls with free backpack; bundle price not shown. Coupon price CNY 88.2, original CNY 98. Product has 22 reviews, but review scores and positive-review percentage are not shown. Seller displays overall store rating 4.8 (not confirmed as DSR), 15 new positive reviews in 90 days, average dispatch in 19 hours and customer service response in 28 seconds. Dispatch within 48 hours. Listed for autumn 2025. No verified supplier badges or business classification shown.",
+    "counterfeit_risk": false
+  },
+  {
+    "id": 13,
+    "platform": "Taobao",
+    "url": "https://item.taobao.com/item.htm?id=1084406943804&skuId=6140154856778",
+    "title_original": "碳纤维表面蓝灰色调Padel球拍 EVA记忆棉柔软缓震适用",
+    "title_en": "Blue-grey carbon-fiber-surface padel racket with soft shock-absorbing EVA memory foam",
+    "category": "padel_racket",
+    "image": "images/13.png",
+    "material_en": "Surface: 50% carbon fiber and 50% fiberglass; EVA core",
+    "size": "46.5 x 25 x 3.8 cm",
+    "size_cm": [
+      46.5,
+      25,
+      3.8
+    ],
+    "weight_kg": 0.365,
+    "weight_includes_packaging": false,
+    "moq": null,
+    "price_tiers_cny": [
+      {
+        "min_qty": 1,
+        "price": 338
+      }
+    ],
+    "lead_time_days": 5,
+    "customizable": null,
+    "customization_options_en": null,
+    "supplier": {
+      "name_original": "赛默贵203的小店",
+      "name_en": "Saimegui 203's Shop",
+      "city": null,
+      "badges": [],
+      "store_type": "taobao_personal",
+      "seller_type": null,
+      "years_active": null,
+      "taobao_credit_level": null,
+      "service_scores_5pt": null,
+      "positive_review_pct": null,
+      "repurchase_rate_pct": null,
+      "sales_count": null,
+      "sales_count_type": null
+    },
+    "notes_en": "Pictured grey 4013 variant. Other listed colors: blue, green, black red and black-blue; separate prices not shown. Image specifications: 46.5 cm length, 25 cm width, 3.8 cm thickness, 365 +/- 10 g weight, 12 cm handle length, 11 cm handle circumference, 27-29 cm balance point, and 27 x 25 cm racket face. Free racket bag shown. Conflicting listing-level weight specification: 320 g inclusive to below 330 g; weight_kg uses image-specific 365 g nominal figure. Product listed for winter 2025. Preorder dispatch within five days. No sales, product reviews or store rating shown. No supplier verification or store classification shown.",
+    "counterfeit_risk": false
+  }
+]

@@ -4,7 +4,7 @@ import streamlit as st
 
 from components.state import S, bound, go, link
 from components.ui import (NA, band, currency_label, esc, fx_line_short, image_uri, money,
-                           platform_search_url, platform_tag, tag, trust_pill, trust_reasons_line, units)
+                           demo_tag, platform_search_url, platform_tag, tag, trust_pill, trust_reasons_line, units)
 from core import query_translation
 from core.catalog import PLATFORMS, SELLER_TYPES, search
 from core.pricing import COUNTRIES, CURRENCIES, SYMBOL, delivered
@@ -32,6 +32,27 @@ def translated(query):
         return _cached_plan(query), None
     except _PlanUnavailable as e:
         return None, str(e)
+
+
+def search_base(q, plan):
+    """The products of a search: (products, matched_via_translation). The AI's English keywords
+    match the catalog better than raw text; the raw query is the fallback."""
+    if plan and plan["keywords_en"]:
+        base = search(" ".join(plan["keywords_en"]))
+        if base:
+            return base, plan["detected_language"].lower() != "english"
+    return search(q), False
+
+
+def trust_in_search(p):
+    """p's trust score in the context of the current search (sales and prices are compared with
+    the other results of the same platform), so the product page shows the same score as the list.
+    None when p is not part of the search."""
+    plan = translated(S.q)[0] if S.q else None
+    base, _ = search_base(S.q, plan)
+    if p["id"] not in {x["id"] for x in base}:
+        return None
+    return trust_for_search([(x, delivered(x, S.qty, S.country, S.cur)["unit_cny"]) for x in base])[p["id"]]
 
 
 def translation_strip(plan, reason, via_translation):
@@ -66,11 +87,10 @@ def translation_strip(plan, reason, via_translation):
 def enrich(products):
     rows = []
     for p in products:
-        d =delivered(p, S.qty, S.country, S.cur)
+        d = delivered(p, S.qty, S.country, S.cur)
         rows.append(dict(p=p, d=d, ok=d["per_unit"] is not None and not d["below_moq"]))
     # one trust calculation for the whole search: sales and prices compared within the same platform
     trust = trust_for_search([(r["p"], r["d"]["unit_cny"]) for r in rows])
-    S.trust = trust                                  # the product page reuses it (same search context)
     for r in rows:
         r["trust"] = trust[r["p"]["id"]]
         r["score"] = r["trust"]["score"]
@@ -87,7 +107,7 @@ def product_card(r, sym, top=False, saving=None):
     """Photo, English name, marketplace tag, supplier score, final delivered price.
     The whole card opens the product page."""
     p, d = r["p"], r["d"]
-    tags = [trust_pill(r["trust"]), platform_tag(p.get("platform"))]
+    tags = [trust_pill(r["trust"]), platform_tag(p.get("platform")), demo_tag(p)]
     why = trust_reasons_line(r["trust"])
     if r["ok"]:
         price = f"<div class='pc-price'>{money(d['per_unit'], sym)}<small>/unit delivered</small></div>"
@@ -120,13 +140,7 @@ def page_results():
     if S.q:
         with st.spinner("Translating your search for Chinese marketplaces…"):
             plan, reason = translated(S.q)
-    base, via_translation = [], False
-    if plan and plan["keywords_en"]:
-        # the AI's English product keywords match the catalog better than raw text
-        base = search(" ".join(plan["keywords_en"]))
-        via_translation = bool(base) and plan["detected_language"].lower() != "english"
-    if not base:
-        base = search(S.q)
+    base, via_translation = search_base(S.q, plan)
     budget_txt = f" · max {money(S.budget, sym)}/unit" if S.budget else ""
     with band():
         st.markdown(
@@ -149,8 +163,9 @@ def page_results():
         st.header("Filters")
         f_platform = st.multiselect("Platform", PLATFORMS, default=PLATFORMS)
         f_type = st.multiselect("Seller type", SELLER_TYPES, default=SELLER_TYPES,
-                                format_func=lambda t: {"factory": "Factory", "store": "Store",
-                                                       "middleman": "Middleman / trading co."}[t])
+                                format_func=lambda t: {"factory": "Factory", "brand_official": "Brand official store",
+                                                       "authorized_store": "Authorized store",
+                                                       "trader": "Trader / trading co."}[t])
         f_score = st.slider("Minimum trust score", 0, 100, 0, step=5)
         max_moq_all = max([r["p"]["moq"] or 0 for r in rows] + [1])
         f_moq = st.number_input("Maximum MOQ", min_value=1, value=int(max_moq_all), step=50)
@@ -173,8 +188,8 @@ def page_results():
         filtered = [r for r in filtered if r not in over_budget]
 
     if not base:
-        st.warning(f"No products in the sample catalog match “{S.q}”. "
-                   "Try tote bag, water bottle, phone case, yoga mat, mug or LED strip.")
+        st.warning(f"No products in our catalog match “{S.q}”. The demo catalog has padel rackets: "
+                   "try padel racket, carbon or beginner.")
         return
     if not filtered:
         st.info("No results match the current filters or budget.")
@@ -214,7 +229,7 @@ def page_results():
         + "</div>"
         f"<div class='foot'>Prices include shipping (cheapest method for {S.qty:,} units), duty, VAT and "
         f"customs, estimated · {fx_line_short()} · Trust scores sum up public signals, not an official "
-        f"verification · Sample catalog</div>",
+        f"verification · “demo data” = listing with some made-up values</div>",
         unsafe_allow_html=True,
     )
 

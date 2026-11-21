@@ -77,8 +77,14 @@ def trust_pill(r, big=False):
 
 
 def trust_reasons_line(r, n=2):
-    """The strongest signals for a result card."""
-    return " · ".join(esc(x) for x in r["reasons"][:n])
+    """The strongest signals for a result card; penalties (e.g. counterfeit risk) in red."""
+    return " · ".join(f"<span class='warn'>⚠ {esc(x)}</span>" if x in r["penalties"] else esc(x)
+                      for x in r["reasons"][:n])
+
+
+def demo_tag(p):
+    """Small label for listings with some made-up values (notes_en starts with 'DEMO:')."""
+    return "<span class='demo-tag'>demo data</span>" if p.get("demo") else ""
 
 
 def trust_bars(r):
@@ -138,15 +144,16 @@ def tier_cards(tiers, qty, currency):
 
 # ---------------------------------------------------------------------------- images and links
 def image_uri(p, square=False):
+    """The product photo (catalog: app/static/images/..., or a web link), else a placeholder."""
     picture = p.get("picture")
-    if isinstance(picture, str) and picture.startswith("http"):
+    if isinstance(picture, str) and picture.startswith(("http", "app/static/")):
         return picture
     emoji, colour = CATEGORY_STYLE.get(p.get("category") or "unknown", CATEGORY_STYLE["unknown"])
     w, h = (220, 220) if square else (300, 220)
     svg = f"""<svg xmlns='http://www.w3.org/2000/svg' width='{w}' height='{h}' viewBox='0 0 {w} {h}'>
 <rect width='{w}' height='{h}' rx='14' fill='{colour}'/>
 <text x='{w/2}' y='{h/2 + 25}' font-size='86' text-anchor='middle'>{emoji}</text>
-<text x='{w/2}' y='{h - 20}' font-size='15' text-anchor='middle' fill='#555' font-family='sans-serif'>Sample image</text>
+<text x='{w/2}' y='{h - 20}' font-size='15' text-anchor='middle' fill='#555' font-family='sans-serif'>No photo</text>
 </svg>"""
     return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode()
 
@@ -162,7 +169,7 @@ def platform_search_url(platform, keywords):
 
 
 def search_link(p):
-    """Sample products have no real listing; offer a platform search instead."""
+    """For listings without a link: a search on the platform instead."""
     return platform_search_url(p.get("platform"), p.get("title_cn") or p.get("title_en"))
 
 

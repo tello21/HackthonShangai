@@ -11,6 +11,9 @@ import re
 
 # Small glossary for a word-by-word English rendering of Chinese titles.
 GLOSSARY = [
+    ("板式网球拍", "padel racket"), ("笼式网球拍", "padel racket"), ("球拍", "racket"), ("碳纤维", "carbon fiber"),
+    ("碳素", "carbon"), ("全碳", "full carbon"), ("玻璃纤维", "fiberglass"), ("玻纤", "fiberglass"), ("减震", "shock-absorbing"),
+    ("专业", "professional"), ("比赛", "competition"), ("训练", "training"), ("沙滩", "beach"),
     ("托特包", "tote bag"), ("手提袋", "tote bag"), ("购物袋", "shopping bag"), ("帆布袋", "canvas bag"),
     ("帆布", "canvas"), ("无纺布", "non-woven"), ("背包", "backpack"), ("双肩包", "backpack"),
     ("保温杯", "insulated bottle"), ("保温壶", "insulated bottle"), ("水杯", "water bottle"),
@@ -24,6 +27,7 @@ GLOSSARY = [
 ]
 
 CATEGORY_HINTS = [
+    ("padel_racket", ["板式网球拍", "笼式网球拍", "padel", "球拍", "racket"]),
     ("bags", ["托特包", "手提袋", "购物袋", "帆布袋", "背包", "双肩包", "tote", "bag"]),
     ("drinkware", ["保温杯", "保温壶", "水杯", "水壶", "bottle", "tumbler"]),
     ("ceramics", ["马克杯", "咖啡杯", "陶瓷", "mug", "ceramic"]),
@@ -221,9 +225,9 @@ def platform_from_url(url):
 # AI reader (screenshot or text)
 # ---------------------------------------------------------------------------
 
-CATEGORIES = ["bags", "drinkware", "phone accessories", "sports", "ceramics", "lighting", "unknown"]
+CATEGORIES = ["padel_racket", "bags", "drinkware", "phone accessories", "sports", "ceramics", "lighting", "unknown"]
 STORE_TYPES = ["tmall_flagship", "tmall", "taobao_enterprise", "taobao_personal", "jd_self_operated",
-               "jd_flagship", "jd_third_party", "pdd_flagship", "pdd_enterprise", "pdd_personal"]
+               "jd_flagship", "jd_third_party"]
 
 LISTING_SCHEMA = {
     "type": "object",
@@ -284,8 +288,7 @@ Supplier (only extract; never judge or score the seller):
   trader (贸易/进出口/商贸), else unknown.
 - store_type: Taobao tmall_flagship (天猫旗舰店) / tmall (天猫) / taobao_enterprise (企业店) /
   taobao_personal; JD jd_self_operated (京东自营) / jd_flagship (旗舰店) / jd_third_party;
-  Pinduoduo pdd_flagship (品牌旗舰店 / 官方旗舰店) / pdd_enterprise (企业店) / pdd_personal (个人店);
-  else unknown.
+  else unknown (Pinduoduo listings have no store type).
 - years: years on the platform or in business (e.g. 入驻8年, 经营11年).
 - badges_cn: the 1688 badges exactly as written in Chinese (诚信通, 实力商家, 超级工厂, 实地认证, 深度验厂).
 - taobao_credit_level: Taobao seller credit as "N_hearts", "N_diamonds", "N_crowns" or "gold_crown".
@@ -357,16 +360,16 @@ def read_listing(text=None, image=None, media_type=None, url=None):
     return card_from_ai(data, url), None
 
 
-SAMPLE_LISTING = """12安加厚帆布手提袋 可定制logo 环保购物袋 批发
+SAMPLE_LISTING = """碳纤维板式网球拍 专业比赛训练 可定制logo 批发
 https://detail.1688.com/offer/000000000000.html
-100-499件 ¥8.50
-500-1999件 ¥7.20
-≥2000件 ¥6.10
-100件起批
-材质：12安纯棉帆布
-尺寸：38*42cm
-重量：180g
-付款后15天内发货
+10-99件 ¥135.00
+100-499件 ¥118.00
+≥500件 ¥102.00
+10件起批
+材质：12K碳纤维 EVA内芯
+尺寸：46*26*3.8cm
+重量：360g
+付款后20天内发货
 支持来图定制 OEM
-温州苍南某某袋业有限公司  生产厂家  实力商家  经营11年
-回头率 36%  响应率 94%"""
+东莞市某某体育用品有限公司  生产厂家  实力商家  经营7年
+回头率 41%  响应率 92%"""

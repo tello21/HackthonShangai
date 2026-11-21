@@ -4,14 +4,16 @@ Also used to show the result of Link paste."""
 import streamlit as st
 
 from components.state import S, go
-from components.ui import (NA, cny, esc, fact_grid, fx_line, image_uri, platform_tag, receipt, sample_banner,
+from components.ui import (NA, cny, demo_tag, esc, fact_grid, fx_line, image_uri, platform_tag, receipt, sample_banner,
                            search_link, section, tag, tier_cards, trust_bars, trust_pill, units)
 from core import messages as M
 from core.catalog import get_product
 from core.pricing import COUNTRIES, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes, delivered
-from core.scoring import STORE_TYPES
+from core.listing import platform_from_url
+from core.scoring import PENALTY_POINTS, STORE_TYPES
 from core.supplier_score import raw_fields, trust_for
 from views.faq import how_we_score_html
+from views.results import trust_in_search
 
 
 def open_conversation(p, qty, country):
@@ -64,7 +66,9 @@ def render_detail(p, source="catalog"):
 
     # ---- 1. Product sheet: photo + title + key numbers, then specs as tiles, then price tiers
     st.markdown(section(1, "Product"), unsafe_allow_html=True)
-    tags = [platform_tag(p.get("platform"))]
+    tags = [platform_tag(p.get("platform")), demo_tag(p)]
+    if p.get("counterfeit_risk"):
+        tags.append(f"<span class='warn-tag'>⚠ Possible counterfeit brand</span>")
     if source != "catalog":
         tags.append(tag(f"Read from your {source}", "est"))
     if p.get("title_en_source") == "ai":
@@ -85,14 +89,17 @@ def render_detail(p, source="catalog"):
         f"<div class='ps-info'><div class='ps-tags'>{''.join(tags)}</div>"
         f"<div class='ps-title'>{esc(p.get('title_en') or p.get('title_cn') or NA)}</div>{orig}"
         f"<div class='kfs'>{key_fact('Minimum order', moq, ' units')}"
-        f"{key_fact('Weight per unit', weight, ' g')}"
-        f"{key_fact('Production time', p.get('production_days'), ' days')}</div></div></div>",
+        f"{key_fact('Weight incl. packaging' if p.get('weight_includes_packaging') else 'Weight per unit', weight, ' g')}"
+        f"{key_fact('Lead time', p.get('production_days'), ' days')}</div></div></div>",
         unsafe_allow_html=True)
     st.markdown(fact_grid([
         ("Material", esc(p.get("material")) or None),
         ("Size", esc(p.get("size")) or None),
         ("Customisation", esc(p.get("customisation")) or None, True),
     ]), unsafe_allow_html=True)
+    if p.get("notes"):
+        with st.expander("About this data" + (" · includes demo values" if p.get("demo") else "")):
+            st.markdown(esc(p["notes"]))
     st.markdown("<div class='sub-h'>Price per unit by quantity <span>as listed by the seller</span></div>",
                 unsafe_allow_html=True)
     if p.get("tiers"):
@@ -145,8 +152,9 @@ def render_detail(p, source="catalog"):
     # ---- 3. Supplier trust
     st.markdown(section(3, "Can you trust this seller?"), unsafe_allow_html=True)
     with st.container(border=True):
-        # the score from the current search (same-platform sales and prices); alone when opened directly
-        r = (S.get("trust") or {}).get(key) or trust_for(p, d["unit_cny"])
+        # the same score as in the results list (same search, same-platform sales and prices);
+        # scored alone for products outside the search (e.g. Link paste)
+        r = (source == "catalog" and trust_in_search(p)) or trust_for(p, d["unit_cny"])
         c1, c2 = st.columns([1, 1.25], gap="large")
         with c1:
             num = (f"<span class='trust-num'>{r['score']}<small>/100</small></span>" if r["score"] is not None
@@ -159,7 +167,9 @@ def render_detail(p, source="catalog"):
                 st.markdown(f"<div class='muted'>Missing: {esc(', '.join(r['missing']))}</div>",
                             unsafe_allow_html=True)
             for pen in r["penalties"]:
-                st.markdown(f"<div class='penalty'>⚠️ {esc(pen)} (−10)</div>", unsafe_allow_html=True)
+                pts = PENALTY_POINTS.get(pen)
+                st.markdown(f"<div class='penalty'>⚠️ {esc(pen)}{f' (−{pts})' if r['score'] is not None and pts else ''}"
+                            f"</div>", unsafe_allow_html=True)
 
             name = s.get("name") or s.get("name_cn")
             cn = (f"<div class='sup-cn'>{esc(s['name_cn'])}</div>"
@@ -187,7 +197,8 @@ def render_detail(p, source="catalog"):
                         ("Service rating", " / ".join(f"{x:g}" for x in scores5) + " out of 5" if scores5 else None),
                         ("Positive reviews", None if raw["positive_review_pct"] is None else f"{raw['positive_review_pct']:g}%"),
                         ("Repurchase rate", None if raw["repurchase_rate_pct"] is None else f"{raw['repurchase_rate_pct']:g}%"),
-                        ("Sales / orders", None if raw["sales_count"] is None else f"{raw['sales_count']:,}"),
+                        ({"reviews": "Reviews"}.get(s.get("sales_count_type"), "Sales / orders"),
+                         None if raw["sales_count"] is None else f"{raw['sales_count']:,}"),
                         ("Seller credit", nice(raw["taobao_credit_level"])),
                         ("Badges", badges, True),
                     ]), unsafe_allow_html=True)
@@ -202,7 +213,8 @@ def render_detail(p, source="catalog"):
                   on_click=open_conversation, args=(p, qty, country))
         st.markdown("**Original listing**")
         if p.get("url"):
-            st.link_button(f"Open original listing on {p.get('platform') or 'source site'} ↗", p["url"])
+            site = platform_from_url(p["url"]) or p.get("platform") or "the source site"
+            st.link_button(f"Open original listing on {site} ↗", p["url"])
         else:
             st.markdown(f"Original listing link: <span class='na'>{NA}</span>", unsafe_allow_html=True)
             slink = search_link(p)

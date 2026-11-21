@@ -8,6 +8,7 @@ from components.ui import NA, cny, money, sample_banner
 from core.catalog import get_product
 from core.pricing import delivered
 from core.supplier_score import trust_for
+from views.results import trust_in_search
 
 
 def page_compare():
@@ -23,7 +24,7 @@ def page_compare():
     data = {}
     for p in prods:
         d = delivered(p, S.qty, S.country, S.cur)
-        tr = (S.get("trust") or {}).get(p["id"]) or trust_for(p, d["unit_cny"])
+        tr = trust_in_search(p) or trust_for(p, d["unit_cny"])
         title = (p.get("title_en") or p.get("title_cn") or NA)[:30]
         data[f"{p['platform']} · {title}…"] = {
             "Delivered / unit (est.)": money(d["per_unit"], d["symbol"]),

@@ -79,7 +79,7 @@ def page_checkout():
     st.button(f"Pay deposit {money(deposit, sym)} (simulated)", type="primary", width="stretch",
               key="pay_deposit", on_click=_place_order,
               args=(card, qty, country, d, co.get("unit_price_cny"), negotiated, co.get("conv")))
-    if get_product(card.get("id")) or str(card.get("id") or "").startswith("yw-"):
+    if get_product(card.get("id")):
         st.button("Cancel", on_click=go, args=("detail",), kwargs={"pid": card["id"]}, key="cancel_checkout")
     else:
         st.button("Cancel", on_click=go, args=("home",), kwargs={"tab": "link"}, key="cancel_checkout")

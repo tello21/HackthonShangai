@@ -1,6 +1,6 @@
 """Bridge between our product cards and core/scoring.py.
 
-Product cards come from the sample catalog and Link paste. This
+Product cards come from the catalog and Link paste. This
 module only maps their supplier data to scoring.py's raw fields; the score itself is
 computed by scoring.py (pure rules, see that file).
 """
@@ -41,6 +41,7 @@ def raw_fields(p, unit_price=None):
         "seller_type": s.get("seller_type") or OLD_TYPE.get(s.get("type")),
         "sales_count": s.get("sales_count"),
         "unit_price": unit_price,
+        "counterfeit_risk": bool(p.get("counterfeit_risk")),
     }
 
 
