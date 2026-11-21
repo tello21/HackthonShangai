@@ -40,7 +40,7 @@ def search_panel():
         with st.form("search_form", border=False):
             c_q, c_qty, c_country, c_cur, c_go = st.columns([2.4, 0.8, 1, 0.9, 1.1], gap="small",
                                                            vertical_alignment="bottom")
-            query = c_q.text_input("Product", value="", placeholder="e.g. padel racket")
+            query = c_q.text_input("Product", value="")
             qty = c_qty.number_input("Quantity", min_value=1, value=int(S.qty), step=50)
             countries = list(COUNTRIES)
             country = c_country.selectbox("Deliver to", countries, index=countries.index(S.country))
