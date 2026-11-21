@@ -29,12 +29,6 @@ def cny(v):
     return NA if v is None else f"¥{v:,.2f}"
 
 
-def val(v, suffix=""):
-    if v is None or v == "" or v == []:
-        return f"<span class='na'>{NA}</span>"
-    return f"{v}{suffix}"
-
-
 def esc(s):
     return html.escape(str(s)) if s is not None else ""
 
@@ -107,9 +101,39 @@ def platform_tag(platform):
             f"{esc(platform or NA)}</span>")
 
 
-def kv_table(pairs):
-    rows = "".join(f"<tr><td>{k}</td><td>{v}</td></tr>" for k, v in pairs)
-    return f"<table class='kv'>{rows}</table>"
+def section(n, title):
+    """Numbered section heading of the product sheet."""
+    return f"<div class='sec-h'><span class='sec-n'>{n}</span>{esc(title)}</div>"
+
+
+def fact_grid(items):
+    """Tiles instead of a two-column table: small label on top, value below.
+    items: (label, value_html or None, wide). None -> a muted 'not available' tile."""
+    tiles = []
+    for label, value, *wide in items:
+        cls = "fact" + (" wide" if wide and wide[0] else "") + (" na-tile" if value in (None, "") else "")
+        shown = value if value not in (None, "") else NA
+        tiles.append(f"<div class='{cls}'><div class='fact-l'>{esc(label)}</div><div class='fact-v'>{shown}</div></div>")
+    return "<div class='facts'>" + "".join(tiles) + "</div>"
+
+
+def tier_cards(tiers, qty, currency):
+    """The seller's quantity price tiers as cards; the tier for the chosen quantity is marked."""
+    tiers = sorted(tiers)
+    fx, sym = fx_rate(currency), SYMBOL[currency]
+    active = max((i for i, (mq, _) in enumerate(tiers) if qty >= mq), default=None)
+    first = tiers[0][1]
+    cards = []
+    for i, (mq, price) in enumerate(tiers):
+        rng = f"{mq:,}–{tiers[i + 1][0] - 1:,}" if i + 1 < len(tiers) else f"{mq:,}+"
+        conv = f"≈ {sym}{price * fx:,.2f}" if currency != "CNY" else ""
+        off = f"<span class='tier-off'>−{(first - price) / first * 100:.0f}%</span>" if price < first else ""
+        mark = "<span class='tier-you'>Your quantity</span>" if i == active else ""
+        cards.append(f"<div class='tier{' on' if i == active else ''}'>{mark}"
+                     f"<div class='tier-q'>{rng} units</div>"
+                     f"<div class='tier-p'>¥{price:,.2f}<small>/unit</small></div>"
+                     f"<div class='tier-c'>{conv}{off}</div></div>")
+    return "<div class='tiers'>" + "".join(cards) + "</div>"
 
 
 # ---------------------------------------------------------------------------- images and links
@@ -125,11 +149,6 @@ def image_uri(p, square=False):
 <text x='{w/2}' y='{h - 20}' font-size='15' text-anchor='middle' fill='#555' font-family='sans-serif'>Sample image</text>
 </svg>"""
     return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode()
-
-
-def image_html(p, height=150):
-    return (f"<img src='{image_uri(p)}' "
-            f"style='width:100%;max-height:{height}px;object-fit:contain;border-radius:12px'/>")
 
 
 def platform_search_url(platform, keywords):

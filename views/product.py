@@ -1,15 +1,15 @@
 """Product page: product card, delivered price, supplier, contact + order.
 Also used to show the result of Link paste."""
 
-import pandas as pd
 import streamlit as st
 
 from components.state import S, go
-from components.ui import (NA, cny, esc, fx_line, image_html, kv_table, receipt, sample_banner, search_link,
-                           tag, trust_bars, trust_pill, units, val)
+from components.ui import (NA, cny, esc, fact_grid, fx_line, image_uri, platform_tag, receipt, sample_banner,
+                           search_link, section, tag, tier_cards, trust_bars, trust_pill, units)
 from core import messages as M
 from core.catalog import get_product
-from core.pricing import COUNTRIES, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes, delivered, fx_rate
+from core.pricing import COUNTRIES, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes, delivered
+from core.scoring import STORE_TYPES
 from core.supplier_score import raw_fields, trust_for
 from views.faq import how_we_score_html
 
@@ -62,56 +62,48 @@ def render_detail(p, source="catalog"):
     key = p["id"]
     s = p.get("supplier") or {}
 
-    # ---- 1. Product page
-    st.subheader("1 · Product")
-    with st.container(border=True):
-        c_img, c_info = st.columns([1, 2])
-        with c_img:
-            st.markdown(image_html(p, 260), unsafe_allow_html=True)
-            if source != "catalog":
-                st.markdown(tag(f"Read from your {source}", "est"), unsafe_allow_html=True)
-        with c_info:
-            st.markdown(f"### {esc(p.get('title_en') or p.get('title_cn') or NA)}")
-            if p.get("title_en_source") == "ai":
-                st.markdown(tag("English name translated by AI", "est"), unsafe_allow_html=True)
-            elif source != "catalog" and p.get("title_en"):
-                st.markdown(tag("Translated title — approximate", "est"), unsafe_allow_html=True)
-            if p.get("title_cn") and p.get("title_en"):
-                st.markdown(f"<span class='muted'>Original title: {esc(p['title_cn'])}</span>",
-                            unsafe_allow_html=True)
-            moq = units(p["moq"]) if p.get("moq") is not None else None
-            weight = f"{p['weight_kg']*1000:,.0f} g" if p.get("weight_kg") is not None else None
-            if weight and p.get("weight_user"):
-                weight += " " + tag("user-provided", "est")
-            prod = f"{p['production_days']} days" if p.get("production_days") is not None else None
-            st.markdown(kv_table([
-                ("Platform", val(esc(p.get("platform")) or None)),
-                ("Material", val(esc(p.get("material")) or None)),
-                ("Size", val(esc(p.get("size")) or None)),
-                ("Weight (per unit)", val(weight)),
-                ("MOQ", val(moq)),
-                ("Production time", val(prod)),
-                ("Customisation", val(esc(p.get("customisation")) or None)),
-            ]), unsafe_allow_html=True)
+    # ---- 1. Product sheet: photo + title + key numbers, then specs as tiles, then price tiers
+    st.markdown(section(1, "Product"), unsafe_allow_html=True)
+    tags = [platform_tag(p.get("platform"))]
+    if source != "catalog":
+        tags.append(tag(f"Read from your {source}", "est"))
+    if p.get("title_en_source") == "ai":
+        tags.append(tag("English name translated by AI", "est"))
+    elif source != "catalog" and p.get("title_en"):
+        tags.append(tag("Translated title — approximate", "est"))
+    orig = (f"<div class='ps-orig'>Original title · {esc(p['title_cn'])}</div>"
+            if p.get("title_cn") and p.get("title_en") else "")
 
-        st.markdown("**Price tiers** (as listed by the seller)")
-        if p.get("tiers"):
-            fx, sym = fx_rate(S.cur), SYMBOL[S.cur]
-            tiers = sorted(p["tiers"])
-            rows = []
-            for i, (mq, price) in enumerate(tiers):
-                rng = f"{mq:,} – {tiers[i+1][0]-1:,}" if i + 1 < len(tiers) else f"{mq:,}+"
-                row = {"Quantity": rng, "Price (CNY)": f"¥{price:,.2f}"}
-                if S.cur != "CNY":
-                    row[f"≈ {S.cur}"] = f"{sym}{price*fx:,.2f}"
-                rows.append(row)
-            st.dataframe(pd.DataFrame(rows), hide_index=True, width="content")
-            st.caption(fx_line(S.cur))
-        else:
-            st.markdown(f"<span class='na'>{NA}</span>", unsafe_allow_html=True)
+    def key_fact(label, value, unit=""):
+        v = (f"{value}<small>{unit}</small>" if value is not None else f"<span class='na'>{NA}</span>")
+        return f"<div class='kf'><div class='kf-v'>{v}</div><div class='kf-l'>{label}</div></div>"
+
+    weight = f"{p['weight_kg'] * 1000:,.0f}" if p.get("weight_kg") is not None else None
+    moq = f"{p['moq']:,}" if p.get("moq") is not None else None
+    st.markdown(
+        f"<div class='ps'><img class='ps-img' src='{image_uri(p, square=True)}' alt=''/>"
+        f"<div class='ps-info'><div class='ps-tags'>{''.join(tags)}</div>"
+        f"<div class='ps-title'>{esc(p.get('title_en') or p.get('title_cn') or NA)}</div>{orig}"
+        f"<div class='kfs'>{key_fact('Minimum order', moq, ' units')}"
+        f"{key_fact('Weight per unit', weight, ' g')}"
+        f"{key_fact('Production time', p.get('production_days'), ' days')}</div></div></div>",
+        unsafe_allow_html=True)
+    st.markdown(fact_grid([
+        ("Material", esc(p.get("material")) or None),
+        ("Size", esc(p.get("size")) or None),
+        ("Customisation", esc(p.get("customisation")) or None, True),
+    ]), unsafe_allow_html=True)
+    st.markdown("<div class='sub-h'>Price per unit by quantity <span>as listed by the seller</span></div>",
+                unsafe_allow_html=True)
+    if p.get("tiers"):
+        # follows the quantity field of section 2 (its value from the previous run)
+        st.markdown(tier_cards(p["tiers"], int(S.get(f"qty_{key}") or S.qty), S.cur), unsafe_allow_html=True)
+        st.caption(fx_line(S.cur))
+    else:
+        st.markdown(f"<span class='na'>{NA}</span>", unsafe_allow_html=True)
 
     # ---- 2. Delivered price
-    st.subheader("2 · Delivered price")
+    st.markdown(section(2, "Delivered price"), unsafe_allow_html=True)
     with st.container(border=True):
         c1, c2 = st.columns([1, 1.3])
         qty = c1.number_input("Quantity", min_value=1, value=int(S.qty), step=50, key=f"qty_{key}")
@@ -151,7 +143,7 @@ def render_detail(p, source="catalog"):
                   help=None if can_order else "Needs a complete delivered price")
 
     # ---- 3. Supplier trust
-    st.subheader("3 · Can you trust this seller?")
+    st.markdown(section(3, "Can you trust this seller?"), unsafe_allow_html=True)
     with st.container(border=True):
         # the score from the current search (same-platform sales and prices); alone when opened directly
         r = (S.get("trust") or {}).get(key) or trust_for(p, d["unit_cny"])
@@ -170,32 +162,39 @@ def render_detail(p, source="catalog"):
                 st.markdown(f"<div class='penalty'>⚠️ {esc(pen)} (−10)</div>", unsafe_allow_html=True)
 
             name = s.get("name") or s.get("name_cn")
-            st.markdown(f"#### {esc(name) or NA}")
-            if s.get("name") and s.get("name_cn") and s["name"] != s["name_cn"]:
-                st.markdown(f"<span class='muted'>{esc(s['name_cn'])}</span>", unsafe_allow_html=True)
-            raw = raw_fields(p)
-            badges = " ".join(tag(esc(b), "est") for b in raw["badges"] or []) or None
-            scores5 = raw["service_scores_5pt"]
-            st.markdown(kv_table([
-                ("City", val(esc(s.get("city")) or None)),
-                ("Store type", val(esc((raw["store_type"] or "").replace("_", " ")) or None)),
-                ("Seller type", val(esc((raw["seller_type"] or "").replace("_", " ")) or None)),
-                ("Years active", val(None if raw["years_active"] is None else f"{raw['years_active']:g}")),
-                ("Badges", val(badges)),
-                ("Seller credit", val(esc((raw["taobao_credit_level"] or "").replace("_", " ")) or None)),
-                ("Service ratings", val(" / ".join(f"{x:g}" for x in scores5) if scores5 else None)),
-                ("Positive reviews", val(None if raw["positive_review_pct"] is None else f"{raw['positive_review_pct']:g}%")),
-                ("Repurchase rate", val(None if raw["repurchase_rate_pct"] is None else f"{raw['repurchase_rate_pct']:g}%")),
-                ("Sales / orders", val(None if raw["sales_count"] is None else f"{raw['sales_count']:,}")),
-            ]), unsafe_allow_html=True)
+            cn = (f"<div class='sup-cn'>{esc(s['name_cn'])}</div>"
+                  if s.get("name") and s.get("name_cn") and s["name"] != s["name_cn"] else "")
+            city = f"<div class='sup-city'>📍 {esc(s['city'])}, China</div>" if s.get("city") else ""
+            st.markdown(f"<div class='sup'><div class='sup-name'>{esc(name) or NA}</div>{cn}{city}</div>",
+                        unsafe_allow_html=True)
         with c2:
             st.markdown("**Why this score**" + trust_bars(r), unsafe_allow_html=True)
             st.caption("A summary of public signals from the listing and the platform, not an official "
                        "verification.")
+
+        def nice(x):
+            return esc((x or "").replace("_", " ").capitalize()) or None
+
+        raw = raw_fields(p)
+        scores5 = raw["service_scores_5pt"]
+        badges = "".join(f"<span class='chip-b'>{esc(b)}</span>" for b in raw["badges"] or []) or None
+        st.markdown("<div class='sub-h'>Seller facts <span>from the listing and the platform</span></div>"
+                    + fact_grid([
+                        ("Years active", None if raw["years_active"] is None else f"{raw['years_active']:g} years"),
+                        ("Store type", esc(STORE_TYPES.get(raw["platform"], {}).get(raw["store_type"], (0, ""))[1])
+                         or nice(raw["store_type"])),
+                        ("Seller type", nice(raw["seller_type"])),
+                        ("Service rating", " / ".join(f"{x:g}" for x in scores5) + " out of 5" if scores5 else None),
+                        ("Positive reviews", None if raw["positive_review_pct"] is None else f"{raw['positive_review_pct']:g}%"),
+                        ("Repurchase rate", None if raw["repurchase_rate_pct"] is None else f"{raw['repurchase_rate_pct']:g}%"),
+                        ("Sales / orders", None if raw["sales_count"] is None else f"{raw['sales_count']:,}"),
+                        ("Seller credit", nice(raw["taobao_credit_level"])),
+                        ("Badges", badges, True),
+                    ]), unsafe_allow_html=True)
         st.markdown("**How we score**" + how_we_score_html(), unsafe_allow_html=True)
 
     # ---- 4. Contact
-    st.subheader("4 · Contact the supplier")
+    st.markdown(section(4, "Contact the supplier"), unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("Chat with the supplier here: you write in English (or your language), they read "
                     "natural business Chinese, and every reply comes back translated and explained.")

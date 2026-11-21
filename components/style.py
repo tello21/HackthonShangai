@@ -130,8 +130,6 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stV
 .muted {{color:#5b6f84; font-size:.88rem;}}
 .score-pill {{display:inline-block; padding:2px 10px; border-radius:999px; color:#fff; font-weight:700;
       font-size:.82rem;}}
-.kv td {{padding:4px 14px 4px 0; vertical-align:top;}}
-.kv td:first-child {{color:#5b6f84; white-space:nowrap;}}
 a.plain {{color:inherit; text-decoration:none;}}
 
 /* ---------- results header */
@@ -175,6 +173,54 @@ a.pc.top .pc-price {{display:inline; align-self:flex-start; background:linear-gr
 .foot {{font-size:.75rem; color:#7b8da0; padding:6px 0 4px; line-height:1.5;}}
 
 .pc-why {{font-size:.76rem; color:#4b5d70; line-height:1.35;}}
+
+/* ---------- product sheet */
+.sec-h {{display:flex; align-items:center; gap:10px; font-size:1.3rem; font-weight:800; color:var(--navy);
+         margin:1.6rem 0 .7rem; letter-spacing:-.01em;}}
+.sec-n {{display:inline-flex; width:28px; height:28px; border-radius:50%; background:var(--hl); color:var(--navy);
+         font-size:.9rem; font-weight:800; align-items:center; justify-content:center; flex:none;}}
+.sub-h {{font-weight:800; color:var(--navy); margin:1rem 0 .5rem; font-size:1rem;}}
+.sub-h span {{font-weight:500; color:#7b8da0; font-size:.8rem; margin-left:6px;}}
+.ps {{display:flex; flex-direction:column; gap:14px; background:#fff; border:1px solid var(--line);
+      border-radius:18px; padding:14px;}}
+.ps-img {{width:100%; aspect-ratio:1/1; max-height:200px; object-fit:cover; border-radius:14px; background:var(--alice);}}
+.ps-info {{flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;}}
+.ps-tags {{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}}
+.ps-tags .tag {{margin-right:0;}}
+.ps-title {{font-size:1.45rem; font-weight:800; line-height:1.2; color:var(--navy); letter-spacing:-.01em;}}
+.ps-orig {{font-size:.85rem; color:#7b8da0;}}
+.kfs {{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:4px;}}
+.kf {{background:var(--alice); border-radius:12px; padding:10px 10px 8px;}}
+.kf-v {{font-size:1.25rem; font-weight:800; color:var(--navy); line-height:1.1; font-variant-numeric:tabular-nums;}}
+.kf-v small {{font-size:.75rem; font-weight:600; color:#5b6f84;}}
+.kf-v .na {{font-size:.8rem; font-weight:500;}}
+.kf-l {{font-size:.72rem; color:#5b6f84; margin-top:3px; text-transform:uppercase; letter-spacing:.04em; font-weight:600;}}
+.facts {{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px; margin:.6rem 0 1.2rem;}}
+.fact {{background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 12px; min-width:0;}}
+.fact.wide {{grid-column:1 / -1;}}
+.fact-l {{font-size:.7rem; color:#7b8da0; text-transform:uppercase; letter-spacing:.05em; font-weight:700;}}
+.fact-v {{font-size:.95rem; font-weight:600; color:var(--ink); margin-top:2px; line-height:1.35; word-break:break-word;}}
+.fact.na-tile {{background:transparent; border-style:dashed;}}
+.fact.na-tile .fact-v {{color:#9AA8B6; font-weight:500; font-style:italic;}}
+.chip-b {{display:inline-block; margin:2px 6px 2px 0; padding:2px 10px; border-radius:999px; font-size:.8rem;
+          background:#E3EEF8; color:#1F5A86; font-weight:600;}}
+.tiers {{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; margin:.2rem 0 .3rem;}}
+.tier {{position:relative; background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px;}}
+.tier.on {{border:2px solid var(--navy); padding:11px;}}
+.tier-you {{position:absolute; top:-10px; right:10px; background:var(--hl); color:var(--navy); font-size:.68rem;
+            font-weight:800; padding:1px 8px; border-radius:999px;}}
+.tier-q {{font-size:.78rem; color:#5b6f84; font-weight:600;}}
+.tier-p {{font-size:1.35rem; font-weight:800; color:var(--navy); line-height:1.2; font-variant-numeric:tabular-nums;}}
+.tier-p small {{font-size:.72rem; font-weight:500; color:#7b8da0; margin-left:2px;}}
+.tier-c {{display:flex; justify-content:space-between; gap:6px; font-size:.8rem; color:#5b6f84;}}
+.tier-off {{font-weight:800; color:var(--navy); background:linear-gradient(transparent 50%, var(--hl) 50%);}}
+.sup-name {{font-size:1.1rem; font-weight:800; color:var(--navy); margin-top:.8rem; line-height:1.25;}}
+.sup-cn, .sup-city {{font-size:.85rem; color:#5b6f84;}}
+@media (min-width: 640px) {{
+  .ps {{flex-direction:row; padding:18px; gap:20px;}}
+  .ps-img {{width:220px; height:220px; flex:none;}}
+  .ps-title {{font-size:1.7rem;}}
+}}
 
 /* ---------- trust score: band pill + one bar per metric */
 .score-pill.big {{font-size:1rem; padding:4px 14px;}}
