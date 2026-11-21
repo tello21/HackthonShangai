@@ -15,7 +15,8 @@ import os
 import time
 import uuid
 
-from core.ai import ask
+from core import demo_chat
+from core.ai import ask, has_credentials
 from core.pricing import unit_price_cny
 
 STORE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "conversations.json")
@@ -74,6 +75,7 @@ def supplier_persona(product, qty):
         "floor_price_cny": None if list_price is None else round(list_price * floor_pct, 2),
         "sample_cost_cny": sample_cost,
         "sample_days": 3 if s.get("type") == "factory" else 5,
+        "qty": qty,
     }
 
 
@@ -120,6 +122,11 @@ OUT_SCHEMA = {
 
 
 def translate_outgoing(text_en, tone, context):
+    if not has_credentials():          # demo mode: hand-written translations of the quick actions
+        demo = demo_chat.translate(text_en, tone, context, lambda name: quick_action_text(
+            name, int(context.get("quantity") or 1), context.get("destination") or "", context.get("listed_moq")))
+        if demo:
+            return demo, None
     system = f"""You turn a European buyer's chat message into the message a Chinese supplier on
 1688 / Taobao / JD should receive. The buyer may write in English or any European language.
 
@@ -145,6 +152,10 @@ Deal context (for terminology only): {json.dumps(context, ensure_ascii=False)}""
 
 def simulate_supplier_reply(history, persona):
     """history: list of messages with role 'buyer' / 'supplier' and a 'zh' field."""
+    if not has_credentials():          # demo mode: scripted reply from the listing data
+        demo = demo_chat.supplier_reply(history, persona)
+        if demo:
+            return demo, None
     msgs = []
     for m in history:
         role = "user" if m["role"] == "buyer" else "assistant"
@@ -194,6 +205,10 @@ IN_SCHEMA = {
 
 
 def analyze_incoming(text_zh, context):
+    if not has_credentials():          # demo mode: reading of the scripted replies
+        demo = demo_chat.analyze(text_zh)
+        if demo:
+            return demo
     system = f"""You help a European buyer read a message from a Chinese supplier.
 
 Return:

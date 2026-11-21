@@ -33,7 +33,8 @@ def button(at, label):
 
 
 def test_chat_with_translator_both_ways_and_order_at_negotiated_price(no_ai):
-    with mock.patch.object(M, "ask", side_effect=fake_ask):
+    with mock.patch.object(M, "ask", side_effect=fake_ask), \
+         mock.patch.object(M, "has_credentials", return_value=True):     # the AI path, not the demo
         at = run_app({"view": "detail", "pid": "1", "qty": "500", "country": "Italy", "cur": "EUR"})
         at.button(key="contact_1").click().run()
         cid = at.session_state["conv"]
@@ -71,9 +72,25 @@ def test_chat_without_api_key_says_why(no_ai):
     at = run_app({"view": "detail", "pid": "3", "qty": "500"})
     at.button(key="contact_3").click().run()
     cid = at.session_state["conv"]
+    at.text_area(key=f"draft_{cid}").input("Do you ship by sea?")          # free text needs the AI
     at.button(key=f"pv_{cid}").click().run()
     assert any("Translation not available — no API key configured" in w.value for w in at.warning)
     assert at.button(key=f"send_{cid}").disabled
+
+
+def test_demo_chat_without_api_key(no_ai):
+    """The demo: the prepared 'Ask for quote' message gets a hand-written translation and a scripted reply."""
+    at = run_app({"view": "detail", "pid": "8", "qty": "500", "country": "Italy", "cur": "EUR"})
+    at.button(key="contact_8").click().run()
+    cid = at.session_state["conv"]
+    at.button(key=f"pv_{cid}").click().run()
+    t = page_text(at)
+    assert "请问这款板式网球拍订500支、发到意大利的话，最优惠的单价是多少？" in t
+    assert "For an order of 500 of these padel rackets delivered to Italy" in t
+    at.button(key=f"send_{cid}").click().run()
+    t = page_text(at)
+    assert "单价可以给到¥299" in t and "the unit price can be ¥299" in t
+    assert at.session_state["convs"][cid]["deal"]["unit_price_cny"] == 299
 
 
 # ---------------------------------------------------------------- order + simulated payment
