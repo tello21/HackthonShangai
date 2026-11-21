@@ -1,14 +1,14 @@
-"""Supplier trust score, 0-100, comparable across 1688, Taobao, JD and Yiwugo.
+"""Supplier trust score, 0-100, comparable across 1688, Taobao, JD and Pinduoduo.
 
 Pure Python, no AI: the AI (or the listing parser) only extracts the raw fields;
 this module turns them into the score, following the team's rules exactly.
 
 Input per supplier (any field can be None):
-  platform              "1688" | "Taobao" | "JD" | "Yiwugo"
+  platform              "1688" | "Taobao" | "JD" | "Pinduoduo"
   badges                list of str, e.g. 诚信通, 实力商家, 超级工厂, 实地认证, 深度验厂
   store_type            tmall_flagship | tmall | taobao_enterprise | taobao_personal |
                         jd_self_operated | jd_flagship | jd_third_party |
-                        yiwugo_physical_stall | yiwugo_online_only
+                        pdd_flagship | pdd_enterprise | pdd_personal
   years_active          number
   taobao_credit_level   "3_hearts", "2_diamonds", "4_crowns", "gold_crown"
   service_scores_5pt    list of numbers on a 5-point scale
@@ -54,8 +54,10 @@ STORE_TYPES = {
                "taobao_enterprise": (55, "Taobao enterprise store"), "taobao_personal": (30, "Taobao personal store")},
     "JD": {"jd_self_operated": (100, "JD self-operated"), "jd_flagship": (80, "JD flagship store"),
            "jd_third_party": (50, "JD third-party seller")},
-    "Yiwugo": {"yiwugo_physical_stall": (70, "Physical stall in Yiwu market"),
-               "yiwugo_online_only": (40, "Online-only Yiwugo shop")},
+    # Pinduoduo values: our assumption, same logic as Taobao (official brand store > company > individual)
+    "Pinduoduo": {"pdd_flagship": (90, "Pinduoduo brand flagship store"),
+                  "pdd_enterprise": (55, "Pinduoduo enterprise store"),
+                  "pdd_personal": (30, "Pinduoduo personal store")},
 }
 
 
@@ -299,23 +301,23 @@ def _cases():
     taobao_personal = score_supplier({"platform": "Taobao", "store_type": "taobao_personal",
                                       "taobao_credit_level": "2_hearts", "service_scores_5pt": [4.6],
                                       "seller_type": "trader"})
-    stall = score_supplier({"platform": "Yiwugo", "store_type": "yiwugo_physical_stall", "years_active": 3})
-    online = score_supplier({"platform": "Yiwugo", "store_type": "yiwugo_online_only"})
-    return super_factory, jd_self, taobao_personal, stall, online
+    pdd_ent = score_supplier({"platform": "Pinduoduo", "store_type": "pdd_enterprise", "years_active": 3})
+    pdd_personal = score_supplier({"platform": "Pinduoduo", "store_type": "pdd_personal"})
+    return super_factory, jd_self, taobao_personal, pdd_ent, pdd_personal
 
 
 def run_tests():
-    sf, jd, tb, stall, online = _cases()
+    sf, jd, tb, pdd, personal = _cases()
     assert sf["band"] == "Trusted" and sf["score"] == 92 and sf["coverage_pct"] == 100, sf
     # JD: 0.7 * 92.9 + 0.3 * 50 = 80 -> high score, below the fully documented 1688 factory
     assert jd["score"] == 80 and jd["band"] == "Trusted" and jd["score"] < sf["score"], jd
     assert jd["coverage_pct"] == 70
     # Taobao: (25*30 + 20*15 + 25*60 + 10*40 + 20*50) / 100 = 39.5 -> 40 = Caution (on the edge)
     assert tb["score"] == 40 and tb["band"] == "Caution", tb
-    # Yiwugo stall: (25*70 + 20*60 + 55*50) / 100 = 57 -> lower because only 45% is covered
-    assert stall["score"] == 57 and stall["band"] == "Caution" and stall["coverage_pct"] == 45, stall
-    assert stall["score"] < jd["score"] < sf["score"]
-    assert online["score"] is None and online["band"] == "Not enough data" and online["coverage_pct"] == 25, online
+    # Pinduoduo enterprise store, 3 years: (25*55 + 20*60 + 55*50) / 100 = 53.25 -> 53, only 45% covered
+    assert pdd["score"] == 53 and pdd["band"] == "Caution" and pdd["coverage_pct"] == 45, pdd
+    assert pdd["score"] < jd["score"] < sf["score"]
+    assert personal["score"] is None and personal["band"] == "Not enough data" and personal["coverage_pct"] == 25, personal
 
     # shared rules
     assert credit_value("gold_crown") == 100 and credit_value("2_diamonds") == 45 and credit_value("1_hearts") == 10
@@ -329,12 +331,12 @@ def run_tests():
     assert batch["c"]["metrics"][5]["value"] == 100 and batch["a"]["metrics"][5]["value"] == 0   # percentile
     assert batch["c"]["penalties"] == [PRICE_FLAG_REASON] and not batch["a"]["penalties"]       # 4 < 0.6 * 10
     assert batch["d"]["metrics"][5]["value"] == _round(20 * math.log10(5))                       # 1688 alone: log tiers
-    return sf, jd, tb, stall, online
+    return sf, jd, tb, pdd, personal
 
 
 if __name__ == "__main__":
-    for label, r in zip(["1688 super factory", "JD self-operated", "Taobao personal", "Yiwugo stall",
-                         "Yiwugo online only"], run_tests()):
+    for label, r in zip(["1688 super factory", "JD self-operated", "Taobao personal", "PDD enterprise",
+                         "PDD personal"], run_tests()):
         print(f"{label:20} score={r['score']!s:>4}  band={r['band']:16} coverage={r['coverage_pct']}%  "
               f"reasons={r['reasons']}")
     print("all scoring tests passed")

@@ -94,15 +94,10 @@ def parse_listing(text):
 
     url_m = re.search(r"https?://[^\s]+", t)
     url = url_m.group(0) if url_m else None
-    platform = None
-    if url:
-        for key, name in [("1688.com", "1688"), ("taobao.com", "Taobao"), ("tmall.com", "Taobao"),
-                          ("jd.com", "JD"), ("yiwugo.com", "Yiwugo")]:
-            if key in url:
-                platform = name
+    platform = platform_from_url(url)
     if platform is None:
-        for key, name in [("1688", "1688"), ("淘宝", "Taobao"), ("taobao", "Taobao"),
-                          ("京东", "JD"), ("义乌购", "Yiwugo"), ("yiwugo", "Yiwugo")]:
+        for key, name in [("1688", "1688"), ("淘宝", "Taobao"), ("taobao", "Taobao"), ("京东", "JD"),
+                          ("拼多多", "Pinduoduo"), ("pinduoduo", "Pinduoduo")]:
             if key.lower() in t.lower():
                 platform = name
                 break
@@ -213,19 +208,10 @@ def parse_listing(text):
     )
 
 
-def guess_category(text):
-    """Product category from a (Chinese or English) title, or None. Used for the duty rate."""
-    low = (text or "").lower()
-    for cat, hints in CATEGORY_HINTS:
-        if any(h.lower() in low for h in hints):
-            return cat
-    return None
-
-
 def platform_from_url(url):
     u = (url or "").lower()
     for key, name in [("1688.com", "1688"), ("taobao.com", "Taobao"), ("tmall.com", "Taobao"),
-                      ("jd.com", "JD"), ("yiwugo.com", "Yiwugo")]:
+                      ("jd.com", "JD"), ("pinduoduo.com", "Pinduoduo"), ("yangkeduo.com", "Pinduoduo")]:
         if key in u:
             return name
     return None
@@ -237,14 +223,14 @@ def platform_from_url(url):
 
 CATEGORIES = ["bags", "drinkware", "phone accessories", "sports", "ceramics", "lighting", "unknown"]
 STORE_TYPES = ["tmall_flagship", "tmall", "taobao_enterprise", "taobao_personal", "jd_self_operated",
-               "jd_flagship", "jd_third_party", "yiwugo_physical_stall", "yiwugo_online_only"]
+               "jd_flagship", "jd_third_party", "pdd_flagship", "pdd_enterprise", "pdd_personal"]
 
 LISTING_SCHEMA = {
     "type": "object",
     "properties": {
         "title_cn": {"type": "string"},
         "title_en": {"type": "string"},
-        "platform": {"type": "string", "enum": ["1688", "Taobao", "JD", "Yiwugo", ""]},
+        "platform": {"type": "string", "enum": ["1688", "Taobao", "JD", "Pinduoduo", ""]},
         "moq": {"type": "integer"},
         "tiers": {"type": "array", "items": {
             "type": "object",
@@ -280,7 +266,7 @@ LISTING_SCHEMA = {
 }
 
 READER_PROMPT = """You read a product listing from a Chinese marketplace (1688, Taobao/Tmall, JD,
-Yiwugo), given as a screenshot or as copied page text, and fill in a product card for a
+Pinduoduo), given as a screenshot or as copied page text, and fill in a product card for a
 European buyer.
 
 Rules:
@@ -298,7 +284,8 @@ Supplier (only extract; never judge or score the seller):
   trader (贸易/进出口/商贸), else unknown.
 - store_type: Taobao tmall_flagship (天猫旗舰店) / tmall (天猫) / taobao_enterprise (企业店) /
   taobao_personal; JD jd_self_operated (京东自营) / jd_flagship (旗舰店) / jd_third_party;
-  Yiwugo yiwugo_physical_stall (shows a market booth 摊位) / yiwugo_online_only; else unknown.
+  Pinduoduo pdd_flagship (品牌旗舰店 / 官方旗舰店) / pdd_enterprise (企业店) / pdd_personal (个人店);
+  else unknown.
 - years: years on the platform or in business (e.g. 入驻8年, 经营11年).
 - badges_cn: the 1688 badges exactly as written in Chinese (诚信通, 实力商家, 超级工厂, 实地认证, 深度验厂).
 - taobao_credit_level: Taobao seller credit as "N_hearts", "N_diamonds", "N_crowns" or "gold_crown".

@@ -1,5 +1,5 @@
 # SourceScan palette: Steel Azure #064789 · Rich Cerulean #427AA1 · Alice Blue #EBF2FA
-#                    Sage Green #679436 · Lime Moss #A5BE00
+#                    Highlighter yellow #FFF200 · font Outfit (geometric sans-serif, loaded in components/style.py)
 [theme]
 base = "light"
 primaryColor = "#427AA1"

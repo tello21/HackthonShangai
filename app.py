@@ -18,7 +18,7 @@ st.set_page_config(page_title="SourceScan – trusted suppliers in China, real d
 from components import style  # noqa: E402  (set_page_config must run first)
 from components.state import S, get_api_key, init_state, sync_url  # noqa: E402
 from components.ui import nav_bar, scroll_to_top_on_view_change  # noqa: E402
-from core import ai, yiwugo  # noqa: E402
+from core import ai  # noqa: E402
 from core.pricing import refresh_fx  # noqa: E402
 from views.checkout import page_checkout, page_orders  # noqa: E402
 from views.compare import page_compare  # noqa: E402
@@ -35,7 +35,6 @@ if S.view == "orders" and not S.orders.get(S.order or ""):
     S.view = "profile"           # the order list lives in the profile
 sync_url()
 refresh_fx()                     # live ECB rates, at most every 6 h (15 min after a failure)
-yiwugo.warm_up()                 # Yiwugo search token in the background, so the first search is faster
 ai.set_api_key(get_api_key())
 style.inject()
 scroll_to_top_on_view_change()

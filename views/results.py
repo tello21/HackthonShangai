@@ -1,17 +1,14 @@
 """Results: Amazon-style product list with delivered prices."""
 
-import time
-
 import streamlit as st
 
 from components.state import S, bound, go, link
 from components.ui import (NA, band, currency_label, esc, fx_line_short, image_uri, money,
                            platform_search_url, platform_tag, tag, trust_pill, trust_reasons_line, units)
-from core import query_translation, yiwugo
+from core import query_translation
 from core.catalog import PLATFORMS, SELLER_TYPES, search
 from core.pricing import COUNTRIES, CURRENCIES, SYMBOL, delivered
 from core.supplier_score import trust_for_search
-from views.live import live_search, with_buyer_details
 
 
 # ---------------------------------------------------------------------------- AI query translation
@@ -46,7 +43,7 @@ def translation_strip(plan, reason, via_translation):
         return
     links = " · ".join(
         f"<a href='{platform_search_url(p, plan['query_zh'])}' target='_blank' rel='noopener'>{p} ↗</a>"
-        for p in ("1688", "Taobao", "JD"))
+        for p in PLATFORMS)
     alts = " · ".join(esc(a) for a in plan["alternative_queries_zh"]) or NA
     tips = "".join(f"<li>{esc(c)}</li>" for c in plan["clarify"])
     matched = " · matched via translation" if via_translation else ""
@@ -69,8 +66,7 @@ def translation_strip(plan, reason, via_translation):
 def enrich(products):
     rows = []
     for p in products:
-        p = with_buyer_details(p)
-        d = delivered(p, S.qty, S.country, S.cur)
+        d =delivered(p, S.qty, S.country, S.cur)
         rows.append(dict(p=p, d=d, ok=d["per_unit"] is not None and not d["below_moq"]))
     # one trust calculation for the whole search: sales and prices compared within the same platform
     trust = trust_for_search([(r["p"], r["d"]["unit_cny"]) for r in rows])
@@ -91,19 +87,13 @@ def product_card(r, sym, top=False, saving=None):
     """Photo, English name, marketplace tag, supplier score, final delivered price.
     The whole card opens the product page."""
     p, d = r["p"], r["d"]
-    tags = [trust_pill(r["trust"]), platform_tag(p.get("platform")),
-            "<span class='src-tag live'>Live</span>" if p.get("live") else "<span class='src-tag'>Sample</span>"]
+    tags = [trust_pill(r["trust"]), platform_tag(p.get("platform"))]
     why = trust_reasons_line(r["trust"])
     if r["ok"]:
         price = f"<div class='pc-price'>{money(d['per_unit'], sym)}<small>/unit delivered</small></div>"
         moq = f"{p['moq']:,}" if p.get("moq") is not None else NA
         sub = (f"{money(d['total'], sym, 0)} for {units(S.qty)} · {d['mode_label']}, "
                f"{d['transit_days']} days · MOQ {moq}")
-    elif p.get("live") and p.get("tiers"):
-        shelf = sorted(p["tiers"])[0][1]
-        price = f"<div class='pc-price'>¥{shelf:,.2f}<small>/unit on Yiwugo</small></div>"
-        sub = ("Listing price, before shipping and tax. The listing has no weight: open it and add "
-               "the weight to see the delivered price.")
     else:
         price = f"<div class='pc-na'>Delivered price {NA}</div>"
         sub = why_not(r)
@@ -124,25 +114,6 @@ def product_card(r, sym, top=False, saving=None):
             f"</div></a>")
 
 
-def _refresh_when_details_arrive(live, max_wait=20):
-    """Live listings are shown at once from the search answer; their details (years active,
-    price tiers...) arrive a few seconds later and change the trust score. Wait for them once
-    per search, below the list, then redraw."""
-    pending = [str(p["_row"]["id"]) for p in live if not p.get("details_loaded") and p.get("_row")]
-    key = f"details_wait_{S.get('yiwugo_q')}"
-    if not pending or S.get(key):
-        return
-    S[key] = True
-    note = st.empty()
-    note.caption("Loading seller details from Yiwugo to complete the trust scores…")
-    start = time.time()
-    while time.time() - start < max_wait:
-        if yiwugo.details_ready(pending):
-            st.rerun()
-        time.sleep(0.4)
-    note.empty()
-
-
 def page_results():
     sym = SYMBOL[S.cur]
     plan, reason = None, None
@@ -156,7 +127,6 @@ def page_results():
         via_translation = bool(base) and plan["detected_language"].lower() != "english"
     if not base:
         base = search(S.q)
-    # ---- header first (in the dark band), so the page shows something while Yiwugo answers
     budget_txt = f" · max {money(S.budget, sym)}/unit" if S.budget else ""
     with band():
         st.markdown(
@@ -172,22 +142,6 @@ def page_results():
             bound(st.selectbox, "Currency", "cur", options=CURRENCIES, format_func=currency_label)
             bound(st.number_input, f"Max budget per unit ({S.cur}, 0 = none)", "budget", min_value=0.0, step=0.5)
 
-    # ---- live Yiwugo listings
-    live, live_err = [], None
-    if (S.q or "").strip():
-        zh = ((plan or {}).get("query_zh") or S.q).strip()
-        S.yiwugo_q = zh
-        with st.spinner("Reading live Yiwugo listings…"):
-            live, live_err = live_search(zh)
-        if live:   # real Yiwugo listings replace the sample Yiwugo ones
-            base = [item for item in base if item.get("platform") != "Yiwugo"] + live
-    if live:
-        st.markdown(f"<div class='muted' style='font-size:.8rem'><span class='src-tag live'>Live</span> "
-                    f"{len(live)} listings read from yiwugo.com · other products: sample catalog</div>",
-                    unsafe_allow_html=True)
-    elif live_err and live_err != "off":
-        st.markdown(f"<div class='muted' style='font-size:.8rem'>Live Yiwugo listings: <span class='na'>{NA}</span>"
-                    f" · {esc(live_err)} · showing the sample catalog</div>", unsafe_allow_html=True)
     rows = enrich(base)
 
     # ---- sidebar filters (collapsed by default, out of the way on mobile)
@@ -246,12 +200,8 @@ def page_results():
     }[sort]
     # products without a delivered price at this quantity always go last
     priced = sorted((r for r in filtered if r["ok"]), key=keyfn)
-    unpriced = [r for r in filtered if not r["ok"]]
-    if sort == "Lowest price":   # live listings without a delivered price: by the listing price shown
-        unpriced.sort(key=lambda r: sorted(r["p"]["tiers"])[0][1]
-                      if r["p"].get("live") and r["p"].get("tiers") else big)
-    else:
-        unpriced.sort(key=keyfn)
+    unpriced = sorted((r for r in filtered if not r["ok"]),
+                      key=keyfn if sort != "Lowest price" else (lambda r: big))
     best = min(priced, key=lambda r: r["d"]["per_unit"], default=None)
     saving = None
     if best and len(priced) > 1:
@@ -264,13 +214,9 @@ def page_results():
         + "</div>"
         f"<div class='foot'>Prices include shipping (cheapest method for {S.qty:,} units), duty, VAT and "
         f"customs, estimated · {fx_line_short()} · Trust scores sum up public signals, not an official "
-        f"verification · "
-        + ("Live = listing read from yiwugo.com, Sample = demo catalog" if live else "Sample catalog")
-        + "</div>",
+        f"verification · Sample catalog</div>",
         unsafe_allow_html=True,
     )
-
-    _refresh_when_details_arrive(live)
 
     with st.expander("Compare products"):
         opts = {r["p"]["id"]: f"{r['p']['platform']} · {(r['p'].get('title_en') or r['p'].get('title_cn') or NA)[:40]}"

@@ -1,5 +1,5 @@
 """AI query planner: turns a search in any European language into the query a
-Chinese buyer would type on 1688 / Taobao / JD / Yiwugo.
+Chinese buyer would type on 1688 / Taobao / JD / Pinduoduo.
 
 Based on a colleague's translation agent, reduced to the part that improves
 results. It never invents data: when the AI is not available it returns
@@ -9,7 +9,7 @@ results. It never invents data: when the AI is not available it returns
 from core.ai import ask
 
 SYSTEM_PROMPT = """You help European buyers search Chinese B2B and retail marketplaces \
-(1688, Taobao, JD, Yiwugo).
+(1688, Taobao, JD, Pinduoduo).
 
 Given a product search written in any European language:
 1. Detect the language.
@@ -40,33 +40,6 @@ SCHEMA = {
                  "alternative_queries_zh", "keywords_en", "clarify"],
     "additionalProperties": False,
 }
-
-
-TITLES_PROMPT = """Translate Chinese marketplace listing titles into short, natural English product
-names for a European buyer (like a good Amazon title, max ~12 words). Drop marketing filler
-(爆款, 热销, 厂家直销, 批发...) but keep material, size, capacity and other specs exactly.
-Return one English title per input title, in the same order."""
-
-TITLES_SCHEMA = {
-    "type": "object",
-    "properties": {"titles": {"type": "array", "items": {"type": "string"}}},
-    "required": ["titles"],
-    "additionalProperties": False,
-}
-
-
-def translate_titles(titles_zh):
-    """English product names for a batch of Chinese titles: (list, None) or (None, reason)."""
-    if not titles_zh:
-        return [], None
-    numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(titles_zh))
-    out, err = ask(TITLES_PROMPT, [{"role": "user", "content": numbered}], schema=TITLES_SCHEMA, effort="low")
-    if out is None:
-        return None, err
-    titles = out.get("titles") or []
-    if len(titles) != len(titles_zh):
-        return None, "the translation did not match the titles"
-    return titles, None
 
 
 def plan_search(query):

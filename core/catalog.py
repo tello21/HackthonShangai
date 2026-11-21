@@ -11,7 +11,7 @@ import re
 
 DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "catalog.json")
 
-PLATFORMS = ["1688", "Taobao", "JD", "Yiwugo"]
+PLATFORMS = ["1688", "Taobao", "JD", "Pinduoduo"]
 SELLER_TYPES = ["factory", "store", "middleman"]
 
 # category -> emoji + colour for the placeholder image

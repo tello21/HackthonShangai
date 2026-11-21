@@ -1,6 +1,6 @@
 # SourceScan
 
-Find a product on Chinese marketplaces (1688, Taobao, JD, Yiwugo) and see the **real delivered
+Find a product on Chinese marketplaces (1688, Taobao, JD, Pinduoduo) and see the **real delivered
 price**: product + shipping + insurance + duty + customs + VAT, not the price on the original site.
 
 > Demo: results come from a **sample catalog** (no scraping). Freight, duty and VAT are simplified
@@ -48,20 +48,14 @@ Sales traction 10% (sales compared only within the same platform). Missing metri
 40% coverage the score is "Not enough data". Price red flag (not on 1688): −10 when the price is below
 60% of the same-platform median in the search. Bands: Trusted 80+, Good 60-79, Caution 40-59,
 High risk 0-39. Run the spec's cases with `python core/scoring.py`. `core/supplier_score.py` maps
-our product cards (sample catalog, live Yiwugo, Link paste) to the raw fields.
+our product cards (sample catalog, Link paste) to the raw fields. Pinduoduo store types (brand
+flagship 90, enterprise 55, personal 30) are our assumption, to be confirmed by the team.
 
-## Live Yiwugo listings
+## Design
 
-Each search also reads real listings from yiwugo.com (PR #1): real titles, prices, MOQ, photos,
-shops and links, tagged **Live** in the results (everything else is tagged **Sample**). Yiwugo
-listings have no weight, so the buyer adds it on the product page to get the delivered price
-(marked "user-provided"). English names come from the AI, or from a small glossary without a key.
-
-This reads Yiwugo's website search, not an official API: it can stop working when Yiwugo changes
-its site, and automated access may conflict with Yiwugo's terms. Speed: each Yiwugo request takes
-~5 s from Europe, so the search token is fetched in the background at start-up and reused, the list is
-built from the search answer (~5 s per new search, instant when repeated within 10 minutes), and
-listing details are fetched in the background so product pages open at once. Turn it off with `YIWUGO_LIVE=0`; the app then uses only the sample catalog.
+Palette: Steel Azure `#064789`, Rich Cerulean `#427AA1`, Alice Blue `#EBF2FA` and highlighter
+yellow `#FFF200` for the main call to action, best price, savings and totals (as a marker stroke
+under navy text). Font: Outfit, a geometric sans-serif. All CSS is in `components/style.py`.
 
 ## Tests
 
@@ -79,16 +73,17 @@ app.py                 page setup + router
 core/                  business logic, no UI
   catalog.py           sample catalog (data/catalog.json), search, demo links
   pricing.py           delivered price: ECB rates, shipping modes, duty, VAT
-  supplier_score.py    supplier reliability score (sample rules; replace with the real model)
+  scoring.py           trust score rules (pure Python, no AI)
+  supplier_score.py    maps product cards to the scoring fields
   ai.py                the one Anthropic API wrapper ("not available" reasons instead of errors)
   query_translation.py search -> Chinese buyer query
   messages.py          chat: outgoing translation, simulated supplier, reply analysis, deal terms
   listing.py           Link paste: AI reading of screenshot/text + rule-based fallback
   orders.py            orders and the simulated payment flow
-  yiwugo.py            live Yiwugo search (PR #1), switch YIWUGO_LIVE
+  profile.py           buyer profile and default settings
 components/            app state + URL, CSS, shared UI pieces
 views/                 one module per page (home, results, product, link_paste, messages, checkout, compare)
-data/catalog.json      20 sample products
+data/catalog.json      20 sample products (to be replaced by the padel racket database)
 tests/                 pytest suite
 ```
 

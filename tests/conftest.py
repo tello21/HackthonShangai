@@ -16,16 +16,13 @@ APP = os.path.join(ROOT, "app.py")
 def isolated(tmp_path, monkeypatch):
     """Own storage files, no API key, no live FX request, fresh Streamlit caches."""
     import streamlit as st
-    from core import messages, orders, pricing, profile, yiwugo
+    from core import messages, orders, pricing, profile
 
     monkeypatch.setattr(messages, "STORE", str(tmp_path / "conversations.json"))
     monkeypatch.setattr(orders, "STORE", str(tmp_path / "orders.json"))
     monkeypatch.setattr(profile, "STORE", str(tmp_path / "profile.json"))
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(pricing, "FX_URLS", [])          # no network: sample rates
-    monkeypatch.setattr(yiwugo, "search", lambda *args, **kwargs: [])
-    monkeypatch.setattr(yiwugo, "warm_up", lambda: None)            # never touch yiwugo.com in tests
-    monkeypatch.setattr(yiwugo, "prefetch", lambda ids: None)
     st.cache_data.clear()
     yield
 

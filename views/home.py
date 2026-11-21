@@ -21,7 +21,7 @@ HEADLINES = {
 HOW_IT_WORKS = (
     "<div class='how'>"
     "<div class='how-card'><div class='how-n'>1</div><div class='how-t'>Search in your language</div>"
-    "<div class='how-d'>We turn it into the words Chinese sellers use and look on 1688, Taobao, JD and Yiwugo."
+    "<div class='how-d'>We turn it into the words Chinese sellers use and look on 1688, Taobao, JD and Pinduoduo."
     "</div></div>"
     "<div class='how-card'><div class='how-n'>2</div><div class='how-t'>See the delivered price</div>"
     "<div class='how-d'>Product, shipping, duty, VAT and customs to your country, at today's ECB rate."
@@ -57,7 +57,7 @@ def search_bar():
     if submitted:
         go("results", q=query.strip(), qty=int(qty), country=country, cur=cur or S.cur, pid=None, cmp=[])
         st.rerun()
-    st.markdown("<div class='hero-foot'>Searching 1688 · Taobao · JD · Yiwugo · every seller with a trust score"
+    st.markdown("<div class='hero-foot'>Searching 1688 · Taobao · JD · Pinduoduo · every seller with a trust score"
                 "</div>", unsafe_allow_html=True)
 
 
@@ -71,7 +71,7 @@ def page_home():
         if S.tab == "search":
             search_bar()
         elif S.tab == "link":
-            st.markdown("<div class='hero-sub'>From 1688, Taobao, JD or Yiwugo: product, delivered price and "
+            st.markdown("<div class='hero-sub'>From 1688, Taobao, JD or Pinduoduo: product, delivered price and "
                         "supplier in one page.</div>", unsafe_allow_html=True)
             render_link_form()
         else:

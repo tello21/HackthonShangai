@@ -13,7 +13,7 @@ from core.catalog import CATEGORY_STYLE
 from core.pricing import CURRENCY_NAMES, SYMBOL, fx_info, fx_rate
 
 NA = "not available"
-PLATFORM_COLOURS = {"1688": "#FF6A00", "Taobao": "#F5A623", "JD": "#7B3FE4", "Yiwugo": "#1E73BE"}
+PLATFORM_COLOURS = {"1688": "#FF6A00", "Taobao": "#F5A623", "JD": "#7B3FE4", "Pinduoduo": "#E02E24"}
 
 
 # ---------------------------------------------------------------------------- formatting
@@ -138,7 +138,7 @@ def platform_search_url(platform, keywords):
         "1688": f"https://s.1688.com/selloffer/offer_search.htm?keywords={kw}",
         "Taobao": f"https://s.taobao.com/search?q={kw}",
         "JD": f"https://search.jd.com/Search?keyword={kw}",
-        "Yiwugo": f"https://www.yiwugo.com/search?q={kw}",
+        "Pinduoduo": f"https://mobile.yangkeduo.com/search_result.html?search_key={kw}",
     }.get(platform)
 
 

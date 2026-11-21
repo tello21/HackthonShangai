@@ -4,8 +4,9 @@ Palette (see .streamlit/config.toml):
   Steel Azure  #064789  dark band, headings, dark text
   Rich Cerulean #427AA1 active tab, links, secondary buttons
   Alice Blue   #EBF2FA  page background
-  Sage Green   #679436  best price, savings, totals
-  Lime Moss    #A5BE00  the main call to action (Search)
+  Highlighter  #FFF200  main call to action, best price, savings, totals (as a marker stroke
+                        under navy text: yellow text on white would be unreadable)
+Font: Outfit, a geometric sans-serif (Google Fonts).
 Layout reference: a dark band on top with pill tabs and a white horizontal search bar.
 """
 
@@ -14,16 +15,19 @@ import streamlit as st
 NAVY = "#064789"
 CERULEAN = "#427AA1"
 ALICE = "#EBF2FA"
-SAGE = "#679436"
-LIME = "#A5BE00"
+YELLOW = "#FFF200"
 INK = "#0B2A47"
 LINE = "#D3E0EE"
-VERMILION = SAGE   # kept for older imports: the highlight colour is now Sage Green
 
 CSS = f"""
 <style>
-:root {{--navy:{NAVY}; --cerulean:{CERULEAN}; --alice:{ALICE}; --sage:{SAGE}; --lime:{LIME};
-        --ink:{INK}; --line:{LINE};}}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+:root {{--navy:{NAVY}; --cerulean:{CERULEAN}; --alice:{ALICE}; --hl:{YELLOW};
+        --ink:{INK}; --line:{LINE}; --font:'Outfit', ui-sans-serif, system-ui, sans-serif;}}
+/* the geometric font everywhere except Streamlit's icon font (expander arrows, etc.) */
+.stApp, .stApp p, .stApp div, .stApp a, .stApp label, .stApp button, .stApp input, .stApp textarea,
+.stApp li, .stApp td, .stApp th, .stApp summary, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5,
+.stApp span:not([data-testid="stIconMaterial"]) {{font-family:var(--font);}}
 [data-testid="stToolbar"], [data-testid="stDecoration"], footer {{display:none !important;}}
 header[data-testid="stHeader"] {{background: transparent;}}
 .stApp {{background:var(--alice);}}
@@ -40,7 +44,7 @@ h1, h2, h3, h4 {{color:var(--navy);}}
 .topbar {{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:.3rem 0 .9rem;}}
 .logo {{display:flex; align-items:center; gap:8px; color:#fff !important; text-decoration:none !important;
         font-weight:800; font-size:1.3rem; letter-spacing:-.01em;}}
-.logo-mark {{width:26px; height:26px; border-radius:8px; background:var(--lime); position:relative; flex:none;}}
+.logo-mark {{width:26px; height:26px; border-radius:8px; background:var(--hl); position:relative; flex:none;}}
 .logo-mark::before {{content:""; position:absolute; left:6px; top:5px; width:9px; height:9px; border:2.5px solid var(--navy);
                      border-radius:50%;}}
 .logo-mark::after {{content:""; position:absolute; left:16px; top:15px; width:6px; height:2.5px; background:var(--navy);
@@ -50,7 +54,7 @@ h1, h2, h3, h4 {{color:var(--navy);}}
 a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
 .avatar {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--cerulean); color:#fff;
           font-size:.72rem; font-weight:800; align-items:center; justify-content:center; flex:none;}}
-.avatar.big {{width:56px; height:56px; font-size:1.3rem; background:var(--lime); color:var(--navy);}}
+.avatar.big {{width:56px; height:56px; font-size:1.3rem; background:var(--hl); color:var(--navy);}}
 .profile-head {{display:flex; align-items:center; gap:14px; margin:.4rem 0 .2rem;}}
 .profile-head .pn {{font-size:1.4rem; font-weight:800; color:#fff; line-height:1.2;}}
 .profile-head .pc2 {{color:#cfe0f0; font-size:.9rem;}}
@@ -61,7 +65,7 @@ a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
 .st-key-band .rh-sub, .st-key-band .muted {{color:#cfe0f0 !important;}}
 .st-key-band a.rh-back {{color:#cfe0f0 !important;}}
 .st-key-band details.tr summary, .st-key-band .tr-in {{color:#dbe7f3;}}
-.st-key-band .tr-in a {{color:var(--lime);}}
+.st-key-band .tr-in a {{color:var(--hl);}}
 .st-key-band div[data-testid="stPopover"] button, .st-key-band div[data-testid="stButton"] button {{
     background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5);}}
 
@@ -83,7 +87,7 @@ a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
 /* ---------- how it works (below the band on the home page) */
 .how {{display:grid; grid-template-columns:1fr; gap:10px; margin:.2rem 0 1rem;}}
 .how-card {{background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px;}}
-.how-n {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--lime); color:var(--navy);
+.how-n {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--hl); color:var(--navy);
          font-weight:800; align-items:center; justify-content:center; font-size:.85rem; margin-bottom:6px;}}
 .how-t {{font-weight:800; color:var(--navy); margin-bottom:2px;}}
 .how-d {{color:#5b6f84; font-size:.88rem; line-height:1.4;}}
@@ -106,8 +110,8 @@ details.faq-q[open] summary::after {{transform:rotate(225deg); margin-top:9px;}}
 .faq-a {{padding:0 2px 14px; color:#4b5d70; line-height:1.55; font-size:.92rem;}}
 @media (min-width: 760px) {{ .faq-cols {{grid-template-columns:1fr 1fr;}} }}
 .st-key-hero div[data-testid="stFormSubmitButton"] button, .st-key-hero .st-key-lp_go button {{
-    height:2.5rem; min-height:2.5rem; border-radius:10px; font-size:1.05rem; font-weight:800; background:var(--lime) !important;
-    border-color:var(--lime) !important; color:var(--navy) !important;}}
+    height:2.5rem; min-height:2.5rem; border-radius:10px; font-size:1.05rem; font-weight:800; background:var(--hl) !important;
+    border-color:var(--hl) !important; color:var(--navy) !important;}}
 .st-key-hero div[data-testid="stFormSubmitButton"] button p, .st-key-hero .st-key-lp_go button p {{color:var(--navy) !important;}}
 .hero-foot {{color:#cfe0f0; font-size:.8rem; margin-top:.8rem;}}
 .st-key-hero div[data-testid="stFileUploader"] section {{background:#fff;}}
@@ -118,7 +122,7 @@ details.faq-q[open] summary::after {{transform:rotate(225deg); margin-top:9px;}}
 div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"]) {{background:#fff;}}
 .tag {{display:inline-block; padding:2px 10px; border-radius:999px; font-size:.75rem; font-weight:600;
       margin-right:6px; border:1px solid var(--line);}}
-.tag-sample {{background:#F2F6D6; color:#5A6800; border-color:#D9E49A;}}
+.tag-sample {{background:#FFFBB8; color:#5C5400; border-color:#EDE36A;}}
 .tag-est {{background:#E3EEF8; color:#1F5A86; border-color:#BCD3EA;}}
 .tag-na {{background:#F1F1F1; color:#666; border-color:#DDD;}}
 .tag-ok {{background:#E9F2E1; color:#3F6420; border-color:#BFD8A9;}}
@@ -152,7 +156,7 @@ a.pc {{display:flex; gap:12px; padding:12px; margin-bottom:10px; background:#fff
        -webkit-tap-highlight-color:transparent; transition:box-shadow .15s;}}
 a.pc:hover {{box-shadow:0 4px 14px rgba(6,71,137,.12);}}
 a.pc:hover .pc-title {{color:var(--cerulean);}}
-a.pc.top {{border:2px solid var(--sage);}}
+a.pc.top {{border:2px solid var(--navy);}}
 .pc-img {{flex:none; width:96px; height:96px; border-radius:10px; object-fit:cover; background:var(--alice);}}
 .pc-body {{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px;}}
 .pc-title {{font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2;
@@ -160,14 +164,11 @@ a.pc.top {{border:2px solid var(--sage);}}
 .pc-meta {{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}}
 .mk, .sc, .save, .best-tag {{display:inline-block; padding:1px 8px; border-radius:6px; font-size:.74rem;
        font-weight:700; color:#fff; line-height:1.6;}}
-.save {{background:var(--sage);}}
+.save {{background:var(--hl); color:var(--navy);}}
 .best-tag {{background:var(--navy);}}
-.src-tag {{display:inline-block; padding:0 7px; border-radius:6px; font-size:.7rem; font-weight:700;
-           line-height:1.7; color:#5b6f84; border:1px solid #c5d3e2;}}
-.src-tag.live {{color:#3F6420; border-color:#BFD8A9; background:#E9F2E1;}}
 .pc-price {{font-size:1.5rem; font-weight:800; line-height:1.1; font-variant-numeric:tabular-nums; color:var(--navy);}}
 .pc-price small {{font-size:.75rem; font-weight:500; color:#5b6f84; margin-left:4px;}}
-a.pc.top .pc-price {{color:var(--sage);}}
+a.pc.top .pc-price {{display:inline; align-self:flex-start; background:linear-gradient(transparent 52%, var(--hl) 52%);}}
 .pc-na {{font-size:1rem; font-weight:600; color:#8a99aa; font-style:italic;}}
 .pc-sub {{font-size:.78rem; color:#5b6f84; line-height:1.35;}}
 .list-count {{font-size:.85rem; color:#5b6f84; padding-top:.55rem;}}
@@ -201,10 +202,10 @@ a.pc.top .pc-price {{color:var(--sage);}}
 .ra-per {{display:block; color:#7b8da0; font-size:.78rem;}}
 .rr.rt {{border-bottom:none; border-top:2px solid var(--navy); margin-top:2px;}}
 .rr.rt .rl, .rr.rt .ra-main {{font-weight:800; font-size:1.1rem; color:var(--navy);}}
-.rr.rt .ra-main {{color:var(--sage);}}
+.rr.rt .ra-main {{background:linear-gradient(transparent 50%, var(--hl) 50%);}}
 
 /* ---------- messages */
-.unread-badge {{display:inline-block; min-width:18px; padding:0 6px; border-radius:999px; background:var(--lime);
+.unread-badge {{display:inline-block; min-width:18px; padding:0 6px; border-radius:999px; background:var(--hl);
                color:var(--navy); font-size:.72rem; font-weight:800; text-align:center; line-height:18px;}}
 a.msg-link {{font-weight:600;}}
 .chat {{display:flex; flex-direction:column; gap:10px; margin:.4rem 0 .8rem;}}
@@ -214,10 +215,10 @@ a.msg-link {{font-weight:600;}}
 .b-en {{margin-top:7px; padding-top:7px; border-top:1px solid var(--line);}}
 .b-sub {{font-size:.74rem; color:#5b6f84; margin-top:5px;}}
 .b.me .b-sub {{color:#cfe0f0;}}
-.mean {{margin-top:8px; background:#F2F6D6; color:#4a5600; border-radius:10px; padding:6px 9px; font-size:.85rem;}}
+.mean {{margin-top:8px; background:#FFFBB8; color:#4D4600; border-radius:10px; padding:6px 9px; font-size:.85rem;}}
 .terms {{margin-top:7px; display:flex; flex-wrap:wrap; gap:5px;}}
 .term {{font-size:.72rem; font-weight:700; padding:1px 8px; border-radius:6px; background:#E3EEF8; color:#1F5A86;}}
-.chat mark {{background:#E4EE9C; color:inherit; padding:0 2px; border-radius:3px;}}
+.chat mark {{background:var(--hl); color:inherit; padding:0 2px; border-radius:3px;}}
 .typing {{align-self:flex-start; color:#5b6f84; font-style:italic; font-size:.9rem; padding:4px 6px;}}
 .chat-head {{margin-bottom:.3rem;}}
 .chat-head .who {{font-size:1.2rem; font-weight:800; line-height:1.2; color:var(--navy);}}
@@ -228,13 +229,13 @@ a.msg-link {{font-weight:600;}}
 .deal-row {{display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:.88rem;
             border-bottom:1px solid var(--line);}}
 .deal-row .v {{text-align:right; font-weight:600;}}
-.deal-row.new .v {{color:var(--sage);}}
+.deal-row.new .v {{background:linear-gradient(transparent 50%, var(--hl) 50%);}}
 .deal-row .src {{display:block; font-weight:400; font-size:.72rem; color:#8a99aa;}}
 a.ib, a.oc {{display:block; padding:12px 14px; margin-bottom:8px; background:#fff; border:1px solid var(--line);
        border-radius:12px; color:var(--ink) !important; text-decoration:none !important;}}
 .ib-top {{display:flex; justify-content:space-between; gap:8px; align-items:baseline;}}
 .ib-name {{font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--navy);}}
-a.ib.unread {{border-left:4px solid var(--lime);}}
+a.ib.unread {{border-left:4px solid var(--hl);}}
 .ib-time {{font-size:.75rem; color:#8a99aa; white-space:nowrap;}}
 .ib-prod {{display:block; font-size:.82rem; color:#5b6f84; margin:2px 0;}}
 .ib-last {{display:block; font-size:.88rem; color:#4b5d70; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}}
@@ -247,8 +248,8 @@ a.ib.unread .ib-last {{font-weight:600; color:var(--ink);}}
                 background:#c5d3e2;}}
 .tl li::after {{content:""; position:absolute; left:8px; top:16px; bottom:0; width:1px; background:var(--line);}}
 .tl li:last-child::after {{display:none;}}
-.tl li.done::before {{background:var(--sage);}}
-.tl li.now::before {{background:var(--lime); box-shadow:0 0 0 3px rgba(165,190,0,.3);}}
+.tl li.done::before {{background:var(--navy);}}
+.tl li.now::before {{background:var(--hl); box-shadow:0 0 0 2px var(--navy);}}
 .tl li.todo {{color:#8a99aa;}}
 .tl .t {{display:block; color:#8a99aa; font-size:.74rem;}}
 

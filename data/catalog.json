@@ -67,7 +67,7 @@
    "title_en": "Cotton tote bag with inner pocket, plain natural colour",
    "title_cn": "纯棉帆布袋 带内袋 素色",
    "keywords": "tote bag cotton canvas shopping bag",
-   "platform": "Yiwugo",
+   "platform": "Pinduoduo",
    "moq": 300,
    "tiers": [
     [
@@ -90,14 +90,12 @@
     "city": "Yiwu",
     "type": "middleman",
     "years": 4,
-    "badges": [
-     "Trade assurance"
-    ],
+    "badges": [],
     "response_rate": 81,
     "repeat_buyer_rate": 18,
     "disputes": "medium",
     "badges_cn": null,
-    "store_type": "yiwugo_online_only",
+    "store_type": "pdd_personal",
     "taobao_credit_level": null,
     "service_scores_5pt": null,
     "positive_review_pct": null,
@@ -105,7 +103,7 @@
     "seller_type": "trader",
     "sales_count": 120
    },
-   "demo_url": "https://www.yiwugo.com/product/detail/demo-tb-02.html"
+   "demo_url": "https://mobile.yangkeduo.com/goods.html?goods_id=demo-tb-02"
   },
   {
    "id": "TB-03",
@@ -277,7 +275,7 @@
    "title_en": "Tritan sports water bottle, 750 ml, BPA-free",
    "title_cn": "Tritan运动水杯 750ml 不含BPA",
    "keywords": "water bottle sports plastic tritan",
-   "platform": "Yiwugo",
+   "platform": "Pinduoduo",
    "moq": 120,
    "tiers": [
     [
@@ -300,14 +298,12 @@
     "city": "Yiwu",
     "type": "store",
     "years": 6,
-    "badges": [
-     "Trade assurance"
-    ],
+    "badges": [],
     "response_rate": 88,
     "repeat_buyer_rate": 22,
     "disputes": "low",
     "badges_cn": null,
-    "store_type": "yiwugo_physical_stall",
+    "store_type": "pdd_flagship",
     "taobao_credit_level": null,
     "service_scores_5pt": null,
     "positive_review_pct": null,
@@ -315,7 +311,7 @@
     "seller_type": null,
     "sales_count": 640
    },
-   "demo_url": "https://www.yiwugo.com/product/detail/demo-wb-02.html"
+   "demo_url": "https://mobile.yangkeduo.com/goods.html?goods_id=demo-wb-02"
   },
   {
    "id": "WB-03",
@@ -525,7 +521,7 @@
    "title_en": "Magnetic phone case compatible with MagSafe",
    "title_cn": "磁吸手机壳 兼容MagSafe",
    "keywords": "phone case magnetic magsafe",
-   "platform": "Yiwugo",
+   "platform": "Pinduoduo",
    "moq": 100,
    "tiers": [
     [
@@ -548,14 +544,12 @@
     "city": "Yiwu",
     "type": "middleman",
     "years": 5,
-    "badges": [
-     "Trade assurance"
-    ],
+    "badges": [],
     "response_rate": 85,
     "repeat_buyer_rate": 20,
     "disputes": "low",
     "badges_cn": null,
-    "store_type": "yiwugo_physical_stall",
+    "store_type": "pdd_enterprise",
     "taobao_credit_level": null,
     "service_scores_5pt": null,
     "positive_review_pct": null,
@@ -563,7 +557,7 @@
     "seller_type": "trader",
     "sales_count": 410
    },
-   "demo_url": "https://www.yiwugo.com/product/detail/demo-pc-03.html"
+   "demo_url": "https://mobile.yangkeduo.com/goods.html?goods_id=demo-pc-03"
   },
   {
    "id": "YM-01",
@@ -787,7 +781,7 @@
    "title_en": "Matte glazed ceramic mug with wooden lid, 400 ml",
    "title_cn": "哑光釉陶瓷杯 木盖 400ml",
    "keywords": "mug ceramic coffee cup matte",
-   "platform": "Yiwugo",
+   "platform": "Pinduoduo",
    "moq": 96,
    "tiers": [
     [
@@ -810,14 +804,12 @@
     "city": "Yiwu",
     "type": "store",
     "years": 3,
-    "badges": [
-     "Trade assurance"
-    ],
+    "badges": [],
     "response_rate": 79,
     "repeat_buyer_rate": 15,
     "disputes": "medium",
     "badges_cn": null,
-    "store_type": "yiwugo_online_only",
+    "store_type": "pdd_personal",
     "taobao_credit_level": null,
     "service_scores_5pt": null,
     "positive_review_pct": null,
@@ -825,7 +817,7 @@
     "seller_type": null,
     "sales_count": 95
    },
-   "demo_url": "https://www.yiwugo.com/product/detail/demo-mg-02.html"
+   "demo_url": "https://mobile.yangkeduo.com/goods.html?goods_id=demo-mg-02"
   },
   {
    "id": "MG-03",
@@ -985,7 +977,7 @@
    "title_en": "COB LED strip, 5 m, high density, 24 V",
    "title_cn": "COB高密度灯带 5米 24V",
    "keywords": "led strip light cob lighting",
-   "platform": "Yiwugo",
+   "platform": "Pinduoduo",
    "moq": 50,
    "tiers": [
     [
@@ -1013,7 +1005,7 @@
     "repeat_buyer_rate": null,
     "disputes": null,
     "badges_cn": null,
-    "store_type": "yiwugo_online_only",
+    "store_type": "pdd_enterprise",
     "taobao_credit_level": null,
     "service_scores_5pt": null,
     "positive_review_pct": null,
@@ -1021,7 +1013,7 @@
     "seller_type": "trader",
     "sales_count": null
    },
-   "demo_url": "https://www.yiwugo.com/product/detail/demo-ls-03.html"
+   "demo_url": "https://mobile.yangkeduo.com/goods.html?goods_id=demo-ls-03"
   }
  ]
 }

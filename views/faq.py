@@ -11,11 +11,11 @@ HOW_WE_SCORE = [
      "(20%), Customer satisfaction (25%), Loyalty (10%), Seller type (10%) and Sales traction (10%). The "
      "score is their weighted average, from 0 to 100. No AI decides the score: it is a fixed set of rules, "
      "and every value is shown on the product page with its reason."),
-    ("How do you compare 1688, Taobao, JD and Yiwugo?",
+    ("How do you compare 1688, Taobao, JD and Pinduoduo?",
      "Each platform shows trust differently, so we convert each to the same 0-100 scale. Verification: on "
      "1688 a super factory or on-site audit badge is 100, 实力商家 75, only 诚信通 40; on Taobao a Tmall "
      "flagship is 100 and a personal store 30; on JD self-operated is 100 and a third-party seller 50; on "
-     "Yiwugo a physical market stall is 70 and an online-only shop 40. Years active (8+ years = 100) and "
+     "Pinduoduo a brand flagship is 90, an enterprise store 55 and a personal store 30. Years active (8+ years = 100) and "
      "Taobao credit levels (hearts, diamonds, crowns) give the track record; 5-point service ratings and "
      "positive-review rates give satisfaction; the repurchase rate gives loyalty. Sales are only compared "
      "with other results from the same platform, because each platform counts them differently."),
@@ -24,7 +24,7 @@ HOW_WE_SCORE = [
      "the top but are not punished as bad either. If the signals we have cover less than 40% of "
      "the weights, we don't show a score at all: you see “Not enough data” and the list of what is missing."),
     ("What is the price red flag?",
-     "On Taobao, JD and Yiwugo, if a product costs less than 60% of the median price of similar results "
+     "On Taobao, JD and Pinduoduo, if a product costs less than 60% of the median price of similar results "
      "from the same platform in your search, we remove 10 points and say why: prices that low are a common "
      "sign of a problem. It isn't applied to 1688, where factory prices are often far below retail."),
     ("What do the colours mean?",
@@ -33,7 +33,7 @@ HOW_WE_SCORE = [
     ("Is the trust score an official verification?",
      "No. It sums up public signals from the listing and the platform; it is not an audit and it is not "
      "endorsed by the marketplaces. Before a large order, ask for a sample and check certifications. In "
-     "this demo, the 1688, Taobao and JD sellers come from our sample catalog; Yiwugo sellers are live."),
+     "this demo, all sellers come from our sample catalog."),
 ]
 
 FAQ = [
@@ -43,8 +43,8 @@ FAQ = [
          "sellers actually put in their titles (not a word-by-word translation), then look for matching "
          "listings. Every result shows the delivered price to your country and the seller's trust score."),
         ("Which marketplaces do you search?",
-         "Yiwugo listings are read live from yiwugo.com and tagged “Live”. For 1688, Taobao and JD we use a "
-         "demo catalog for now, tagged “Sample”. With Link paste you can analyse a listing from any of the four."),
+         "1688, Taobao, JD and Pinduoduo. In this demo the results come from a sample catalog, not from the "
+         "live sites. With Link paste you can analyse a listing from any of the four."),
         ("Why are results sorted by trust?",
          "A cheap price is worth nothing if the seller is unreliable, so the most trusted sellers come first; "
          "sellers without enough data come after the scored ones. Sellers with the same score are ordered by "
@@ -69,8 +69,7 @@ FAQ = [
          "customs code, the box size and the forwarder, so treat it as a close guide, not an invoice."),
         ("Why do some prices show “not available”?",
          "We never guess. If a listing has no weight, shipping can't be calculated; if the product category is "
-         "unknown, the duty can't. On the product page you can add the weight yourself and the price appears, "
-         "marked “user-provided”."),
+         "unknown, the duty can't. Ask the supplier for the missing detail from Messages."),
     ]),
     ("Messages and orders", [
         ("Can I talk to suppliers in my language?",

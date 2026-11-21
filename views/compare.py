@@ -5,7 +5,7 @@ import streamlit as st
 
 from components.state import S, go, link
 from components.ui import NA, cny, money, sample_banner
-from views.live import find_product
+from core.catalog import get_product
 from core.pricing import delivered
 from core.supplier_score import trust_for
 
@@ -14,7 +14,7 @@ def page_compare():
     st.button("← Back to results", on_click=go, args=("results",))
     st.header("Compare")
     sample_banner()
-    prods = [p for p in (find_product(pid) for pid in S.cmp) if p]
+    prods = [p for p in (get_product(pid) for pid in S.cmp) if p]
     if len(prods) < 2:
         st.info("Pick 2 or 3 products under “Compare products” on the results page.")
         return

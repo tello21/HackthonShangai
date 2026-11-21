@@ -75,8 +75,8 @@ def test_trust_for_catalog_products():
     assert "Only 诚信通 membership" in [m["reason"] for m in wb04["metrics"]]
     jd = trust_for(get_product("MG-03"), 62)             # JD self-operated: seller type counts as brand official
     assert jd["metrics"][4]["value"] == 100 and jd["metrics"][4]["reason"] == "Brand official store"
-    # a live listing that only tells the shop name: not enough data, no neutral-looking number
-    bare = trust_for({"id": "x", "platform": "Yiwugo", "supplier": {"name": "某店"}})
+    # a pasted listing that only tells the shop name: not enough data, no neutral-looking number
+    bare = trust_for({"id": "x", "platform": "Pinduoduo", "supplier": {"name": "某店"}})
     assert bare["score"] is None and bare["band"] == "Not enough data"
 
 
