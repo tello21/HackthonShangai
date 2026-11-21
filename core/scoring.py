@@ -34,7 +34,10 @@ WEIGHTS = {"Verification": 25, "Track record": 20, "Customer satisfaction": 25,
            "Loyalty": 10, "Seller type": 10, "Sales traction": 10}
 MISSING = "Not available on this platform/listing"
 MIN_COVERAGE = 0.40
-MISSING_BASELINE = 40          # a missing metric counts as slightly below average
+# A missing metric counts as average. The first spec said 40 ("slightly below average"); the team
+# moved it to 50 so that a JD self-operated store scores just under a fully documented 1688 super
+# factory and a Taobao personal store with mediocre ratings lands in Caution, not High risk.
+MISSING_BASELINE = 50
 PRICE_FLAG_RATIO = 0.60
 PRICE_FLAG_POINTS = 10
 PRICE_FLAG_REASON = "Price much lower than similar listings on the same platform"
@@ -224,8 +227,11 @@ def score_supplier(f, peers_sales=None, peers_prices=None):
                             [f"{m} unknown" for m in result["missing"][:3]]
         return result
 
-    raw = sum(m["value"] * m["weight"] for m in available) / covered
-    final = coverage * raw + (1 - coverage) * MISSING_BASELINE
+    # final = coverage * raw + (1 - coverage) * baseline, with raw = weighted average of the
+    # available metrics. Written as one exact sum (values and weights are integers) so borderline
+    # scores like 39.5 are never turned into 39.4999 by floating point.
+    weighted = sum(m["value"] * m["weight"] for m in available)
+    final = (weighted + (100 - covered) * MISSING_BASELINE) / 100
 
     # price red flag (not for 1688)
     price = f.get("unit_price")
@@ -301,12 +307,14 @@ def _cases():
 def run_tests():
     sf, jd, tb, stall, online = _cases()
     assert sf["band"] == "Trusted" and sf["score"] == 92 and sf["coverage_pct"] == 100, sf
-    assert jd["score"] == 77 and jd["score"] < sf["score"] and jd["coverage_pct"] == 70, jd
-    # NOTE: the spec expects "Caution" here, but its own rules give 37.5 -> 38 = "High risk":
-    # verification 30, credit 15, DSR 4.6 -> 60, trader 40, coverage 80% -> 0.8*36.9 + 0.2*40
-    assert tb["score"] == 38 and tb["band"] == "High risk", tb
-    assert stall["score"] == 52 and stall["band"] == "Caution" and stall["coverage_pct"] == 45, stall
-    assert stall["score"] < sf["score"]
+    # JD: 0.7 * 92.9 + 0.3 * 50 = 80 -> high score, below the fully documented 1688 factory
+    assert jd["score"] == 80 and jd["band"] == "Trusted" and jd["score"] < sf["score"], jd
+    assert jd["coverage_pct"] == 70
+    # Taobao: (25*30 + 20*15 + 25*60 + 10*40 + 20*50) / 100 = 39.5 -> 40 = Caution (on the edge)
+    assert tb["score"] == 40 and tb["band"] == "Caution", tb
+    # Yiwugo stall: (25*70 + 20*60 + 55*50) / 100 = 57 -> lower because only 45% is covered
+    assert stall["score"] == 57 and stall["band"] == "Caution" and stall["coverage_pct"] == 45, stall
+    assert stall["score"] < jd["score"] < sf["score"]
     assert online["score"] is None and online["band"] == "Not enough data" and online["coverage_pct"] == 25, online
 
     # shared rules

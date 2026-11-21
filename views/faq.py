@@ -20,8 +20,8 @@ HOW_WE_SCORE = [
      "positive-review rates give satisfaction; the repurchase rate gives loyalty. Sales are only compared "
      "with other results from the same platform, because each platform counts them differently."),
     ("What happens when data is missing?",
-     "A missing signal counts as slightly below average (40 out of 100), so sellers with little public data "
-     "can't reach the top but are not punished as bad either. If the signals we have cover less than 40% of "
+     "A missing signal counts as average (50 out of 100), so sellers with little public data can't reach "
+     "the top but are not punished as bad either. If the signals we have cover less than 40% of "
      "the weights, we don't show a score at all: you see “Not enough data” and the list of what is missing."),
     ("What is the price red flag?",
      "On Taobao, JD and Yiwugo, if a product costs less than 60% of the median price of similar results "
