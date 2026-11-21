@@ -208,12 +208,14 @@ def page_results():
                     + (f" · {len(over_budget)} over budget hidden" if over_budget else "") + "</div>",
                     unsafe_allow_html=True)
     with c_sort:
-        sort = st.selectbox("Sort by", ["Lowest price", "Most trusted", "Lowest MOQ"],
+        sort = st.selectbox("Sort by", ["Most trusted", "Lowest price", "Lowest MOQ"], key="sort",
                             label_visibility="collapsed")
     big = 10 ** 12
     keyfn = {
         "Lowest price": lambda r: r["d"]["per_unit"],
-        "Most trusted": lambda r: -(r["score"] if r["score"] is not None else -1),
+        # most trusted first; same score -> cheaper delivered price first
+        "Most trusted": lambda r: (-(r["score"] if r["score"] is not None else -1),
+                                   r["d"]["per_unit"] if r["ok"] else big),
         "Lowest MOQ": lambda r: r["p"]["moq"] if r["p"]["moq"] is not None else big,
     }[sort]
     # products without a delivered price at this quantity always go last

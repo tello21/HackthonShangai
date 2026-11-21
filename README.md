@@ -13,6 +13,11 @@ price**: product + shipping + insurance + duty + customs + VAT, not the price on
 |---|---|---|
 | Paste a link: a link to a sample-catalog product opens its full analysis; for any other link, add a screenshot or the page text and the AI reads it | Search in any language → translated for Chinese marketplaces → Amazon-style list with delivered prices and supplier scores | Chat with suppliers in your language; they read business Chinese; replies are translated and explained |
 
+Results are sorted by **Most trusted** by default (same trust → cheaper first). Below the search, the
+home page explains how search, the delivered price and the trust score work (`views/faq.py`). The
+**Profile** page lists your orders and keeps your settings: name, company, email and the default
+country, currency and quantity for every search (saved in `profile.json`, git-ignored).
+
 From a product page: delivered price per shipping method (sea, rail, air, express) with the full
 breakdown, supplier score with reasons, **Contact supplier**, and **Order** → checkout with a
 simulated 30% deposit / 70% balance → order tracking.

@@ -7,6 +7,7 @@ from components import style
 from components.state import S, TABS, go, link
 from components.ui import band, currency_short, unread_count
 from core.pricing import COUNTRIES, CURRENCIES
+from views.faq import faq_html
 from views.link_paste import render_link_form, render_link_result
 from views.messages import render_inbox
 
@@ -79,6 +80,7 @@ def page_home():
 
     if S.tab == "search":
         st.markdown(HOW_IT_WORKS, unsafe_allow_html=True)
+        st.markdown(faq_html(), unsafe_allow_html=True)
     elif S.tab == "link":
         render_link_result()
     elif S.tab == "messages":

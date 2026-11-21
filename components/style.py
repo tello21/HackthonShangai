@@ -47,6 +47,14 @@ h1, h2, h3, h4 {{color:var(--navy);}}
                     transform:rotate(45deg); border-radius:2px;}}
 .top-links {{display:flex; align-items:center; gap:14px; font-size:.88rem; flex-wrap:wrap; justify-content:flex-end;}}
 .top-links a {{color:#fff !important; text-decoration:none !important; font-weight:600;}}
+a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
+.avatar {{display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--cerulean); color:#fff;
+          font-size:.72rem; font-weight:800; align-items:center; justify-content:center; flex:none;}}
+.avatar.big {{width:56px; height:56px; font-size:1.3rem; background:var(--lime); color:var(--navy);}}
+.profile-head {{display:flex; align-items:center; gap:14px; margin:.4rem 0 .2rem;}}
+.profile-head .pn {{font-size:1.4rem; font-weight:800; color:#fff; line-height:1.2;}}
+.profile-head .pc2 {{color:#cfe0f0; font-size:.9rem;}}
+.section-h {{font-size:1.25rem; font-weight:800; color:var(--navy); margin:1.2rem 0 .5rem;}}
 .chip {{background:rgba(255,255,255,.13); border-radius:8px; padding:.35rem .7rem; font-size:.8rem; color:#fff;
         white-space:nowrap;}}
 .st-key-band .rh-q {{color:#fff;}}
@@ -80,6 +88,23 @@ h1, h2, h3, h4 {{color:var(--navy);}}
 .how-t {{font-weight:800; color:var(--navy); margin-bottom:2px;}}
 .how-d {{color:#5b6f84; font-size:.88rem; line-height:1.4;}}
 @media (min-width: 640px) {{ .how {{grid-template-columns:repeat(3, 1fr);}} }}
+
+/* ---------- How SourceScan works (questions that open on tap) */
+.faq {{margin:2rem 0 1rem;}}
+.faq-title {{font-size:1.6rem; font-weight:800; color:var(--navy); margin:0 0 .6rem; padding:0;}}
+.faq-cols {{display:grid; grid-template-columns:1fr; column-gap:2rem;}}
+.faq-h {{font-size:.78rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--cerulean);
+         margin:1.1rem 0 .1rem;}}
+details.faq-q {{border-bottom:1px solid #c5d3e2;}}
+details.faq-q summary {{list-style:none; cursor:pointer; display:flex; justify-content:space-between; gap:12px;
+                       padding:14px 2px; font-weight:700; color:var(--ink);}}
+details.faq-q summary::-webkit-details-marker {{display:none;}}
+details.faq-q summary::after {{content:""; flex:none; width:8px; height:8px; margin:5px 4px 0 0;
+    border-right:2px solid var(--ink); border-bottom:2px solid var(--ink); transform:rotate(45deg);
+    transition:transform .2s;}}
+details.faq-q[open] summary::after {{transform:rotate(225deg); margin-top:9px;}}
+.faq-a {{padding:0 2px 14px; color:#4b5d70; line-height:1.55; font-size:.92rem;}}
+@media (min-width: 760px) {{ .faq-cols {{grid-template-columns:1fr 1fr;}} }}
 .st-key-hero div[data-testid="stFormSubmitButton"] button, .st-key-hero .st-key-lp_go button {{
     height:2.5rem; min-height:2.5rem; border-radius:10px; font-size:1.05rem; font-weight:800; background:var(--lime) !important;
     border-color:var(--lime) !important; color:var(--navy) !important;}}
@@ -193,8 +218,8 @@ a.ib, a.oc {{display:block; padding:12px 14px; margin-bottom:8px; background:#ff
 .ib-name {{font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--navy);}}
 a.ib.unread {{border-left:4px solid var(--lime);}}
 .ib-time {{font-size:.75rem; color:#8a99aa; white-space:nowrap;}}
-.ib-prod {{font-size:.82rem; color:#5b6f84; margin:2px 0;}}
-.ib-last {{font-size:.88rem; color:#4b5d70; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}}
+.ib-prod {{display:block; font-size:.82rem; color:#5b6f84; margin:2px 0;}}
+.ib-last {{display:block; font-size:.88rem; color:#4b5d70; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}}
 a.ib.unread .ib-last {{font-weight:600; color:var(--ink);}}
 
 /* ---------- orders */

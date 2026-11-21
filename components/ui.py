@@ -8,6 +8,7 @@ from urllib.parse import quote
 import streamlit as st
 
 from components.state import S, link
+from core import profile as P
 from core.catalog import CATEGORY_STYLE
 from core.pricing import CURRENCY_NAMES, SYMBOL, fx_info, fx_rate
 from core.supplier_score import score_colour, score_label
@@ -137,9 +138,9 @@ def messages_link():
 def topbar_html():
     """Logo on the left; sections, orders and the delivery chip on the right."""
     links = [f"<a href='{link(view='home', tab='link', pid=None)}' target='_self'>Link paste</a>",
-             messages_link()]
-    if S.orders:
-        links.append(f"<a href='{link(view='orders', order=None)}' target='_self'>Orders</a>")
+             messages_link(),
+             f"<a class='avatar-link' href='{link(view='profile', order=None)}' target='_self'>"
+             f"<span class='avatar'>{esc(P.initials(S.profile))}</span>Profile</a>"]
     if len(S.cmp) >= 2:
         links.append(f"<a href='{link(view='compare')}' target='_self'>Compare ({len(S.cmp)})</a>")
     links.append(f"<span class='chip'>{esc(S.country)} · {currency_short(S.cur)}</span>")

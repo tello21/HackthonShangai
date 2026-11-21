@@ -105,7 +105,7 @@ def order_timeline(order):
 
 def page_order(order):
     sym = SYMBOL[order["currency"]]
-    st.markdown(f"<a class='rh-back' href='{link(view='orders', order=None)}' target='_self'>← All orders</a>",
+    st.markdown(f"<a class='rh-back' href='{link(view='profile', order=None)}' target='_self'>← Your orders</a>",
                 unsafe_allow_html=True)
     st.header(f"Order {order['id']}")
     st.markdown(f"{platform_tag(order['platform'])} **{esc(order['product'] or NA)}**<br>"
@@ -146,11 +146,11 @@ def page_order(order):
 
 
 def page_orders():
-    order = S.orders.get(S.order) if S.order else None
-    if order:
-        page_order(order)
-        return
-    st.header("Orders")
+    """One order (app.py sends the address without an order to the profile)."""
+    page_order(S.orders[S.order])
+
+
+def render_orders_list():
     if not S.orders:
         st.info("No orders yet. Open a product and tap “Order · pay 30% deposit”.")
         return
@@ -158,9 +158,9 @@ def page_orders():
     for o in sorted(S.orders.values(), key=lambda o: o["created"], reverse=True):
         label = O.STATUS_LABEL[o["status"]]
         rows.append(f"<a class='oc' href='{link(view='orders', order=o['id'])}' target='_self'>"
-                    f"<div class='ib-top'><span class='ib-name'>{esc(o['product'] or NA)}</span>"
-                    f"<span class='ib-time'>{o['id']}</span></div>"
-                    f"<div class='ib-prod'>{platform_tag(o['platform'])} {units(o['qty'])} · "
-                    f"{money(o['total'], SYMBOL[o['currency']])} delivered</div>"
-                    f"<div class='ib-last'>{label}</div></a>")
+                    f"<span class='ib-top'><span class='ib-name'>{esc(o['product'] or NA)}</span>"
+                    f"<span class='ib-time'>{o['id']}</span></span>"
+                    f"<span class='ib-prod'>{platform_tag(o['platform'])} {units(o['qty'])} · "
+                    f"{money(o['total'], SYMBOL[o['currency']])} delivered</span>"
+                    f"<span class='ib-last'>{label}</span></a>")
     st.markdown("".join(rows), unsafe_allow_html=True)

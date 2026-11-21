@@ -9,6 +9,7 @@ import streamlit as st
 
 from core import messages as M
 from core import orders as O
+from core import profile as P
 from core.catalog import get_product
 from core.pricing import COUNTRIES, CURRENCIES
 
@@ -16,7 +17,7 @@ S = st.session_state
 
 DEFAULTS = dict(view="home", tab="search", q="", qty=500, budget=0.0, country="Italy", cur="EUR",
                 pid=None, cmp=[], conv=None, order=None)
-VIEWS = ("home", "results", "detail", "compare", "paste", "inbox", "chat", "checkout", "orders")
+VIEWS = ("home", "results", "detail", "compare", "paste", "inbox", "chat", "checkout", "orders", "profile")
 TABS = ("link", "search", "messages")
 
 
@@ -27,6 +28,12 @@ def init_state():
     qp = st.query_params
     for k, v in DEFAULTS.items():
         S[k] = v
+    S.profile = P.load_profile()           # the buyer's defaults, overridden by the address
+    if S.profile["country"] in COUNTRIES:
+        S.country = S.profile["country"]
+    if S.profile["currency"] in CURRENCIES:
+        S.cur = S.profile["currency"]
+    S.qty = max(1, int(S.profile["quantity"] or DEFAULTS["qty"]))
     try:
         if qp.get("view") in VIEWS:
             S.view = qp["view"]
@@ -35,7 +42,7 @@ def init_state():
         S.conv = qp.get("conv") or None
         S.order = qp.get("order") or None
         S.q = qp.get("q", "")
-        S.qty = max(1, int(qp.get("qty", DEFAULTS["qty"])))
+        S.qty = max(1, int(qp.get("qty", S.qty)))
         S.budget = max(0.0, float(qp.get("budget", 0)))
         if qp.get("country") in COUNTRIES:
             S.country = qp["country"]

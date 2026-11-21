@@ -112,8 +112,17 @@ def test_live_listings_sorted_by_listing_price(no_ai):
     cheap = listing_from_api(dict(ITEM, id=1, sellPrice=200), None)
     dear = listing_from_api(dict(ITEM, id=2, sellPrice=350), None)
     with mock.patch("core.yiwugo.search", return_value=[dear, cheap]):
-        t = page_text(run_app({"view": "results", "q": "帆布袋", "qty": "1000"}))
+        at = run_app({"view": "results", "q": "帆布袋", "qty": "1000"})
+        assert at.selectbox(key="sort").value == "Most trusted"          # the default order
+        at.selectbox(key="sort").set_value("Lowest price").run()
+        t = page_text(at)
     assert t.index("¥2.00") < t.index("¥3.50")
+
+
+def test_default_order_is_most_trusted(no_ai):
+    t = page_text(run_app({"view": "results", "q": "tote bag", "qty": "500"}))
+    # sample tote bags at 500 units: TB-01 (trust 100) before TB-02 (trust 53) although TB-02 is cheaper
+    assert t.index("Heavy canvas tote bag") < t.index("Cotton tote bag with inner pocket")
 
 
 def test_english_names_from_ai_when_available(no_ai):

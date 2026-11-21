@@ -44,10 +44,10 @@ def render_inbox():
         unread = any(m["role"] == "supplier" and not m.get("read") for m in c["messages"])
         rows.append(
             f"<a class='ib{' unread' if unread else ''}' href='{link(view='chat', conv=c['id'])}' target='_self'>"
-            f"<div class='ib-top'><span class='ib-name'>{esc(c['supplier'] or NA)}</span>"
-            f"<span class='ib-time'>{ago(c['updated'])}</span></div>"
-            f"<div class='ib-prod'>{platform_tag(c['platform'])} {esc(c['product'] or NA)}</div>"
-            f"<div class='ib-last'>{preview}</div></a>")
+            f"<span class='ib-top'><span class='ib-name'>{esc(c['supplier'] or NA)}</span>"
+            f"<span class='ib-time'>{ago(c['updated'])}</span></span>"
+            f"<span class='ib-prod'>{platform_tag(c['platform'])} {esc(c['product'] or NA)}</span>"
+            f"<span class='ib-last'>{preview}</span></a>")
     st.markdown("".join(rows), unsafe_allow_html=True)
 
 

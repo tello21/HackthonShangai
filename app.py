@@ -25,11 +25,14 @@ from views.compare import page_compare  # noqa: E402
 from views.home import page_home  # noqa: E402
 from views.messages import page_chat, page_inbox  # noqa: E402
 from views.product import page_detail  # noqa: E402
+from views.profile import page_profile  # noqa: E402
 from views.results import page_results  # noqa: E402
 
 init_state()
 if S.view == "paste":            # old address of Link paste
     S.view, S.tab = "home", "link"
+if S.view == "orders" and not S.orders.get(S.order or ""):
+    S.view = "profile"           # the order list lives in the profile
 sync_url()
 refresh_fx()                     # live ECB rates, at most every 6 h (15 min after a failure)
 yiwugo.warm_up()                 # Yiwugo search token in the background, so the first search is faster
@@ -44,6 +47,8 @@ if S.view == "home":
     page_home()
 elif S.view == "results":
     page_results()
+elif S.view == "profile":        # draws its own band with the profile header
+    page_profile()
 else:
     nav_bar()
     PAGES.get(S.view, page_home)()

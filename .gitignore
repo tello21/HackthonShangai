@@ -7,4 +7,6 @@ conversations.json
 conversations.json.tmp
 orders.json
 orders.json.tmp
+profile.json
+profile.json.tmp
 .pytest_cache/
