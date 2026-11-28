@@ -183,12 +183,13 @@ def brand_html():
 
 
 def topbar_html():
-    """Brand on the left; Search, Messages, Profile, FAQ and the delivery chip on the right."""
+    """Brand on the left; Search, Link analyzer, Messages, Profile, FAQ and the delivery chip on the right."""
     def a(label, view, cls="", **kw):
         on = " on" if S.view == view else ""
         return f"<a class='{cls}{on}' href='{link(view=view, **kw)}' target='_self'>{label}</a>"
     n = unread_count()
     links = [a("Search", "home", "hide-sm", tab="search", pid=None),
+             a("Link analyzer", "link", "hide-sm", pid=None),
              a("Messages" + (f" <span class='unread-badge'>{n}</span>" if n else ""), "inbox", pid=None),
              a(f"<span class='avatar'>{esc(P.initials(S.profile))}</span>Profile", "profile", "avatar-link",
                order=None)]
@@ -226,7 +227,7 @@ def pagehero(tag_text, title, sub="", steps=None, compact=False):
 
 def site_footer():
     links = "".join(f"<a href='{u}' target='_self'>{t}</a>" for t, u in [
-        ("Search", link(view="home", tab="search", pid=None)),
+        ("Search", link(view="home", tab="search", pid=None)), ("Link analyzer", link(view="link", pid=None)),
         ("Messages", link(view="inbox", pid=None)), ("Profile", link(view="profile", order=None)),
         ("FAQs", link(view="home", tab="search", pid=None) + "#faq")])
     st.markdown(

@@ -48,12 +48,14 @@ def search_base(q, plan):
     return search(q), False
 
 
-def trust_in_search(p):
-    """p's trust score in the context of the current search (sales and prices are compared with
-    the other results of the same platform), so the product page shows the same score as the list.
+def trust_in_search(p, q=None):
+    """p's trust score in the context of a search (sales and prices are compared with the other
+    results of the same platform), so the product page shows the same score as the list.
+    q = None: the current search; q = "": the whole catalog (Link analyzer).
     None when p is not part of the search."""
-    plan = translated(S.q)[0] if S.q else None
-    base, _ = search_base(S.q, plan)
+    q = S.q if q is None else q
+    plan = translated(q)[0] if q else None
+    base, _ = search_base(q, plan)
     if p["id"] not in {x["id"] for x in base}:
         return None
     return trust_for_search([(x, delivered(x, S.qty, S.country, S.cur)["unit_cny"]) for x in base])[p["id"]]

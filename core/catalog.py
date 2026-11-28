@@ -103,6 +103,28 @@ def platform_from_url(url):
     return None
 
 
+def _norm_url(url):
+    """Host + path without scheme and www/m., for matching pasted links."""
+    u = re.sub(r"^https?://(www\.|m\.)?", "", (url or "").strip().lower())
+    return u.split("#")[0].rstrip("/")
+
+
+def _key(url):
+    """Taobao/Tmall links identify the item by ?id=..., the others by the path."""
+    u = _norm_url(url)
+    m = re.search(r"[?&]id=(\d+)", u)
+    return f"id={m.group(1)}" if m else u.split("?")[0]
+
+
+def find_by_url(url):
+    """The catalog product whose listing link matches a pasted URL (tracking parameters and
+    the variant id are ignored), or None."""
+    if not _norm_url(url):
+        return None
+    k = _key(url)
+    return next((p for p in PRODUCTS if p.get("url") and _key(p["url"]) == k), None)
+
+
 STOP = {"a", "an", "the", "for", "with", "and", "of", "to", "in", "custom", "cheap", "bulk"}
 
 

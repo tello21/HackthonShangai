@@ -1,6 +1,8 @@
 """Home, after the team's mock-up: top bar, centred hero with the search panel, the six steps,
 "Trust, explained" (the real scoring rules, per marketplace), the FAQ and a closing call to action."""
 
+import re
+
 import streamlit as st
 
 from components import style
@@ -13,8 +15,8 @@ from views.faq import faq_html, metrics_html, rules_html
 
 STEPS = [
     ("Search across China",
-     "Find products from 1688, Taobao, JD and Pinduoduo in your own language. We translate your words "
-     "into the ones Chinese sellers use."),
+     "Find products from 1688, Taobao, JD and Pinduoduo in your own language, or paste a listing link into "
+     "Link analyzer. We translate your words into the ones Chinese sellers use."),
     ("Compare products and suppliers",
      "Every result shows the photo, the final delivered price and the final trust score; open it for specs, "
      "price tiers, MOQ and all the seller details."),
@@ -40,7 +42,7 @@ def search_panel():
         with st.form("search_form", border=False):
             c_q, c_qty, c_country, c_cur, c_go = st.columns([2.4, 0.8, 1, 0.9, 1.1], gap="small",
                                                            vertical_alignment="bottom")
-            query = c_q.text_input("Product", value="")
+            query = c_q.text_input("Product or listing link", value="")
             qty = c_qty.number_input("Quantity", min_value=1, value=int(S.qty), step=50)
             countries = list(COUNTRIES)
             country = c_country.selectbox("Deliver to", countries, index=countries.index(S.country))
@@ -49,7 +51,11 @@ def search_panel():
     if submitted:
         q = query.strip()
         S.qty, S.country, S.cur = int(qty), country, cur or S.cur
-        go("results", q=q, pid=None, cmp=[])
+        if re.match(r"^(https?://|www\.|[\w.-]+\.(com|cn)/)", q, re.I):   # a listing link -> Link analyzer
+            S.la_url, S.la_auto = q, True
+            go("link", pid=None)
+        else:
+            go("results", q=q, pid=None, cmp=[])
         st.rerun()
 
 

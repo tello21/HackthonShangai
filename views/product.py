@@ -61,7 +61,9 @@ def delivered_lines(d, qty):
     ]
 
 
-def render_detail(p, source="catalog"):
+def render_detail(p, source="catalog", trust_q=None):
+    """The full product page. trust_q = the search whose results the trust score is compared with
+    (None = the current search, "" = the whole catalog, as in Link analyzer)."""
     key = p["id"]
     s = p.get("supplier") or {}
 
@@ -155,7 +157,7 @@ def render_detail(p, source="catalog"):
     with st.container(border=True):
         # the same score as in the results list (same search, same-platform sales and prices);
         # scored alone for products outside the search
-        r = (source == "catalog" and trust_in_search(p)) or trust_for(p, d["unit_cny"])
+        r = (source == "catalog" and trust_in_search(p, trust_q)) or trust_for(p, d["unit_cny"])
         c1, c2 = st.columns([1, 1.25], gap="large")
         with c1:
             num = (f"<span class='trust-num'>{r['score']}<small>/100</small></span>" if r["score"] is not None

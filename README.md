@@ -19,7 +19,7 @@ file shows a placeholder. To update the catalog, replace the JSON and the photos
 
 ## Pages
 
-Top bar: Search · Messages · Profile · FAQ · delivery country and currency.
+Top bar: Search · Link analyzer · Messages · Profile · FAQ · delivery country and currency.
 
 - **Home** (`views/home.py`): "Search. Compare. Trust. Buy." with one search panel (product ·
   quantity · deliver to · currency; the product field always starts empty). Below: the six steps,
@@ -29,6 +29,10 @@ Top bar: Search · Messages · Profile · FAQ · delivery country and currency.
 - **Results**: a compact heading, then four cards per row (three or two on smaller screens), each
   with photo, name, **final price** (delivered, per unit) and **final trust score**; "demo data" and
   counterfeit-risk labels on the photo. Everything else is on the product page.
+- **Link analyzer** (`views/link_analyzer.py`): paste a 1688, Taobao, JD or Pinduoduo listing link (or type
+  it in the home search) and get the full product page, with the same sections and the same trust score
+  and metrics as from the search. For now it works with the listings of our catalog (links are matched
+  ignoring tracking parameters; Taobao by item id); other links say they are not in the catalog yet.
 - **Messages**: chat with suppliers in your language; they read business Chinese; replies are
   translated and explained.
 

@@ -18,7 +18,7 @@ def test_home_sections(no_ai):
                  "Trust, explained", "Clear answers.", "Find the product. Know the full picture.", "Hackathon prototype"):
         assert part in t, part
     assert "Source smarter" not in t and "Yiwugo" not in t and "SourceScan" not in t and "Scoutr" in t
-    assert "Link paste" not in t
+    assert "Link paste" not in t and "Link analyzer" in t
     for p in ("1688", "Taobao", "JD", "Pinduoduo"):
         assert f"<span class='market'>{p}</span>" in t
 
@@ -45,11 +45,41 @@ def test_trust_explained_changes_with_the_marketplace(no_ai):
     assert not any("一" <= ch <= "鿿" for ch in trust)          # no Chinese in the explanation
 
 
-@pytest.mark.parametrize("tab,view", [("link", "home"), ("messages", "inbox")])
+@pytest.mark.parametrize("tab,view", [("link", "link"), ("messages", "inbox")])
 def test_old_addresses(no_ai, tab, view):
     at = run_app({"view": "home", "tab": tab})
     assert at.session_state["view"] == view
-    assert run_app({"view": "paste"}).session_state["view"] == "home"      # Link paste was removed
+    assert run_app({"view": "paste"}).session_state["view"] == "link"      # old Link paste -> Link analyzer
+
+
+def test_link_analyzer_gives_the_same_page_as_the_search(no_ai):
+    at = run_app({"view": "link"})
+    assert "Paste a link. Get the full picture." in page_text(at)
+    at.text_input(key="la_url").input("https://detail.1688.com/offer/737253173155.html?spm=a26352.13672862")
+    at.button(key="la_go").click().run()
+    t = page_text(at)
+    assert at.session_state["pid"] == "8"
+    for part in ("Found:", "Product", "Delivered price", "Total delivered", "Can you trust this seller?",
+                 "Why this score", "Seller facts", "How we score", "Contact the supplier"):
+        assert part in t, part
+    # the same trust score as in the search results (sales and prices compared with the same listings)
+    assert "Trust 66 · Good" in t and "Trust 66 · Good" in page_text(run_app({"view": "results", "q": "padel"}))
+    # Taobao links are matched by item id, whatever the variant
+    at.text_input(key="la_url").input("https://item.taobao.com/item.htm?id=988472666305&skuId=999")
+    at.button(key="la_go").click().run()
+    assert at.session_state["pid"] == "12"
+    # a link outside the catalog says so, without inventing anything
+    at.text_input(key="la_url").input("https://item.jd.com/123.html")
+    at.button(key="la_go").click().run()
+    assert at.session_state["pid"] is None and "not in our catalog yet" in page_text(at)
+
+
+def test_a_link_in_the_home_search_opens_the_analyzer(no_ai):
+    at = run_app({"view": "home"})
+    at.text_input[0].input("https://item.jd.com/10238276468659.html")
+    at.button[0].click().run()
+    assert at.session_state["view"] == "link" and at.session_state["pid"] == "6"
+    assert "Total delivered" in page_text(at)
 
 
 @pytest.mark.parametrize("q,country,cur", [("padel racket", "Italy", "EUR"), ("carbon", "Switzerland", "CHF"),

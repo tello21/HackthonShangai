@@ -17,7 +17,7 @@ S = st.session_state
 
 DEFAULTS = dict(view="home", tab="search", q="", qty=500, budget=0.0, country="Italy", cur="EUR",
                 pid=None, cmp=[], conv=None, order=None)
-VIEWS = ("home", "results", "detail", "compare", "inbox", "chat", "checkout", "orders", "profile")
+VIEWS = ("home", "results", "link", "paste", "detail", "compare", "inbox", "chat", "checkout", "orders", "profile")
 TABS = ("link", "search", "messages")
 
 

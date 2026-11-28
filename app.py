@@ -23,6 +23,7 @@ from core.pricing import refresh_fx  # noqa: E402
 from views.checkout import page_checkout, page_orders  # noqa: E402
 from views.compare import page_compare  # noqa: E402
 from views.home import page_home  # noqa: E402
+from views.link_analyzer import page_link  # noqa: E402
 from views.messages import page_chat, page_inbox  # noqa: E402
 from views.product import page_detail  # noqa: E402
 from views.profile import page_profile  # noqa: E402
@@ -31,8 +32,8 @@ from views.results import page_results  # noqa: E402
 init_state()
 if S.view == "home" and S.tab == "messages":   # old address of the Messages tab
     S.view, S.tab = "inbox", "search"
-if S.view == "paste" or S.tab == "link":       # Link paste was removed
-    S.view, S.tab = "home", "search"
+if S.view == "paste" or S.tab == "link":       # old Link paste addresses -> Link analyzer
+    S.view, S.tab = "link", "search"
 if S.view == "orders" and not S.orders.get(S.order or ""):
     S.view = "profile"           # the order list lives in the profile
 sync_url()
@@ -41,7 +42,7 @@ ai.set_api_key(get_api_key())
 style.inject()
 scroll_to_top_on_view_change()
 
-PAGES = {"results": page_results, "detail": page_detail, "compare": page_compare,
+PAGES = {"results": page_results, "detail": page_detail, "compare": page_compare, "link": page_link,
          "inbox": page_inbox, "chat": page_chat, "checkout": page_checkout, "orders": page_orders,
          "profile": page_profile}
 
