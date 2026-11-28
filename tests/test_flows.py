@@ -72,7 +72,7 @@ def test_chat_without_api_key_says_why(no_ai):
     at = run_app({"view": "detail", "pid": "3", "qty": "500"})
     at.button(key="contact_3").click().run()
     cid = at.session_state["conv"]
-    at.text_area(key=f"draft_{cid}").input("Do you ship by sea?")          # free text needs the AI
+    at.text_area(key=f"draft_{cid}").input("What is the weather like?")    # no known topic: needs the AI
     at.button(key=f"pv_{cid}").click().run()
     assert any("Translation not available — no API key configured" in w.value for w in at.warning)
     assert at.button(key=f"send_{cid}").disabled
@@ -119,3 +119,41 @@ def test_order_with_simulated_payment(no_ai):
     assert "Shipped by" in " ".join(s.value for s in at.success)
     stored = json.load(open(O.STORE, encoding="utf-8"))
     assert stored[oid]["status"] == "shipped" and len(stored[oid]["payments"]) == 2
+
+
+def test_demo_translator_reads_free_text_for_any_product():
+    """Without a key, any message about the usual topics is translated, for every product, and the supplier
+    answers each topic from the listing (e.g. product 10 does not offer logo printing)."""
+    from core.catalog import PRODUCTS, get_product
+    msg = "Hi, can you print our logo? What is your price for 300 units to France? Do you have it in stock?"
+    for p in PRODUCTS:
+        conv = M.new_conversation(p, 500, "Italy", "EUR", 50)
+        out, err = M.translate_outgoing(msg, "polite", conv["context"])
+        assert err is None and "logo" in out["zh"] and "300" in out["zh"] and "法国" in out["zh"], p["id"]
+        assert out["zh"].index("logo") < out["zh"].index("300")           # the order of the message is kept
+        reply, err = M.simulate_supplier_reply([{"role": "buyer", "zh": out["zh"]}], conv["persona"])
+        assert err is None and reply, p["id"]
+        analysis, err = M.analyze_incoming(reply, conv["context"])
+        assert err is None and analysis["terms"]["price_for_quantity"] == 300, p["id"]
+    conv = M.new_conversation(get_product("10"), 500, "Italy", "EUR", 50)
+    out, _ = M.translate_outgoing(msg, "polite", conv["context"])
+    assert "不支持印logo" in M.simulate_supplier_reply([{"role": "buyer", "zh": out["zh"]}], conv["persona"])[0]
+
+
+def test_demo_translator_topics_and_numbers():
+    from core.catalog import get_product
+    conv = M.new_conversation(get_product("7"), 500, "Italy", "EUR", 50)
+    out, _ = M.translate_outgoing("Can you do ¥650 for 500 units?", "neutral", conv["context"])
+    assert "500支的话，单价¥650可以吗？" in out["zh"] and "could you do ¥650 per unit" in out["back_en"]
+    reply, _ = M.simulate_supplier_reply([{"role": "buyer", "zh": out["zh"]}], conv["persona"])
+    terms = M.analyze_incoming(reply, conv["context"])[0]["terms"]
+    assert terms["unit_price_cny"] in (650, conv["persona"]["floor_price_cny"])   # accepted, or the floor price
+    # Italian words work too; "quanto costa il campione" asks the sample cost, not a quote
+    out, _ = M.translate_outgoing("Ciao, quanto costa il campione? Che tempi di consegna avete?", "polite",
+                                  conv["context"])
+    assert "样品费是多少" in out["zh"] and "交期" in out["zh"] and "最优惠的单价" not in out["zh"]
+    out, _ = M.translate_outgoing("Are you a factory? Do you have CE certificates? Can you ship by sea?", "firm",
+                                  conv["context"])
+    assert "工厂还是贸易公司" in out["zh"] and "CE" in out["zh"] and "海运" in out["zh"]
+    reply, _ = M.simulate_supplier_reply([{"role": "buyer", "zh": out["zh"]}], conv["persona"])
+    assert "需要跟工厂确认" in reply                                       # certificates: not invented

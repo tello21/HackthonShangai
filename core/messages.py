@@ -58,7 +58,8 @@ def supplier_persona(product, qty):
     seed = int(hashlib.sha256(product["id"].encode()).hexdigest(), 16)
     floor_pct = 0.85 + (seed % 8) / 100
     lead = product.get("production_days") or 15
-    sample_cost = round((tiers[0][1] if tiers else 20) * 3 + 50)
+    # one unit at the first-tier price, plus China express shipping of the sample
+    sample_cost = round((tiers[0][1] if tiers else 20) * 1.2 + 30)
     return {
         "company_zh": s.get("name_cn") or s.get("name") or "店铺",
         "city": s.get("city") or "未提供",
@@ -127,6 +128,8 @@ def translate_outgoing(text_en, tone, context):
             name, int(context.get("quantity") or 1), context.get("destination") or "", context.get("listed_moq")))
         if demo:
             return demo, None
+        return None, ("no API key configured. In demo mode, write about price, MOQ, sample, logo, packaging, "
+                      "colour, lead time, shipping, payment, certificates, stock or specs")
     system = f"""You turn a European buyer's chat message into the message a Chinese supplier on
 1688 / Taobao / JD should receive. The buyer may write in English or any European language.
 
