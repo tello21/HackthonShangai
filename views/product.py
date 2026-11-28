@@ -7,7 +7,8 @@ from components.ui import (NA, cny, demo_tag, esc, fact_grid, fx_line, image_uri
                            search_link, section, tag, tier_cards, trust_bars, trust_pill, units)
 from core import messages as M
 from core.catalog import get_product, platform_from_url
-from core.pricing import COUNTRIES, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes, delivered
+from core.pricing import (COUNTRIES, ESTIMATE_NOTE, MODE_LABEL, SYMBOL, TRANSIT_DAYS, compare_modes,
+                          delivered)
 from core.scoring import BADGE_EN, PENALTY_POINTS, STORE_TYPES
 from core.supplier_score import raw_fields, trust_for
 from views.faq import how_we_score_html
@@ -48,7 +49,11 @@ def delivered_lines(d, qty):
     else:
         duty_lbl = f"Import duty ({d['duty_pct']:g}%)"
         duty_basis = "on product value" if d["duty_on_goods_only"] else "on product + shipping + insurance"
-    kg = f"{d['charged_kg']:,.1f} kg chargeable" if d["charged_kg"] is not None else "needs weight — not available"
+    if d["charged"] is None:
+        kg = "needs weight — not available"
+    else:
+        kg = (f"{d['charged']:,.2f} m³ chargeable" if d["charged_unit"] == "m3"
+              else f"{d['charged']:,.1f} kg chargeable")
     return [
         ("Product", d["product"], f"{cny(d['unit_cny'])}/unit × {qty:,}"),
         (f"Shipping · {d['mode_label']}", d["shipping"], f"{kg} + China domestic transport"),
@@ -127,8 +132,11 @@ def render_detail(p, source="catalog", trust_q=None):
 
         def mode_name(m):
             d_ = by_mode[m]
-            price = f"{sym}{d_['per_unit']:,.2f}/unit" if d_["per_unit"] is not None else NA
-            return f"{MODE_LABEL[m]} · {TRANSIT_DAYS[m]} days · {price}"
+            if d_["per_unit"] is None:
+                return f"{MODE_LABEL[m]} · {TRANSIT_DAYS[m]} days · {NA}"
+            # the shipping alone shows the real gap between methods; the total includes the goods
+            return (f"{MODE_LABEL[m]} · {TRANSIT_DAYS[m]} days · shipping {sym}{d_['shipping'] / qty:,.2f}/unit · "
+                    f"total {sym}{d_['per_unit']:,.2f}/unit")
 
         mode = st.radio("Shipping method (cheapest first)", list(by_mode), format_func=mode_name,
                         key=f"mode_{key}_{country}_{qty}")
@@ -143,9 +151,8 @@ def render_detail(p, source="catalog", trust_q=None):
                     f"≈ {sym}{d['product_per_unit'] or 0:,.2f}</div>", unsafe_allow_html=True)
         for n in d["notes"]:
             st.caption(f"• {n}")
-        st.markdown(tag("Estimated", "est") + f"<span class='muted'>{fx_line(S.cur)}. Freight, duty and "
-                    "VAT are sample estimates, not a quote: real costs depend on HS code, box size, "
-                    "incoterms and the forwarder.</span>", unsafe_allow_html=True)
+        st.markdown(tag("Estimate", "est") + f"<span class='est-note'>{esc(ESTIMATE_NOTE)} Duty and VAT use "
+                    f"the rates for the product category. {fx_line(S.cur)}.</span>", unsafe_allow_html=True)
 
         can_order = d["total"] is not None
         st.button("🛒 Order · pay 30% deposit", type="primary", key=f"order_{key}", disabled=not can_order,

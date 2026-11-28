@@ -132,3 +132,17 @@ def test_order_flow_and_amounts():
     assert o["status"] == "shipped"
     assert abs(O.paid_total(o) - d["product"]) < 1e-6
     assert all(pay["ref"].startswith("SIM-") for pay in o["payments"])
+
+
+def test_freight_is_billed_like_real_forwarders():
+    """Rackets are light but bulky: sea and rail bill the volume (typical box when the listing has none),
+    air and express the volumetric weight; express wins for one parcel, sea for a real order."""
+    p = get_product("8")                                       # no box size in the listing
+    by = {d["mode"]: d for d in P.compare_modes(p, 500, "Italy", "EUR")}
+    assert by["sea"]["charged_unit"] == "m3" and abs(by["sea"]["charged"] - 3.5) < 1e-9     # 500 x 50x28x5 cm
+    assert by["sea"]["shipping"] < by["rail"]["shipping"] < by["air"]["shipping"] < by["express"]["shipping"]
+    assert by["express"]["shipping"] > 4 * by["sea"]["shipping"]                          # a real gap
+    assert any("estimated 50×28×5 cm" in n for n in by["sea"]["notes"])
+    one = P.compare_modes(p, 1, "Italy", "EUR")
+    assert one[0]["mode"] == "express" and one[0]["shipping"] < 50                       # one parcel ~ €35
+    assert "estimate" in P.ESTIMATE_NOTE

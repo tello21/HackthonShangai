@@ -142,26 +142,51 @@ DUTY_RATES = {
 DUTY = DUTY_RATES
 
 # ---------------------------------------------------------------------------
-# SHIPPING China -> zone, CNY per chargeable kg (sample estimates)
+# SHIPPING China -> buyer, door to door (estimates from 2026 market rates)
+#
+# Sources checked in November 2026 (forwarder rate guides and the Freightos/Xeneta air indices):
+#   sea LCL China -> Europe   ~US$110-200 per m3 all-in (ocean + CFS/THC + docs), billed per m3
+#                             or per 1,000 kg, whichever is higher, minimum 1 m3; 30-40 days port to port
+#   rail LCL China -> Europe  ~US$160-210 per m3 (e.g. Xi'an -> Duisburg ~$185), 18-22 days terminal to terminal
+#   air China -> Europe       ~US$3.9-6.6 per kg (index ~$4.9/kg, Nov 2026), volumetric 1:6000, 45 kg break
+#   express (DHL/FedEx/UPS)   ~US$8-13 per kg for 10-25 kg, much more per kg for 1-2 kg parcels; door to door
+# Converted at ~7.1 CNY per US$. Other zones: a multiplier on the Europe rate.
+# These are averages: real quotes depend on the forwarder, the season and the exact box size.
 # ---------------------------------------------------------------------------
 
 MODES = ["express", "air", "rail", "sea"]
 MODE_LABEL = {"sea": "Sea freight", "rail": "Rail freight", "air": "Air freight", "express": "Express courier"}
-SHIPPING_CNY_PER_KG = {
-    "sea":     {"EU": 1.5, "UK": 1.7, "EFTA": 1.8, "IS": 2.2, "US": 1.8},   # ~1500 CNY/m3 LCL
-    "rail":    {"EU": 6,   "UK": 7,   "EFTA": 7,   "IS": None, "US": None},
-    "air":     {"EU": 35,  "UK": 38,  "EFTA": 37,  "IS": 42,  "US": 40},
-    "express": {"EU": 60,  "UK": 62,  "EFTA": 62,  "IS": 70,  "US": 65},
+TRANSIT_DAYS = {"sea": "35–50", "rail": "20–30", "air": "6–10", "express": "3–7"}   # door to door
+
+# sea and rail: billed per m3 (W/M: 1 m3 = this many kg, whichever is higher), minimum 1 m3
+CNY_PER_M3 = {"sea": 1100.0, "rail": 1350.0}            # ~$155 and ~$190 per m3
+KG_PER_M3 = {"sea": 1000, "rail": 500}
+MIN_M3 = 1.0
+# air and express: billed per chargeable kg (volumetric divisor in cm3 per kg)
+CNY_PER_KG = {"air": 38.0, "express": 72.0}             # ~$5.3 and ~$10 per kg
+VOLUMETRIC_DIVISOR = {"air": 6000, "express": 5000}
+MIN_CHARGEABLE_KG = {"air": 45, "express": 0.5}
+MIN_CHARGE_CNY = {"express": 280.0}                      # a 1 kg courier parcel costs ~$40
+# per shipment: origin/destination handling, documents, delivery to the buyer's door
+FIXED_CNY = {"sea": 1400.0, "rail": 1400.0, "air": 1000.0, "express": 0.0}
+ZONE_FACTOR = {   # None = the mode doesn't serve this zone
+    "sea":     {"EU": 1.0, "UK": 1.05, "EFTA": 1.15, "IS": 1.4, "US": 1.15},
+    "rail":    {"EU": 1.0, "UK": 1.1, "EFTA": 1.1, "IS": None, "US": None},
+    "air":     {"EU": 1.0, "UK": 1.05, "EFTA": 1.1, "IS": 1.25, "US": 1.05},
+    "express": {"EU": 1.0, "UK": 1.0, "EFTA": 1.1, "IS": 1.25, "US": 1.0},
 }
-TRANSIT_DAYS = {"sea": "35–45", "rail": "18–25", "air": "7–12", "express": "4–7"}
-VOLUMETRIC_DIVISOR = {"sea": 1000, "rail": 3000, "air": 6000, "express": 5000}  # cm3 per kg
-# Smallest shipment each mode bills: sea LCL 1 m3, rail ~100 kg, air 45 kg break, express 0.5 kg
-MIN_CHARGEABLE_KG = {"sea": 1000, "rail": 100, "air": 45, "express": 0.5}
 # Broker fee per shipment; express couriers clear customs as part of the service
 CLEARANCE_CNY = {"sea": 600.0, "rail": 600.0, "air": 600.0, "express": 0.0}
 
 DOMESTIC_CHINA_CNY_PER_KG = 2.0     # supplier -> forwarder warehouse (real weight)
 INSURANCE_PCT = 0.5                 # % of goods value
+
+# Box per unit when the listing gives no size (cm), so volume-billed freight is not underestimated
+TYPICAL_BOX_CM = {"padel_racket": (50, 28, 5)}            # racket in its cover, retail box
+
+ESTIMATE_NOTE = ("Freight uses 2026 market averages (sea ≈ $155/m³, rail ≈ $190/m³, air ≈ $5/kg, express ≈ $10/kg, "
+                 "door to door): a reliable estimate, but still an estimate — a forwarder quote depends on the "
+                 "season and the exact box size.")
 
 
 # ---------------------------------------------------------------------------
@@ -180,33 +205,47 @@ def unit_price_cny(tiers, qty):
     return price
 
 
-def _chargeable_kg(weight_kg, size_cm, mode):
-    if not size_cm:
-        return weight_kg
-    l, w, h = size_cm
-    return max(weight_kg, l * w * h / VOLUMETRIC_DIVISOR[mode])
+def box_cm(product):
+    """(box size per unit in cm, estimated?) — the listing's size, else the typical box of its category."""
+    if product.get("size_cm"):
+        return tuple(product["size_cm"]), False
+    typical = TYPICAL_BOX_CM.get(product.get("category") or "")
+    return (typical, True) if typical else (None, False)
 
 
 def _sum(*vals):
     return None if any(v is None for v in vals) else sum(vals)
 
 
+def _freight(product, qty, zone, mode):
+    """(shipping CNY incl. China domestic transport, chargeable amount, unit 'kg'/'m3', minimum applied?)"""
+    weight = product.get("weight_kg")
+    if weight is None:
+        return None, None, None, False
+    factor = ZONE_FACTOR[mode][zone]
+    kg = weight * qty
+    box, _ = box_cm(product)
+    m3 = None if box is None else box[0] * box[1] * box[2] * qty / 1e6
+    domestic = kg * DOMESTIC_CHINA_CNY_PER_KG
+    if mode in CNY_PER_M3:
+        need = max(m3 or 0, kg / KG_PER_M3[mode])
+        charged = max(need, MIN_M3)
+        cost = charged * CNY_PER_M3[mode] * factor + FIXED_CNY[mode] + domestic
+        return cost, charged, "m3", charged == MIN_M3 and need < MIN_M3
+    need = max(kg, 0 if m3 is None else m3 * 1e6 / VOLUMETRIC_DIVISOR[mode])
+    charged = max(need, MIN_CHARGEABLE_KG[mode])
+    cost = max(charged * CNY_PER_KG[mode] * factor, MIN_CHARGE_CNY.get(mode, 0)) + FIXED_CNY[mode] + domestic
+    return cost, charged, "kg", mode == "air" and need < MIN_CHARGEABLE_KG[mode]
+
+
 def _landed_cny(product, qty, country, mode):
     """All amounts in CNY. Returns None if the mode doesn't serve this country."""
     c = COUNTRIES[country]
-    rate = SHIPPING_CNY_PER_KG[mode][c["zone"]]
-    if rate is None:
+    if ZONE_FACTOR[mode][c["zone"]] is None:
         return None
     unit = unit_price_cny(product.get("tiers"), qty)
     goods = None if unit is None else unit * qty
-    weight = product.get("weight_kg")
-
-    if weight is None:
-        shipping = charged_kg = None
-    else:
-        real_kg = _chargeable_kg(weight, product.get("size_cm"), mode) * qty
-        charged_kg = max(real_kg, MIN_CHARGEABLE_KG[mode])
-        shipping = charged_kg * rate + weight * qty * DOMESTIC_CHINA_CNY_PER_KG
+    shipping, charged, charged_unit, min_applied = _freight(product, qty, c["zone"], mode)
     insurance = None if goods is None else goods * INSURANCE_PCT / 100
     clearance = CLEARANCE_CNY[mode]
 
@@ -224,13 +263,12 @@ def _landed_cny(product, qty, country, mode):
 
     return dict(mode=mode, unit=unit, goods=goods, shipping=shipping, insurance=insurance,
                 duty=duty, clearance=clearance, vat=vat, total=total, duty_pct=duty_pct,
-                charged_kg=charged_kg, min_applied=charged_kg is not None
-                and charged_kg == MIN_CHARGEABLE_KG[mode] and MIN_CHARGEABLE_KG[mode] > 0.5)
+                charged=charged, charged_unit=charged_unit, min_applied=min_applied)
 
 
 def available_modes(country):
     zone = COUNTRIES[country]["zone"]
-    return [m for m in MODES if SHIPPING_CNY_PER_KG[m][zone] is not None]
+    return [m for m in MODES if ZONE_FACTOR[m][zone] is not None]
 
 
 def delivered(product, qty, country, currency=None, mode="auto"):
@@ -260,9 +298,13 @@ def delivered(product, qty, country, currency=None, mode="auto"):
     if product.get("moq") is not None and qty < product["moq"]:
         notes.append(f"Quantity below the MOQ of {product['moq']:,}: the lowest listed tier price is used")
     if chosen["min_applied"]:
-        notes.append(f"Small shipment: {MODE_LABEL[chosen['mode']].lower()} bills at least "
-                     f"{MIN_CHARGEABLE_KG[chosen['mode']]:,.0f} kg")
-    if product.get("weight_kg") is not None and not product.get("size_cm"):
+        least = f"{MIN_M3:g} m³" if chosen["charged_unit"] == "m3" else f"{MIN_CHARGEABLE_KG[chosen['mode']]:,.0f} kg"
+        notes.append(f"Small shipment: {MODE_LABEL[chosen['mode']].lower()} bills at least {least}")
+    box, estimated = box_cm(product)
+    if product.get("weight_kg") is not None and estimated:
+        notes.append(f"Box size not in the listing: estimated {box[0]}×{box[1]}×{box[2]} cm per unit "
+                     f"(typical box) for the volume")
+    elif product.get("weight_kg") is not None and box is None:
         notes.append("Box size not available: volumetric weight not checked")
     if c["duty"] == "US":
         notes.append("US: state sales tax not included; extra tariffs on Chinese goods may apply")
@@ -279,7 +321,7 @@ def delivered(product, qty, country, currency=None, mode="auto"):
         clearance=conv(chosen["clearance"]), vat=conv(chosen["vat"]), total=conv(chosen["total"]),
         per_unit=None if chosen["total"] is None else conv(chosen["total"]) / qty,
         product_per_unit=conv(chosen["unit"]),
-        charged_kg=chosen["charged_kg"], notes=notes,
+        charged=chosen["charged"], charged_unit=chosen["charged_unit"], notes=notes,
         fx_rate=fx, fx=fx_info(),
     )
 

@@ -241,6 +241,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stV
 .tag-na {{background:#F1F1F1; color:#666; border-color:#DDD;}}
 .tag-ok {{background:#E9F2E1; color:#3F6420; border-color:#BFD8A9;}}
 .na {{color:#8a99aa; font-style:italic;}}
+.est-note {{font-size:.78rem; color:#7b8da0; line-height:1.45;}}
 .muted {{color:#5b6f84; font-size:.88rem;}}
 .score-pill {{display:inline-block; padding:2px 10px; border-radius:999px; color:#fff; font-weight:700;
       font-size:.82rem;}}

@@ -123,9 +123,12 @@ FAQ = [
      "sea, rail, air and express for your order), insurance (0.5%), import duty for the product and your country, "
      "customs clearance and VAT, converted at the European Central Bank rate of the day."),
     ("How accurate is the delivered price?",
-     "The exchange rate is real; freight, duty and VAT rates are estimates. A real quote depends on the customs "
-     "code, box size and forwarder, so treat it as a close guide, not an invoice. When a listing has no weight, "
-     "we show “not available” instead of guessing."),
+     "The exchange rate is the real ECB rate. Freight uses 2026 China–Europe market averages, door to door: sea "
+     "about $155 per m³ (minimum 1 m³), rail about $190 per m³, air about $5 per kg, express about $10 per kg, "
+     "plus handling and delivery per shipment. Light but bulky goods like rackets are billed by volume; when the "
+     "listing gives no box size we use a typical box and say so. It is a reliable estimate, but still an "
+     "estimate: a forwarder's quote depends on the season and the exact box. When a listing has no weight, we "
+     "show “not available” instead of guessing."),
     ("How do you calculate supplier trust?",
      "Six rules-based signals: verification 25%, track record 20%, satisfaction 25%, loyalty 10%, seller type "
      "10% and sales traction 10%, converted per marketplace (see “Trust, explained”). Missing signals count as "

@@ -212,7 +212,7 @@ def page_results():
         + "".join(product_card(r, sym) for r in priced + unpriced)
         + "</div>"
         f"<div class='foot'>Prices include shipping (cheapest method for {S.qty:,} units), duty, VAT and "
-        f"customs, estimated · {fx_line_short()} · Trust scores sum up public signals, not an official "
+        f"customs, estimated from 2026 market rates (an estimate, not a quote) · {fx_line_short()} · Trust scores sum up public signals, not an official "
         f"verification · “demo data” = listing with some made-up values</div>",
         unsafe_allow_html=True,
     )
