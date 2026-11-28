@@ -188,10 +188,11 @@ def topbar_html():
         on = " on" if S.view == view else ""
         return f"<a class='{cls}{on}' href='{link(view=view, **kw)}' target='_self'>{label}</a>"
     n = unread_count()
-    links = [a("Search", "home", "hide-sm", tab="search", pid=None),
-             a("Link analyzer", "link", "hide-sm", pid=None),
+    # on phones: short labels, avatar without "Profile", no FAQ / country chip (see style.py)
+    links = [a("Search", "home", "", tab="search", pid=None),
+             a("<span class='lg'>Link analyzer</span><span class='sm'>Link</span>", "link", "", pid=None),
              a("Messages" + (f" <span class='unread-badge'>{n}</span>" if n else ""), "inbox", pid=None),
-             a(f"<span class='avatar'>{esc(P.initials(S.profile))}</span>Profile", "profile", "avatar-link",
+             a(f"<span class='avatar'>{esc(P.initials(S.profile))}</span><span class='lg'>Profile</span>", "profile", "avatar-link",
                order=None)]
     if len(S.cmp) >= 2:
         links.append(a(f"Compare ({len(S.cmp)})", "compare"))

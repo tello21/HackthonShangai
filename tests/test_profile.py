@@ -31,7 +31,7 @@ def test_save_settings_and_defaults_apply(no_ai):
 
     home = run_app({"view": "home"})                       # a new visit uses the saved defaults
     assert home.session_state["country"] == "Germany" and home.session_state["qty"] == 2000
-    assert "<span class='avatar'>GR</span>Profile" in page_text(home)
+    assert "<span class='avatar'>GR</span><span class='lg'>Profile</span>" in page_text(home)
     # an address that says otherwise still wins
     assert run_app({"view": "home", "country": "Spain"}).session_state["country"] == "Spain"
 

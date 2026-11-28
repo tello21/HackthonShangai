@@ -64,6 +64,7 @@ h1, h2, h3, h4 {{color:var(--ink);}}
              justify-content:flex-end;}}
 .top-links a {{color:#435565 !important; text-decoration:none !important;}}
 .top-links a:hover, .top-links a.on {{color:var(--blue) !important;}}
+.top-links .sm {{display:none;}}
 .locale {{border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px 12px; font-size:12px;
           color:var(--ink); white-space:nowrap;}}
 a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
@@ -192,7 +193,8 @@ a.cta {{display:inline-flex; align-items:center; background:var(--hl); color:#21
 .footlinks a {{color:#637582 !important; text-decoration:none !important;}}
 @media (max-width: 950px) {{ .faqgrid {{gap:30px;}} }}
 @media (max-width: 700px) {{
-  .top-links {{gap:12px;}} .top-links .hide-sm, .top-links .locale {{display:none;}}
+  .top-links {{gap:12px; font-size:13px;}} .top-links .hide-sm, .top-links .locale, .top-links .lg {{display:none;}}
+  .top-links .sm {{display:inline;}} .topbar {{gap:10px; min-height:60px;}} .brand .mark {{width:30px; height:30px;}}
   .brand {{font-size:1.15rem;}}
   .hero {{padding:3rem 0 1.2rem;}} .hero-sub {{font-size:15px;}}
   .steps, .faqgrid {{grid-template-columns:1fr;}} .step {{min-height:auto;}}
