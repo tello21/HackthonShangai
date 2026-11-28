@@ -10,10 +10,10 @@ import streamlit as st
 
 from components.state import S
 from components.ui import esc, pagehero
-from core.catalog import PRODUCTS, find_by_url, get_product, platform_from_url
+from core.catalog import find_by_url, get_product, platform_from_url
 from views.product import render_detail
 
-SAMPLE_PID = "8"          # the racket of the demo
+SAMPLE_PID = "8"          # the example link
 
 
 def _analyze():
@@ -44,16 +44,14 @@ def page_link():
         c_url, c_go = st.columns([4, 1], vertical_alignment="bottom")
         c_url.text_input("Listing link", key="la_url", placeholder="https://detail.1688.com/offer/…")
         c_go.button("Analyze →", type="primary", on_click=_analyze, width="stretch", key="la_go")
-        st.button("Try the demo link", type="tertiary", on_click=_use_sample)
-        st.caption(f"For now the analyzer works with the {len(PRODUCTS)} listings in our catalog.")
+        st.button("Try an example link", type="tertiary", on_click=_use_sample)
 
     err = S.get("la_error")
     if err == "empty":
         st.warning("Paste a listing link first.")
     elif err:
         where = f" on {err}" if err != "unknown" else ""
-        st.info(f"This listing{where} is not in our catalog yet. For now the analyzer works with the "
-                f"{len(PRODUCTS)} listings in our database; live analysis of any link comes next.")
+        st.info(f"We can't analyse this listing{where} yet. Check the link, or try another listing.")
     p = get_product(S.pid) if S.view == "link" and S.pid else None
     if p:
         st.success(f"Found: {esc(p.get('title_en') or p.get('title_cn') or '')} on {p.get('platform')}.")

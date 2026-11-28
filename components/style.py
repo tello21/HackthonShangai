@@ -107,6 +107,11 @@ a.avatar-link {{display:inline-flex; align-items:center; gap:6px;}}
 .st-key-searchpanel div[data-baseweb="input"], .st-key-searchpanel div[data-baseweb="select"] > div {{
     min-height:50px; border-radius:9px; background:#fff;}}
 .st-key-searchpanel input {{font-size:15px; min-height:48px;}}
+/* the chosen country / currency sat low in the taller box: centre it vertically */
+.st-key-searchpanel div[data-baseweb="select"] > div {{align-items:center;}}
+.st-key-searchpanel div[data-baseweb="select"] > div > div:first-child {{padding-top:0 !important;
+    padding-bottom:0 !important; display:flex; align-items:center; align-self:stretch;}}
+.st-key-searchpanel div[data-baseweb="select"] > div > div:first-child > div {{line-height:1.2;}}
 .st-key-searchpanel div[data-testid="stFormSubmitButton"] button, .st-key-searchpanel button[kind="primaryFormSubmit"] {{
     height:48px; min-height:48px; padding:0 22px; white-space:nowrap; border-radius:9px;}}
 /* as in the mock-up: below 1000px the query and the button take a full row each */
@@ -185,12 +190,6 @@ details.fq p {{padding:0 20px 20px 0; margin:0; font-size:14px; line-height:1.8;
 .endcta p {{color:#c8d8e3; margin-bottom:22px;}}
 a.cta {{display:inline-flex; align-items:center; background:var(--hl); color:#21372a !important; font-weight:700;
         border-radius:9px; padding:0 23px; height:48px; text-decoration:none !important;}}
-.sitefoot {{border-top:1px solid var(--line); box-shadow:0 0 0 100vmax var(--bg); clip-path:inset(0 -100vmax);
-            padding:30px 0 40px; margin-top:40px; display:flex; justify-content:space-between; gap:30px;}}
-.sitefoot .brand {{font-size:19px;}}
-.disclaimer {{font-size:11px; color:#8d9ba3; max-width:680px; margin:14px 0 0; line-height:1.6;}}
-.footlinks {{display:flex; gap:22px; flex-wrap:wrap; font-size:12px;}}
-.footlinks a {{color:#637582 !important; text-decoration:none !important;}}
 @media (max-width: 950px) {{ .faqgrid {{gap:30px;}} }}
 @media (max-width: 700px) {{
   .top-links {{gap:12px; font-size:13px;}} .top-links .hide-sm, .top-links .locale, .top-links .lg {{display:none;}}
@@ -199,7 +198,7 @@ a.cta {{display:inline-flex; align-items:center; background:var(--hl); color:#21
   .hero {{padding:3rem 0 1.2rem;}} .hero-sub {{font-size:15px;}}
   .steps, .faqgrid {{grid-template-columns:1fr;}} .step {{min-height:auto;}}
   .sec, .faqgrid {{padding:44px 0;}} .st-key-trustsec {{padding:44px 0;}}
-  .sitefoot {{flex-direction:column;}} .st-key-scorebox {{padding:18px;}}
+  .st-key-scorebox {{padding:18px;}}
 }}
 
 /* ---------- results: compact heading, 4 cards per row */
@@ -322,7 +321,9 @@ a.pc.top .pc-price {{display:inline; align-self:flex-start; background:linear-gr
 .kf-v small {{font-size:.75rem; font-weight:600; color:#5b6f84;}}
 .kf-v .na {{font-size:.8rem; font-weight:500;}}
 .kf-l {{font-size:.72rem; color:#5b6f84; margin-top:3px; text-transform:uppercase; letter-spacing:.04em; font-weight:600;}}
-.facts {{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px; margin:.6rem 0 1.2rem;}}
+.facts {{display:flex; flex-wrap:wrap; gap:8px; margin:.6rem 0 1.2rem;}}
+.facts .fact {{flex:1 1 200px;}}
+.facts .fact.wide {{flex-basis:100%;}}
 .fact {{background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 12px; min-width:0;}}
 .fact.wide {{grid-column:1 / -1;}}
 .fact-l {{font-size:.7rem; color:#7b8da0; text-transform:uppercase; letter-spacing:.05em; font-weight:700;}}

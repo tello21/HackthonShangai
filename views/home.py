@@ -7,10 +7,9 @@ import streamlit as st
 
 from components import style
 from components.state import S, go, link
-from components.ui import band, currency_short, esc, trust_pill  # noqa: F401
-from core.catalog import PLATFORMS, PRODUCTS
-from core.pricing import COUNTRIES, CURRENCIES, delivered
-from core.supplier_score import trust_for_search
+from components.ui import band, currency_short, esc
+from core.catalog import PLATFORMS
+from core.pricing import COUNTRIES, CURRENCIES
 from views.faq import faq_html, metrics_html, rules_html
 
 STEPS = [
@@ -31,7 +30,7 @@ STEPS = [
      "and explained, with the deal terms collected for you."),
     ("Choose and buy",
      "Order from the product page or at the price agreed in chat: 30% deposit, 70% balance before shipping, "
-     "with order tracking. Payments are simulated in this demo."),
+     "with order tracking. Payments are simulated."),
 ]
 
 
@@ -59,32 +58,6 @@ def search_panel():
         st.rerun()
 
 
-def _catalog_trust():
-    """All catalog listings scored as one search, as on the results page."""
-    rows = [(p, delivered(p, S.qty, S.country, S.cur)["unit_cny"]) for p in PRODUCTS]
-    return trust_for_search(rows)
-
-
-def _coverage(platform, trust):
-    """{metric: (listings of this marketplace that show it, listings)}: the tags follow our data."""
-    mine = [trust[p["id"]] for p in PRODUCTS if p["platform"] == platform]
-    names = [m["name"] for m in mine[0]["metrics"]] if mine else []
-    return {n: (sum(1 for r in mine for m in r["metrics"] if m["name"] == n and m["value"] is not None), len(mine))
-            for n in names}
-
-
-def _catalog_examples(platform, trust):
-    """The real catalog listings of one marketplace with their scores."""
-    mine = [p for p in PRODUCTS if p["platform"] == platform]
-    if not mine:
-        return ""
-    chips = "".join(f"<a href='{link(view='detail', pid=p['id'], q='')}' target='_self'>"
-                    f"{esc((p['supplier'].get('name') or p['supplier'].get('name_cn') or '')[:28])} "
-                    f"{trust_pill(trust[p['id']])}</a>" for p in mine)
-    return (f"<div class='note'><b>In our catalog on {platform}:</b> {len(mine)} listing"
-            f"{'' if len(mine) == 1 else 's'} (scored together, at {S.qty:,} units).</div><div class='ex'>{chips}</div>")
-
-
 def trust_section():
     with st.container(key="trustsec"):
         left, right = st.columns([1, 1.08], gap="large")
@@ -96,17 +69,14 @@ def trust_section():
                         unsafe_allow_html=True)
         with right, st.container(key="scorebox"):
             st.markdown("<div class='scorehead'><div><div class='sectiontag'>How we score</div>"
-                        "<div class='disp'>The six metrics</div></div>"
-                        "<span class='samplechip'>Rules-based · no AI scoring</span></div>", unsafe_allow_html=True)
+                        "<div class='disp'>The six metrics</div></div></div>", unsafe_allow_html=True)
             if S.get("mk_pick") not in PLATFORMS:
                 S.mk_pick = PLATFORMS[0]
             platform = st.segmented_control("Marketplace", PLATFORMS, key="mk_pick", required=True,
                                             label_visibility="collapsed", width="stretch")
-            trust = _catalog_trust()
-            st.markdown(metrics_html(platform, _coverage(platform, trust)) + "<div class='note'>Bars show each "
-                        "metric's weight; the tags say how many of our listings on this marketplace show it. A metric "
-                        "the listing doesn't show counts as 50; under 40% coverage there is no score.</div>"
-                        + _catalog_examples(platform, trust), unsafe_allow_html=True)
+            st.markdown(metrics_html(platform) + "<div class='note'>Bars show each metric's weight. A metric the "
+                        "listing doesn't show counts as 50; under 40% coverage there is no score.</div>",
+                        unsafe_allow_html=True)
 
 
 def page_home():

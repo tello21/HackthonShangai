@@ -13,7 +13,7 @@ from core.catalog import get_product
 from core.pricing import SYMBOL, delivered
 from views.product import delivered_lines
 
-SIM_NOTE = ("Simulated payment for the demo: no money moves and no card details are needed. "
+SIM_NOTE = ("Simulated payment: no money moves and no card details are needed. "
             "Never enter real card data on this site.")
 
 
@@ -122,13 +122,13 @@ def page_order(order):
     if order["status"] == "deposit_paid":
         lead = f" (about {order['lead_days']} days)" if order.get("lead_days") else ""
         st.caption(f"The supplier is producing your order{lead}.")
-        st.button("Demo: supplier finishes production", key=f"prod_{oid}", on_click=_act,
+        st.button("Simulate: supplier finishes production", key=f"prod_{oid}", on_click=_act,
                   args=(oid, O.finish_production))
     elif order["status"] == "production_done":
         st.button(f"Pay balance {money(order['balance'], sym)} (simulated)", type="primary", key=f"bal_{oid}",
                   on_click=_act, args=(oid, O.pay_balance), width="stretch")
     elif order["status"] == "balance_paid":
-        st.button("Demo: supplier ships the goods", key=f"ship_{oid}", on_click=_act, args=(oid, O.ship))
+        st.button("Simulate: supplier ships the goods", key=f"ship_{oid}", on_click=_act, args=(oid, O.ship))
     elif order["status"] == "shipped":
         st.success(f"Shipped by {order['mode_label'].lower()}: expected in {order['transit_days']} days. "
                    f"Shipping, duty, VAT and customs ({money(order['on_arrival'], sym)}) are paid on arrival.")

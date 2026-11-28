@@ -1,5 +1,6 @@
 """Every page renders without errors and shows what it must (AI simulated or off)."""
 
+import re
 from unittest import mock
 
 import pytest
@@ -15,8 +16,13 @@ def test_home_sections(no_ai):
     t = page_text(at)
     assert at.button[0].label == "Search suppliers →"
     for part in ("Search. Compare.", "Trust. Buy.", "From search to checkout",
-                 "Trust, explained", "Clear answers.", "Find the product. Know the full picture.", "Hackathon prototype"):
+                 "Trust, explained", "Clear answers.", "Find the product. Know the full picture."):
         assert part in t, part
+    # a university project: no hackathon footer, no reference to our database on the home page
+    t = re.sub(r"<style>.*?</style>", "", t, flags=re.S)                    # the text, not the stylesheet
+    for gone in ("Hackathon", "hackathon", "prototype", "sitefoot", "In our catalog", "catalog", "Rules-based",
+                 "In all", "listings →", "demo"):
+        assert gone not in t, gone
     assert "Source smarter" not in t and "Yiwugo" not in t and "SourceScan" not in t and "Scoutr" in t
     assert "Link paste" not in t and "Link analyzer" in t
     for p in ("1688", "Taobao", "JD", "Pinduoduo"):
@@ -34,17 +40,10 @@ def test_home_search_starts_empty(no_ai):
 def test_trust_explained_changes_with_the_marketplace(no_ai):
     at = run_app({"view": "home"})
     t = page_text(at)
-    assert at.session_state["mk_pick"] == "1688" and "Super factory" in t and "In our catalog on 1688" in t
+    assert at.session_state["mk_pick"] == "1688" and "Super factory" in t
     at.segmented_control(key="mk_pick").set_value("Pinduoduo").run()
     t = page_text(at)
-    assert "Not shown on Pinduoduo" in t and "In our catalog on Pinduoduo:</b> 3 listings" in t
-    # the tags follow our data: no Pinduoduo listing shows a store type, all show the repurchase rate
-    assert "Missing in our listings → 50" in t and "In all 3 listings" in t
-    at.segmented_control(key="mk_pick").set_value("JD").run()
-    t = page_text(at)
-    assert "JD self-operated = 100" in t
-    at.segmented_control(key="mk_pick").set_value("Taobao").run()
-    assert "In 1 of 3 listings" in page_text(at)                          # only one Taobao store type
+    assert "Not shown on Pinduoduo" in t and "class='avail" not in t       # general rules, no data tags
     at.segmented_control(key="mk_pick").set_value("JD").run()
     t = page_text(at)
     trust = t[t.index("Trust, explained"):t.index("Clear answers.")]
@@ -77,7 +76,9 @@ def test_link_analyzer_gives_the_same_page_as_the_search(no_ai):
     # a link outside the catalog says so, without inventing anything
     at.text_input(key="la_url").input("https://item.jd.com/123.html")
     at.button(key="la_go").click().run()
-    assert at.session_state["pid"] is None and "not in our catalog yet" in page_text(at)
+    t = page_text(at)
+    assert at.session_state["pid"] is None and "We can't analyse this listing on JD yet" in t
+    assert "catalog" not in t and "database" not in t
 
 
 def test_a_link_in_the_home_search_opens_the_analyzer(no_ai):
@@ -97,7 +98,7 @@ def test_results_grid(no_ai, q, country, cur):
         if qty != "1":
             assert f"per unit, delivered to {country}" in t
     t = page_text(run_app({"view": "results", "q": "laptop"}))
-    assert "No products in our catalog match" in t
+    assert "No products match" in t
     assert "Chinese query" not in t and "no API key" not in t             # no AI note without a key
 
 

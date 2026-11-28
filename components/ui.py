@@ -226,19 +226,6 @@ def pagehero(tag_text, title, sub="", steps=None, compact=False):
             + (f"<div class='psub'>{sub}</div>" if sub else "") + f"</div>{prog}")
 
 
-def site_footer():
-    links = "".join(f"<a href='{u}' target='_self'>{t}</a>" for t, u in [
-        ("Search", link(view="home", tab="search", pid=None)), ("Link analyzer", link(view="link", pid=None)),
-        ("Messages", link(view="inbox", pid=None)), ("Profile", link(view="profile", order=None)),
-        ("FAQs", link(view="home", tab="search", pid=None) + "#faq")])
-    st.markdown(
-        f"<div class='sitefoot'><div>{brand_html()}<p class='disclaimer'>Hackathon prototype. Listings come from a "
-        "fixed catalog collected from 1688, Taobao, JD and Pinduoduo, not a live search; payments are simulated. "
-        "Trust scores summarize available public signals and are not official verification. Delivered prices "
-        "are estimates until final quotes and customs details are confirmed. No affiliation with the "
-        f"marketplaces is implied.</p></div><div class='footlinks'>{links}</div></div>", unsafe_allow_html=True)
-
-
 def sample_banner():
     st.markdown(tag("Delivered prices are estimates", "est"), unsafe_allow_html=True)
 

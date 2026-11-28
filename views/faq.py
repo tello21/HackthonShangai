@@ -113,11 +113,11 @@ FAQ = [
      "It brings listings from Chinese marketplaces, a trust score for every seller, the delivered price to your "
      "country, translated chat with the supplier and a checkout into one journey for European buyers."),
     ("Which marketplaces can I compare?",
-     "1688, Taobao, JD and Pinduoduo. This demo uses a fixed catalog of padel racket listings collected from those "
-     "sites, not a live search; listings marked “demo data” include some made-up values."),
+     "1688, Taobao, JD and Pinduoduo: every result shows the delivered price to your country and the seller's "
+     "trust score, so listings from different marketplaces can be compared side by side."),
     ("How does the search work?",
      "Type what you need in any language. With the AI on, we rewrite it into the words Chinese sellers use in "
-     "their titles (not word by word) and match the catalog. Results are sorted by trust; same trust, cheaper first."),
+     "their titles (not word by word) and find matching listings. Results are sorted by trust; same trust, cheaper first."),
     ("What is included in the delivered price?",
      "The seller's price for your quantity tier, China domestic transport, international shipping (the cheapest of "
      "sea, rail, air and express for your order), insurance (0.5%), import duty for the product and your country, "
@@ -139,10 +139,10 @@ FAQ = [
     ("Can I message Chinese suppliers?",
      "Yes. You write in your language and see the Chinese message before sending, with an English "
      "back-translation; replies come back translated, with what they really mean and the key terms highlighted. "
-     "In this demo the supplier's replies are simulated by the AI."),
+     "Supplier replies are simulated for now."),
     ("Can I pay on Scoutr?",
      "The checkout follows real China sourcing: 30% deposit, 70% balance before shipping, then shipping, duty and "
-     "VAT on arrival. In this demo payments are simulated: no money moves and no card details are asked for."),
+     "VAT on arrival. Payments are simulated: no money moves and no card details are asked for."),
     ("Is Scoutr affiliated with these marketplaces?",
      "No. Showing the marketplace names implies no affiliation or endorsement."),
 ]
@@ -169,27 +169,13 @@ def rules_html():
         f"<p>{escape(d)}</p></div></div>" for i, (t, d) in enumerate(RULES, 1)) + "</div>"
 
 
-def coverage_label(shown, total):
-    """How many of our listings on a marketplace actually show a metric, as a small tag."""
-    if not total:
-        return AVAIL["no"]
-    if shown == total:
-        return (f"In all {total} listings" if total > 1 else "In our listing"), "yes"
-    if shown == 0:
-        return "Missing in our listings → 50", "no"
-    return f"In {shown} of {total} listings", "some"
-
-
-def metrics_html(platform, coverage=None):
-    """The six metrics as they work on one marketplace; bar = the metric's weight (25% = full).
-    coverage = {metric name: (listings showing it, listings)} from the catalog; without it the
-    general availability on that marketplace is shown."""
+def metrics_html(platform):
+    """The six metrics as they work on one marketplace; bar = the metric's weight (25% = full)."""
     rows = []
     for name, weight, per in METRICS:
-        reads, rule, avail = per[platform]
-        label, cls = coverage_label(*coverage[name]) if coverage and name in coverage else AVAIL[avail]
+        reads, rule, _ = per[platform]
         rows.append(
-            f"<div class='mrow'><div class='mrow-top'><span>{escape(name)}<span class='avail {cls}'>{label}</span>"
+            f"<div class='mrow'><div class='mrow-top'><span>{escape(name)}"
             f"</span><div class='track'><div class='fill' style='width:{weight * 4}%'></div></div>"
             f"<b>{weight}%</b></div><div class='mrow-body'><b>Reads:</b> {escape(reads)}<br/>"
             f"<b>Scores:</b> {escape(rule)}</div></div>")

@@ -17,7 +17,7 @@ st.set_page_config(page_title="Scoutr – trusted suppliers in China, real deliv
 
 from components import style  # noqa: E402  (set_page_config must run first)
 from components.state import S, get_api_key, init_state, sync_url  # noqa: E402
-from components.ui import nav_bar, scroll_to_top_on_view_change, site_footer  # noqa: E402
+from components.ui import nav_bar, scroll_to_top_on_view_change  # noqa: E402
 from core import ai  # noqa: E402
 from core.pricing import refresh_fx  # noqa: E402
 from views.checkout import page_checkout, page_orders  # noqa: E402
@@ -51,4 +51,3 @@ if S.view in PAGES:
     PAGES[S.view]()
 else:
     page_home()                  # draws the top bar itself
-site_footer()

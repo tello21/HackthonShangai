@@ -178,8 +178,7 @@ def page_results():
         filtered = [r for r in filtered if r not in over_budget]
 
     if not base:
-        st.warning(f"No products in our catalog match “{S.q}”. The demo catalog has padel rackets: "
-                   "try padel racket, carbon or beginner.")
+        st.warning(f"No products match “{S.q}”. Try padel racket, carbon or beginner.")
         return
     if not filtered:
         st.info("No results match the current filters or budget.")

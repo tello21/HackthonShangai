@@ -18,7 +18,7 @@ def _settings_form():
         name = c1.text_input("Name", value=p["name"], placeholder="Your name")
         company = c2.text_input("Company", value=p["company"], placeholder="Optional")
         email = st.text_input("Email", value=p["email"], placeholder="you@company.com",
-                              help="Kept on this demo only: nothing is sent anywhere.")
+                              help="Kept on this computer only: nothing is sent anywhere.")
         st.markdown("**Search defaults** — used every time you open the site")
         c3, c4, c5 = st.columns([1.4, 1, 0.9])
         countries, currencies = list(COUNTRIES), list(CURRENCIES)
