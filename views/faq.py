@@ -26,9 +26,11 @@ METRICS = [
         "Pinduoduo": ("Years, when shown.", "1 year = 25 · 3 = 60 · 5 = 80 · 8+ = 100.", "some"),
     }),
     ("Customer satisfaction", 25, {
-        "1688": ("Service scores out of 5.", "4.0 = 0 · 4.5 = 50 · 5.0 = 100.", "yes"),
-        "Taobao": ("Store ratings out of 5.", "4.0 = 0 · 4.5 = 50 · 5.0 = 100.", "yes"),
-        "JD": ("Positive reviews and store score.", "90% = 0 · 100% = 100; score 4.0 = 0 · 5.0 = 100.", "yes"),
+        "1688": ("Service scores out of 5, and positive reviews when shown.",
+                 "4.0 = 0 · 4.5 = 50 · 5.0 = 100; 90% positive = 0 · 100% = 100; both = the average.", "yes"),
+        "Taobao": ("Store rating out of 5.", "4.0 = 0 · 4.5 = 50 · 5.0 = 100.", "yes"),
+        "JD": ("Positive reviews and store score.", "90% = 0 · 100% = 100; score 4.0 = 0 · 5.0 = 100; "
+               "both = the average.", "yes"),
         "Pinduoduo": ("Store rating and positive reviews, when shown.",
                       "4.0 = 0 · 5.0 = 100; 90% = 0 · 100% = 100.", "some"),
     }),
@@ -46,10 +48,11 @@ METRICS = [
         "Pinduoduo": ("Factory or trader.", "Factory = 100 · authorized = 70 · trader = 40.", "some"),
     }),
     ("Sales traction", 10, {
-        "1688": ("Orders.", "Ranked against the other 1688 results in your search.", "yes"),
-        "Taobao": ("Sales or reviews.", "Ranked against the other Taobao results.", "yes"),
-        "JD": ("Reviews (JD hides sales).", "Ranked against the other JD results.", "yes"),
-        "Pinduoduo": ("Sales.", "Ranked against the other Pinduoduo results.", "yes"),
+        "1688": ("Orders.", "Rank among the 1688 results in your search: 1st of 3 = 83 · 2nd = 50 · "
+                 "3rd = 17.", "yes"),
+        "Taobao": ("Orders.", "Rank among the Taobao results in your search.", "yes"),
+        "JD": ("Reviews (JD hides sales).", "Rank among the JD results in your search.", "yes"),
+        "Pinduoduo": ("Orders.", "Rank among the Pinduoduo results in your search.", "yes"),
     }),
 ]
 PLATFORM_NOTE = {
@@ -163,12 +166,25 @@ def rules_html():
         f"<p>{escape(d)}</p></div></div>" for i, (t, d) in enumerate(RULES, 1)) + "</div>"
 
 
-def metrics_html(platform):
-    """The six metrics as they work on one marketplace; bar = the metric's weight (25% = full)."""
+def coverage_label(shown, total):
+    """How many of our listings on a marketplace actually show a metric, as a small tag."""
+    if not total:
+        return AVAIL["no"]
+    if shown == total:
+        return (f"In all {total} listings" if total > 1 else "In our listing"), "yes"
+    if shown == 0:
+        return "Missing in our listings → 50", "no"
+    return f"In {shown} of {total} listings", "some"
+
+
+def metrics_html(platform, coverage=None):
+    """The six metrics as they work on one marketplace; bar = the metric's weight (25% = full).
+    coverage = {metric name: (listings showing it, listings)} from the catalog; without it the
+    general availability on that marketplace is shown."""
     rows = []
     for name, weight, per in METRICS:
         reads, rule, avail = per[platform]
-        label, cls = AVAIL[avail]
+        label, cls = coverage_label(*coverage[name]) if coverage and name in coverage else AVAIL[avail]
         rows.append(
             f"<div class='mrow'><div class='mrow-top'><span>{escape(name)}<span class='avail {cls}'>{label}</span>"
             f"</span><div class='track'><div class='fill' style='width:{weight * 4}%'></div></div>"

@@ -92,10 +92,13 @@ def test_trust_for_the_padel_catalog():
     from core.scoring import COUNTERFEIT_REASON, PRICE_FLAG_REASON
     res = trust_for_search([(p, P.delivered(p, 500, "Italy", "EUR")["unit_cny"]) for p in PRODUCTS])
     got = {pid: (r["score"], r["band"]) for pid, r in res.items()}
-    assert got == {"1": (94, "Trusted"), "2": (24, "High risk"), "3": (72, "Good"), "4": (54, "Caution"),
-                   "5": (68, "Good"), "6": (48, "Caution"), "7": (25, "High risk"), "8": (66, "Good"),
-                   "9": (43, "Caution"), "10": (38, "High risk"), "11": (None, "Not enough data"),
+    assert got == {"1": (93, "Trusted"), "2": (25, "High risk"), "3": (71, "Good"), "4": (56, "Caution"),
+                   "5": (67, "Good"), "6": (48, "Caution"), "7": (27, "High risk"), "8": (64, "Good"),
+                   "9": (43, "Caution"), "10": (40, "Caution"), "11": (None, "Not enough data"),
                    "12": (None, "Not enough data"), "13": (None, "Not enough data")}
+    # sales traction says what the number is (JD shows reviews) and ranks it within the platform
+    assert res["4"]["metrics"][5]["reason"] == "4 reviews · #3 of 3 JD results in this search"
+    assert res["1"]["metrics"][5]["reason"] == "2,350 orders · #1 of 4 1688 results in this search"
     assert res["2"]["reasons"][0] == COUNTERFEIT_REASON                  # counterfeit: first reason, -30
     assert res["6"]["penalties"] == [PRICE_FLAG_REASON]                  # 298 < 60% of the JD median
     assert res["8"]["penalties"] == [PRICE_FLAG_REASON] and res["8"]["metrics"][0]["value"] is None  # Pinduoduo

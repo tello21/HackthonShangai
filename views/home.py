@@ -59,11 +59,23 @@ def search_panel():
         st.rerun()
 
 
-def _catalog_examples(platform):
-    """The real catalog listings of one marketplace with their scores (all listings as one search)."""
+def _catalog_trust():
+    """All catalog listings scored as one search, as on the results page."""
     rows = [(p, delivered(p, S.qty, S.country, S.cur)["unit_cny"]) for p in PRODUCTS]
-    trust = trust_for_search(rows)
-    mine = [p for p, _ in rows if p["platform"] == platform]
+    return trust_for_search(rows)
+
+
+def _coverage(platform, trust):
+    """{metric: (listings of this marketplace that show it, listings)}: the tags follow our data."""
+    mine = [trust[p["id"]] for p in PRODUCTS if p["platform"] == platform]
+    names = [m["name"] for m in mine[0]["metrics"]] if mine else []
+    return {n: (sum(1 for r in mine for m in r["metrics"] if m["name"] == n and m["value"] is not None), len(mine))
+            for n in names}
+
+
+def _catalog_examples(platform, trust):
+    """The real catalog listings of one marketplace with their scores."""
+    mine = [p for p in PRODUCTS if p["platform"] == platform]
     if not mine:
         return ""
     chips = "".join(f"<a href='{link(view='detail', pid=p['id'], q='')}' target='_self'>"
@@ -90,9 +102,11 @@ def trust_section():
                 S.mk_pick = PLATFORMS[0]
             platform = st.segmented_control("Marketplace", PLATFORMS, key="mk_pick", required=True,
                                             label_visibility="collapsed", width="stretch")
-            st.markdown(metrics_html(platform) + "<div class='note'>Bars show each metric's weight. A metric the "
-                        "listing doesn't show counts as 50; under 40% coverage there is no score.</div>"
-                        + _catalog_examples(platform), unsafe_allow_html=True)
+            trust = _catalog_trust()
+            st.markdown(metrics_html(platform, _coverage(platform, trust)) + "<div class='note'>Bars show each "
+                        "metric's weight; the tags say how many of our listings on this marketplace show it. A metric "
+                        "the listing doesn't show counts as 50; under 40% coverage there is no score.</div>"
+                        + _catalog_examples(platform, trust), unsafe_allow_html=True)
 
 
 def page_home():

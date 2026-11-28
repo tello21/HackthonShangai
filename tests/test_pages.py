@@ -38,9 +38,15 @@ def test_trust_explained_changes_with_the_marketplace(no_ai):
     at.segmented_control(key="mk_pick").set_value("Pinduoduo").run()
     t = page_text(at)
     assert "Not shown on Pinduoduo" in t and "In our catalog on Pinduoduo:</b> 3 listings" in t
+    # the tags follow our data: no Pinduoduo listing shows a store type, all show the repurchase rate
+    assert "Missing in our listings → 50" in t and "In all 3 listings" in t
     at.segmented_control(key="mk_pick").set_value("JD").run()
     t = page_text(at)
     assert "JD self-operated = 100" in t
+    at.segmented_control(key="mk_pick").set_value("Taobao").run()
+    assert "In 1 of 3 listings" in page_text(at)                          # only one Taobao store type
+    at.segmented_control(key="mk_pick").set_value("JD").run()
+    t = page_text(at)
     trust = t[t.index("Trust, explained"):t.index("Clear answers.")]
     assert not any("一" <= ch <= "鿿" for ch in trust)          # no Chinese in the explanation
 
@@ -63,7 +69,7 @@ def test_link_analyzer_gives_the_same_page_as_the_search(no_ai):
                  "Why this score", "Seller facts", "How we score", "Contact the supplier"):
         assert part in t, part
     # the same trust score as in the search results (sales and prices compared with the same listings)
-    assert "Trust 66 · Good" in t and "Trust 66 · Good" in page_text(run_app({"view": "results", "q": "padel"}))
+    assert "Trust 64 · Good" in t and "Trust 64 · Good" in page_text(run_app({"view": "results", "q": "padel"}))
     # Taobao links are matched by item id, whatever the variant
     at.text_input(key="la_url").input("https://item.taobao.com/item.htm?id=988472666305&skuId=999")
     at.button(key="la_go").click().run()
@@ -107,11 +113,11 @@ def test_cards_show_photo_demo_label_and_counterfeit_warning(no_ai):
     assert t.count("class='demo-tag'") == sum(p["demo"] for p in PRODUCTS) == 9
     assert "src='app/static/images/1.jpg'" in t and "src='app/static/images/13.png'" in t
     assert t.count("⚠ Possible counterfeit") == 1
-    assert "Trust 24 · High risk" in t and "Trust 48 · Caution" in t
+    assert "Trust 25 · High risk" in t and "Trust 48 · Caution" in t
     # the product page shows the same score as the list (same search context), even after a reload
     detail = page_text(run_app({"view": "detail", "pid": "2", "q": "padel", "qty": "500"}))
     assert "Possible counterfeit brand" in detail and "(−30)" in detail and "demo data" in detail
-    assert "Trust 24 · High risk" in detail
+    assert "Trust 25 · High risk" in detail
     jd = page_text(run_app({"view": "detail", "pid": "6", "q": "padel", "qty": "500"}))
     assert "Trust 48 · Caution" in jd and "Price much lower than similar listings" in jd
 

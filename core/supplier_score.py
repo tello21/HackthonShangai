@@ -40,6 +40,7 @@ def raw_fields(p, unit_price=None):
         "repurchase_rate_pct": repurchase,
         "seller_type": s.get("seller_type") or OLD_TYPE.get(s.get("type")),
         "sales_count": s.get("sales_count"),
+        "sales_count_type": s.get("sales_count_type"),      # orders or reviews (JD hides sales)
         "unit_price": unit_price,
         "counterfeit_risk": bool(p.get("counterfeit_risk")),
     }

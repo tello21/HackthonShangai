@@ -16,6 +16,7 @@ Input per supplier (any field can be None):
   repurchase_rate_pct   0-100
   seller_type           factory | brand_official | authorized_store | trader
   sales_count           number (counted differently per platform: never compared across platforms)
+  sales_count_type      "orders" | "reviews" (JD shows reviews, not sales): only changes the wording
   unit_price            number, same currency for all results
   counterfeit_risk      bool: the photo shows a different brand than the title (-30 points)
 
@@ -166,12 +167,15 @@ SALES_TIERS = [(0, 0), (1, 20), (2, 40), (3, 70), (4, 100)]    # on log10(sales)
 
 
 def _percentile(value, values):
-    """Percentile rank of value among values (ties count half), 0-100."""
-    others = list(values)
-    others.remove(value)
-    below = sum(1 for v in others if v < value)
-    equal = sum(1 for v in others if v == value)
-    return 100 * (below + 0.5 * equal) / len(others)
+    """Mid-rank percentile of value among values (itself included, ties share the rank), 0-100.
+    With 3 results the ranks give about 17 / 50 / 83: a small difference in counts can't swing
+    the metric from 0 to 100 as a plain "share of the others" would."""
+    below = sum(1 for v in values if v < value)
+    equal = sum(1 for v in values if v == value)          # includes value itself
+    return 100 * (below + 0.5 * equal) / len(values)
+
+
+SALES_LABEL = {"orders": "orders", "reviews": "reviews", "sales": "sales"}
 
 
 def sales_traction(f, same_platform_sales=None):
@@ -179,14 +183,14 @@ def sales_traction(f, same_platform_sales=None):
     if n is None:
         return None, MISSING
     n = max(0.0, float(n))
+    label = SALES_LABEL.get(f.get("sales_count_type") or "", "sales")    # JD shows reviews, not sales
     if same_platform_sales is not None and len(same_platform_sales) >= 3:
         pct = _percentile(n, same_platform_sales)
-        where = f"{f.get('platform')} results in this search"
-        if pct >= 50:
-            return pct, f"{n:,.0f} sales — more than {pct:.0f}% of {where}"
-        return pct, f"{n:,.0f} sales — fewer than {100 - pct:.0f}% of {where}"
+        rank = 1 + sum(1 for v in same_platform_sales if v > n)
+        return pct, (f"{n:,.0f} {label} · #{rank} of {len(same_platform_sales)} "
+                     f"{f.get('platform')} results in this search")
     value = 0.0 if n < 1 else _interp(math.log10(n), SALES_TIERS)   # 0 sales -> 0
-    return value, f"{n:,.0f} sales/orders"
+    return value, f"{n:,.0f} {label}"
 
 
 METRICS = [("Verification", verification), ("Track record", track_record),
@@ -345,7 +349,8 @@ def run_tests():
         {"id": "c", "platform": "Taobao", "store_type": "tmall", "years_active": 5, "sales_count": 1000, "unit_price": 4},
         {"id": "d", "platform": "1688", "badges": ["诚信通"], "sales_count": 5, "unit_price": 1},
     ])
-    assert batch["c"]["metrics"][5]["value"] == 100 and batch["a"]["metrics"][5]["value"] == 0   # percentile
+    assert batch["c"]["metrics"][5]["value"] == 83 and batch["a"]["metrics"][5]["value"] == 17   # mid-rank
+    assert batch["c"]["metrics"][5]["reason"] == "1,000 sales · #1 of 3 Taobao results in this search"
     assert batch["c"]["penalties"] == [PRICE_FLAG_REASON] and not batch["a"]["penalties"]       # 4 < 0.6 * 10
     assert batch["d"]["metrics"][5]["value"] == _round(20 * math.log10(5))                       # 1688 alone: log tiers
 
