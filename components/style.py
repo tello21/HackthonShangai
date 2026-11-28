@@ -35,7 +35,12 @@ CSS = f"""
 .stApp h1, .stApp h2, .stApp h3, .disp, .brand, .pc-price, .trust-num, .tier-p, .kf-v, .ps-title, .sec-h,
 .rh-q, .hero-h1, .h2, .step-t, .endcta-h, .summary-price {{font-family:var(--display) !important;}}
 [data-testid="stToolbar"], [data-testid="stDecoration"], footer {{display:none !important;}}
-header[data-testid="stHeader"] {{background:transparent;}}
+/* Streamlit's invisible 60px header sits over our top bar: let clicks through to the logo and links,
+   but keep its own buttons (sidebar/filters toggle) clickable */
+header[data-testid="stHeader"] {{background:transparent; pointer-events:none;}}
+header[data-testid="stHeader"] button, header[data-testid="stHeader"] a,
+header[data-testid="stHeader"] [data-testid="stExpandSidebarButton"] {{pointer-events:auto;}}
+a.brand {{padding:6px 10px 6px 0; position:relative; z-index:1;}}
 .stApp {{background:var(--bg); color:var(--ink);}}
 .block-container {{padding:0 1.1rem 0; max-width:1190px;}}
 a {{color:var(--blue);}}
